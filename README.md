@@ -1,1 +1,1 @@
-# manifold-clustering
+# Manifold Block Models
