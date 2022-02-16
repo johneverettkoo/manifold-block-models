@@ -1,0 +1,496 @@
+---
+title: Manifold Clustering for Latent Structure Block Models
+
+# to produce blinded version set to 1
+blinded: 0
+
+authors: 
+- name: John Koo
+  affiliation: Department of YYY, University of XXX
+
+keywords:
+- block models, community detection, coordinate descent, latent structure models, manifold clustering, random dot product graph
+
+abstract: |
+  The text of your abstract. 200 or fewer words.
+
+bibliography: bibliography.bib
+output: rticles::asa_article
+urlcolor: blue
+header-includes:
+- \usepackage{float}
+- \usepackage{mathtools}
+- \usepackage{natbib}
+- \usepackage[linesnumbered,ruled,vlined]{algorithm2e} 
+- \setcitestyle{numbers,square,comma}
+- \usepackage{verbatim}
+- \usepackage{amsthm}
+- \usepackage{comment}
+---
+
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\tr}{\mathrm{Tr}}
+\newcommand{\blockdiag}{\mathrm{blockdiag}}
+\newcommand{\indep}{\stackrel{\mathrm{ind}}{\sim}}
+\newcommand{\iid}{\stackrel{\mathrm{iid}}{\sim}}
+\newcommand{\Bernoulli}{\mathrm{Bernoulli}}
+\newcommand{\Betadist}{\mathrm{Beta}}
+\newcommand{\BG}{\mathrm{BernoulliGraph}}
+\newcommand{\Uniform}{\mathrm{Uniform}}
+\newcommand{\PABM}{\mathrm{PABM}}
+\newcommand{\RDPG}{\mathrm{RDPG}}
+\newcommand{\GRDPG}{\mathrm{GRDPG}}
+\newcommand{\Multinomial}{\mathrm{Multinomial}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\as}{\stackrel{\mathrm{a.s.}}{\to}}
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      # eval = FALSE,
+                      comment = NA, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      fig.pos = 'H', 
+                      fig.align = 'center', 
+                      fig.height = 3, 
+                      fig.width = 5, 
+                      fig.dpi = 300)
+
+options(xtable.comment = FALSE, 
+        xtable.table.placement = 'H')
+```
+
+```{r}
+import::from(magrittr, `%>%`, `%<>%`)
+library(ggplot2)
+source('../functions.R')
+source('~/dev/pabm-grdpg/functions.R')
+source('https://mtrosset.pages.iu.edu/Courses/675/graph.r')
+
+theme_set(theme_bw())
+
+doMC::registerDoMC(8)
+```
+
+# Introduction
+
+# Latent Structure Block Models
+
+All block models are latent structure block models.
+
+# Methods
+
+Here, we provide two algorithms for LSBM community detection. 
+
+## Nonintersecting Manifolds
+
+### Preliminary Theory
+
+#### Distributions of differences of order statistics
+
+Let $D_i = X_{(i+1)} - X_{(i)}$. Then if $\max_i D_i < \delta$, we have sufficient separation of points in $\mathcal{M}_1$. 
+Then it is sufficient to quantify $P(\max_i D_i > \delta)$ as a function of $n$ and $\delta$ and show that this converges to zero as $n$ grows to $\infty$. 
+
+We denote $f(x)$ as the density of each $X_i$, $g_i(x)$ as the density of $X_{(i)}$, 
+$g_{ij}(x, y)$ as the joint density of $X_{(i)}, X_{(j)}$, and $h_i(d)$ as the density of $D_i$ (with corresponding capital letters for the cumulative distribution functions).
+
+The following are taken as given[^wikipedia]:
+
+1. $g_i(x) = \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x))^{n-i} f(x)$.
+2. $g_{ij}(x, y) = \frac{n!}{(i-1)! (j-i-1)! (n-j)!} (F(x))^{i-1} (F(y) - F(x))^{j-i-1} (1 - F(y))^{n-j} f(x) f(y)$.
+3. By convolution, $h_i(d) = \int_0^{1} g_{i, i+1} (x, x + d) \dd x$.
+
+[^wikipedia]: https://en.wikipedia.org/wiki/Order_statistic
+
+\begin{lemma}[The probability density function of $D_i$]
+\begin{equation}
+\label{eq:pdf}
+h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} (1 - F(x+d))^{n-i-1} f(x) f(x+d) \dd x 
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+This is just a direct consequence of 2 and 3 under the given statements. 
+We also note that because the support of $X_i$ is $[0, 1]$, 
+the integral only needs to be evaluated from $0$ to $1 - d$ 
+because of the $f(x+d)$ and $1 - F(x+d)$ terms.
+\end{proof}
+
+\begin{lemma}[The cumulative distribution function of $D_i$]
+
+\begin{equation}
+\label{eq:cdf}
+P(D_i < \delta) = H_i(\delta) = 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \dd x
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+$$
+\begin{aligned}
+H_i(\delta) & = \int_x^{x+\delta} h_i(d) \dd d \\
+& = \int_x^{x+\delta} \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} ((F(x))^{i-1} (1 - F(x+d))^{n-i-1} f(x) f(x+d) \dd x \dd d \\
+& = \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} f(x) \int_x^{x+\delta} (1 - F(x+d))^{n-i-1} f(x+d) \dd d \dd x \\
+& = \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} f(x) \int_{F(x)}^{F(x+\delta)} (1 - u)^{n-i-1} \dd u \dd x \\
+& = \int_0^{1} \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} f(x) ((1 - F(x))^{n-i} - (1 - F(x + \delta))^{n-i}) \dd x \\ 
+& = \int_0^1 g_i(x) \dd x - \int_0^1 \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \dd x \\
+& = 1 - \int_0^1 \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \dd x \\
+\end{aligned}
+$$
+
+Because of the $x + \delta$ term, we can't actually evaluate this integral all the way up to $1$, and so we are left with 
+$$
+\begin{aligned}
+& = 1 - \int_0^{1 - \delta} \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \dd x.
+\end{aligned}
+$$
+\end{proof}
+
+#### Uniform case
+
+\begin{lemma}[Differences between order statistics of a uniform distribution]
+If $X_1, ..., X_n \iid \Uniform(0, 1)$, then each $D_i \sim \Betadist(1, n)$.
+\end{lemma}
+
+\begin{proof}
+We begin with Eq. (\ref{eq:pdf}), plugging in $f(x) = 1$ and $F(x) = x$:
+
+$$
+h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} x^{i-1} (1-x-d)^{n-i-1} \dd x
+$$
+
+Then we proceed with integration by parts, setting 
+$u = x^{i-1} \implies du = (i-1) x^{i-2}$ and 
+$dv = (1-x-d)^{n-i-1} dx \implies v = -\frac{1}{n-i} (1-x-d)^{n-i-1}$. 
+Note that $u v |_0^{1-d} = 0$ in this case. This yields
+
+$$
+= \frac{n!}{(i-1)! (n-i-1)!} \int \frac{i-1}{n-i} x^{i-2} (1-x-d)^{n-i} \dd x
+$$
+
+Then applying integration by parts again until the $x^p$ term disappears, we get:
+
+$$
+\begin{aligned}
+& = \frac{n!}{(i-1)! (n-i-1)!} \frac{(i-1)!}{(n-i) \cdots (n-2)} \int_0^{1-d} (1-x-d)^{n-2} \dd x \\
+& = -\frac{n (n-1)}{n-1} (1-x-d)^{n-1} \Big|_0^{1-d} \\
+& = n (1 - d)^{n-1}
+\end{aligned}
+$$
+
+This the density function for $\Betadist(1, n)$, completing the proof.
+\end{proof}
+
+\begin{theorem}
+Let $X_1, ..., X_n \iid \Uniform(0, 1)$. 
+Then for any $\epsilon$ and $\delta > 0$, 
+there exists an $N = O \big(\frac{-\log \epsilon}{\delta} \big)$ such that 
+$P(\max_i X_{(i+1)} - X_{(i)} < \delta) \geq 1 - \epsilon$ when $n > N$.
+\end{theorem}
+
+\begin{proof}[Proof (sketch)]
+Since $X_{(i+1)} - X_{(i)} = D_i \sim \Betadist(1, n)$, 
+$P(X_{(i+1)} - X_{(i)} < \delta) = 1 - (1 - \delta)^n $. This yields
+
+$$
+\begin{aligned}
+P(\max_i D_i < \delta) & \geq (P(D_i < \delta))^{n-1} \\
+& = (1 - (1 - \delta)^n)^{n-1} \\
+& \approx e^{-n \exp(-n \delta)}.
+\end{aligned}
+$$
+
+In the limit $n \to \infty$, this goes to 1.
+\end{proof}
+
+#### General case for one-dimensional manifolds
+
+\begin{theorem}
+\label{thm:generalized}
+Let $X_1, ..., X_n \iid F$ with support $[0, 1]$, and suppose $f(x)$ is continuous and $f(x) \geq a > 0$ everywhere on the support. 
+Let $D_i = X_{(i+1)} - X_{(i)}$. 
+Then for any $\epsilon > 0$, there exists $N > 0$ such that $P(\max_i D_i < \delta) \geq 1 - \epsilon$ when $n > N$.
+\end{theorem}
+
+\begin{proof}[Proof (sketch)]
+We start with Eq. (\ref{eq:cdf}):
+
+$$P(D_i \leq \delta) = 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \dd x.$$
+
+Making the approximation $F(x+\delta) \approx F(x) + \delta f(x)$ 
+and bounding $f(x) \geq a$, we get:
+
+$$P(D_i \leq \delta) \geq 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x) - a \delta)^{n-i} f(x) \dd x.$$
+
+Then making the substitution $u = F(x) \implies du = f(x) \dd x$, we obtain 
+
+$$1 - \int_0^{F(1-\delta)} \frac{n!}{(n-i)! (i-1)!} u^{i-1} (1 - u - a \delta)^{n-i} \dd u$$
+
+Evaluating the integral yields
+
+$$P(D_i < \delta) = 1 - (1 - a \delta)^n + (1 - F(1-\delta) - a \delta)^n.$$
+
+Then as before,
+
+$$
+\begin{aligned}
+P(\max_i D_i < \delta) & = P(\text{all } D_i < \delta) \\
+& = 1 - P(\text{some } D_i > \delta) \\
+& \geq 1 - \sum_i^{n-1} P(D_i > \delta) \\
+& = 1 - (n - 1) (1 - a \delta)^n + (n - 1) (1 - F(1 - \delta) - a \delta)^n
+\end{aligned}
+$$
+
+This converges to $1$ in the limit $n \to \infty$.
+
+We can also approximate $F(1 - \delta) \approx 1 - a \delta$, which yields 
+$1 - (n - 1) (1 - a \delta)^n$. Setting this $\geq 1 - \epsilon$ ...
+\end{proof}
+
+#### Extension to multidimensional manifolds
+
+Here, we extend the results on the line to the unit hypercube. The following theorem is a direct consequence of Lemma 2 of \citet{trosset2020rehabilitating}.
+
+\begin{theorem}
+\label{thm:multidim}
+Let $X_1, ..., X_n \iid F$ with support $[0, 1]^r$, and $f(x) \geq a > 0$ everywhere on the support. 
+Define $E_n$ as the event that an $\eta$-neighborhood graph constructed from the sample is connected. 
+Then for any $\epsilon > 0$, there exists $N = O \bigg( \frac{\log \epsilon \eta^r / r^{r/2}}{\log (1 - \frac{a \eta^r}{r^{r / 2}})} \bigg)$ such that $P(E_n) > 1 - \epsilon$ when $n \geq N$.
+\end{theorem}
+
+\begin{proof}[Proof (sketch)]
+Divide the hypercube $[0, 1]^r$ into a grid of sub-hypercubes of side length at most $\eta / \sqrt{r}$. 
+$E_n$ is satisfied if each sub-hypercube contains at least one $X_i$ from the sample. 
+
+$$
+\begin{aligned}
+P(E_n) & = 1 - P(\text{some cells don't contain } X_i) \\
+& \geq 1 - \sum_k^{\lceil \sqrt{r} / \eta \rceil^r} \prod_i^n P(X_i \text{ is not in the } k^{th} \text{ hypercube}) \\
+& \geq 1 - \lceil \sqrt{r} / \eta \rceil^r (1 - a \eta^r / r^{r/2})^n
+\end{aligned}
+$$
+
+Setting this $\geq 1 - \epsilon$ and solving for $n$ yields the desired rate. 
+\end{proof}
+
+## Intersecting Manifolds
+
+\begin{algorithm}[h]
+  \DontPrintSemicolon
+  \SetAlgoLined
+  \KwData{Adjacency matrix $A$, number of communities $K$, embedding dimensions $p$, $q$, stopping criterion $\epsilon$}
+  \KwResult{Community assignments $1, ..., K$, curves $g_1, ..., g_K$}
+    Compute $X$, the ASE of $A$ using the $p$ most positive and $q$ most negative eigenvalues and their corresponding eigenvectors.\;
+    Initialize community labels $z_1, ..., z_n$.\;
+    \Repeat {$\sum_k \sum_{i \in C_k} \|x_i - g_k(t_i)\|^2 < \epsilon$} {
+      \For {$k = 1, ..., K$} {
+        Define $X_k$ as the rows of $X$ for which $z_i = k$.\;
+        Fit curve $g_k$ and positions $t_{k_i}$ to $X_k$ by minimizing $\sum_{k_i} \|x_{k_i} - g_k(t_{k_i})\|^2$.\;
+      }
+      \For {$k = 1, ..., K$} {
+        Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$.\
+      }
+    }
+  \caption{$K$-Curves Clustering.}
+\end{algorithm}
+
+\begin{theorem}
+\label{k-curves-clustering}
+Let each $g_k$ be smooth. 
+Then $K$-curves clustering converges to a stationary point of the objective, 
+$\sum_k \sum_{i \in C_k} \|x_i - g_k(t_i)\|^2$.
+\end{theorem}
+
+\begin{proof}
+$K$-curves clustering is a batch coordinate descent algorithm. 
+Thus, in order to show that it converges to a stationary point, it is sufficient to show that each descent step decreases the objective function. 
+\end{proof}
+
+# Examples
+
+\begin{example}
+Here, $K = 2$ with $g_1(t) = \begin{bmatrix} t^2 & 2 t (1 - t) \end{bmatrix}^\top$ and $g_2(t) = \begin{bmatrix} 2 t (1 - t) & (1 - t) ^ 2 \end{bmatrix}^\top$. We draw $n_1 = n_2 = 2^8$ points uniformly from each curve. 
+
+```{r, fig.height = 2, fig.cap = 'Latent positions, labeled by curve/community.'}
+f1 <- function(t) {
+  x1 <- t ^ 2
+  x2 <- 2 * t - 2 * t ^ 2
+  return(cbind(x1, x2))
+}
+
+f2 <- function(t) {
+  x1 <- 2 * t - 2 * t ^ 2
+  x2 <- 1 - 2 * t + t ^ 2
+  return(cbind(x1, x2))
+}
+
+set.seed(314159)
+
+n1 <- 2 ** 8
+n2 <- n1
+n <- n1 + n2
+z <- c(rep(1, n1), rep(2, n2))
+
+a <- 1
+b <- 1
+t1 <- rbeta(n1, a, b)
+t2 <- rbeta(n2, a, b)
+T <- rbind(t1, t2)
+
+X1 <- f1(t1)
+X2 <- f2(t2)
+X <- rbind(X1, X2)
+
+ggplot() + 
+  geom_point(aes(x = X[, 1], y = X[, 2], colour = factor(z)), size = .5) + 
+  coord_fixed() + 
+  labs(x = expression(x[1]), y = expression(x[2]), colour = NULL) + 
+  theme_bw() + 
+  theme(legend.position = 'none')
+
+P <- X %*% t(X)
+diag(P) <- 0
+A <- draw.graph(P)
+Xhat <- embedding(A, 2, 0)
+```
+
+We draw $A \sim \RDPG(X)$ and obtain the following ASE:
+
+```{r, fig.height = 3, fig.cap = 'ASE of an RDPG drawn from the latent positions, labeled by curve/community.'}
+ggplot() + 
+  geom_point(aes(x = Xhat[, 1], y = Xhat[, 2], colour = factor(z)), size = .5) + 
+  coord_fixed() + 
+  labs(x = expression(x[1]), y = expression(x[2]), colour = NULL) + 
+  theme_bw() + 
+  theme(legend.position = 'none')
+```
+
+We then try applying $K$-curves clustering to this graph. 
+The first three are with random initial labels, forcing the intercept to be zero. 
+The fourth initializes the labels randomly but allows the intercept to be nonzero. 
+The fifth initializes the labels by spectral clustering with the normalized Laplacian, again forcing the intercept to be zero. 
+The sixth also initializes via spectral clustering but allows the intercept to be nonzero. 
+
+```{r, cache = TRUE}
+random.starts <- 4
+eps <- 1e-3
+out <- lapply(seq(random.starts), function(i) {
+  set.seed(i)
+  intercept <- (i / random.starts > .5 + eps)
+  manifold.clustering(Xhat, 2, parallel = TRUE, intercept = intercept, 
+                      maxit = 50,
+                      verbose = FALSE)
+})
+names(out) <- paste('random', seq(random.starts))
+names(out) <- sapply(seq(random.starts), function(i) {
+  if (i / random.starts < .5 + eps) {
+    paste('random', i, '\n(w/o intercept)')
+  } else {
+    paste('random', i, '\n(w/ intercept)')
+  }
+})
+
+# out[['random\n(w/ intercept)']] <- manifold.clustering(Xhat, 2,
+#                                           parallel = TRUE,
+#                                           intercept = TRUE, 
+#                                           maxit = 50, 
+#                                           initialization = 'random',
+#                                           verbose = FALSE)
+
+out[['spectral clust\n(w/o intercept)']] <- manifold.clustering(
+  Xhat, 2, 
+  parallel = TRUE, 
+  intercept = FALSE, 
+  maxit = 50, 
+  initialization = 'spectral',
+  verbose = FALSE)
+
+# out[['ground truth']] <- manifold.clustering(Xhat, 2,
+#                                             parallel = TRUE,
+#                                             intercept = FALSE,
+#                                             maxit = 50,
+#                                             initialization = z,
+#                                             verbose = FALSE)
+
+out[['spectral clust\n(w/ intercept)']] <- manifold.clustering(
+  Xhat, 2,
+  parallel = TRUE,
+  intercept = TRUE,
+  maxit = 50,
+  initialization = 'spectral',
+  verbose = FALSE)
+```
+
+```{r, fig.cap = 'Clustering loss vs. iteration for each run of K-curve clustering.', fig.height = 2, fig.width = 6}
+# max.iter <- max(sapply(out, function(x) x$niter))
+max.loss <- max(sapply(out, function(x) max(x$loss[-1])))
+# plot(out[[1]]$loss, xlim = c(0, max.iter), ylim = c(0, max.loss),
+#      ylab = 'clustering loss', xlab = 'iteration')
+# # lines(out[[1]]$loss)
+# 
+# for (i in seq_along(out)) {
+#   points(out[[i]]$loss, col = i)
+#   lines(out[[i]]$loss, col = i)
+# }
+# legend('topright', 
+#        title = 'initialization',
+#        cex = .75, 
+#        bty = 'n',
+#        legend = names(out),
+#        col = seq_along(out),
+#        pch = 1)
+
+
+loss.df <- plyr::ldply(seq_along(out), function(i) {
+  dplyr::data_frame(loss = out[[i]]$loss,
+                    initialization = factor(names(out),
+                                            levels = names(out))[i]) %>%
+    dplyr::mutate(iteration = seq(dplyr::n()))
+})
+
+ggplot(loss.df) + 
+  geom_point(aes(x = iteration, y = loss, colour = initialization)) + 
+  geom_line(aes(x = iteration, y = loss, colour = initialization)) + 
+  # ylim(0, max.loss) + 
+  labs(y = 'clustering loss')
+```
+
+```{r, fig.width = 6, fig.height = 5, fig.cap = 'ASE labeled by estimated community labels for each initialization strategy.'}
+plots.list <- lapply(seq_along(out), function(i) {
+  zhat.manifold <- out[[i]]$z
+  
+  t. <- seq(0, 1, .01)
+  Y1 <- bezier.curve(t., out[[i]]$p[[1]])
+  Y2 <- bezier.curve(t., out[[i]]$p[[2]])
+  
+  # Y1 <- out[[i]]$X[[1]][order(out[[i]]$t[[1]]), ]
+  # Y2 <- out[[i]]$X[[2]][order(out[[i]]$t[[2]]), ]
+  
+  
+  ggplot() + 
+    geom_point(aes(x = Xhat[, 1], y = Xhat[, 2], 
+                   colour = factor(zhat.manifold)),
+               size = .5) + 
+    labs(x = expression(x[1]), y = expression(x[2]), colour = NULL,
+         title = names(out)[i]) + 
+    theme_bw() + 
+    # coord_fixed() +
+    theme(legend.position = 'none') +
+    geom_path(aes(x = Y1[, 1], y = Y1[, 2])) +
+    geom_path(aes(x = Y2[, 1], y = Y2[, 2])) + 
+    xlim(min(Xhat[, 1]), max(Xhat[, 1])) + ylim(min(Xhat[, 2]), max(Xhat[, 2]))
+})
+
+gridExtra::grid.arrange(grobs = plots.list, ncol = 3)
+```
+
+\end{example}
+
+# Discussion
