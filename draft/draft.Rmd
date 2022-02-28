@@ -381,7 +381,7 @@ The sixth also initializes via spectral clustering but allows the intercept to b
 
 ```{r, cache = TRUE}
 maxit <- 50
-# animate <- TRUE
+animate <- TRUE
 animation.dir <- '~/dev/manifold-block-models/draft'
 random.starts <- 2
 eps <- 1e-3
