@@ -381,7 +381,7 @@ The sixth also initializes via spectral clustering but allows the intercept to b
 
 ```{r, cache = TRUE}
 maxit <- 50
-animate <- TRUE
+animate <- FALSE
 animation.dir <- '~/dev/manifold-block-models/draft'
 random.starts <- 2
 eps <- 1e-3
@@ -486,8 +486,8 @@ loss.df <- plyr::ldply(seq_along(out), function(i) {
 ggplot(loss.df) + 
   geom_point(aes(x = iteration, y = loss, colour = initialization)) + 
   geom_line(aes(x = iteration, y = loss, colour = initialization)) + 
-  # ylim(0, max.loss) + 
-  # scale_y_log10() + 
+  # ylim(0, max.loss) +
+  # scale_y_log10() +
   labs(y = 'clustering loss')
 ```
 
@@ -522,7 +522,106 @@ gridExtra::grid.arrange(grobs = plots.list, ncol = 3)
 
 \end{example}
 
-\begin{example}
+\begin{example}[Macaque visuotactile brain areas and connections]
+
+```{r}
+data(macaque, package = 'igraphdata')
+A <- as.matrix(igraph::as_adjacency_matrix(macaque, type = 'both'))
+A <- sign(A + t(A))
+z <- as.numeric(factor(igraph::vertex_attr(macaque)$shape))
+
+Xhat <- embedding(A, 2, 0)
+plot(Xhat, col = z, asp = 1)
+```
+
+```{r cache = TRUE}
+set.seed(123)
+z.spectral <- spectral.clustering(A)
+macaque.out <- manifold.clustering(Xhat, 2, 
+                                   initialization = z.spectral, 
+                                   intercept = TRUE, 
+                                   parallel = TRUE, 
+                                   verbose = FALSE, 
+                                   animate = animate, 
+                                   curve.init = 'random',
+                                   animation.title = 'macaque')
+```
+
+```{r}
+t.1 <- seq(min(macaque.out$t[[1]]), max(macaque.out$t[[1]]), .01)
+t.2 <- seq(min(macaque.out$t[[2]]), max(macaque.out$t[[2]]), .01)
+Y1 <- bezier.curve(t.1, macaque.out$p[[1]])
+Y2 <- bezier.curve(t.2, macaque.out$p[[2]])
+
+ggplot() + 
+  geom_point(aes(x = Xhat[, 1], y = Xhat[, 2], 
+                 colour = factor(macaque.out$z)),
+             size = .5) + 
+  labs(x = expression(x[1]), y = expression(x[2]), colour = NULL) + 
+  theme_bw() + 
+  coord_fixed() +
+  theme(legend.position = 'none') +
+  geom_path(aes(x = Y1[, 1], y = Y1[, 2])) +
+  geom_path(aes(x = Y2[, 1], y = Y2[, 2])) + 
+  xlim(min(Xhat[, 1]), max(Xhat[, 1])) + ylim(min(Xhat[, 2]), max(Xhat[, 2]))
+```
+
+\end{example}
+
+\begin{example}[Non-intersecting curves]
+
+```{r}
+n1 <- 2 ** 7
+n2 <- 2 ** 7
+n <- n1 + n2
+z <- c(rep(1, n1), rep(2, n2))
+u1 <- runif(n1)
+u2 <- runif(n2)
+x1 <- cos(pi / 3 * u1)
+y1 <- sin(pi / 3 * u1)
+x2 <- 1 + cos(pi / 3 * u2 + pi)
+y2 <- 1 + sin(pi / 3 * u2 + pi)
+data.matrix <- cbind(c(x1, x2), c(y1, y2))
+
+plot(data.matrix, col = z * 2, asp = 1, xlab = NA, ylab = NA,
+     main = 'Latent configuration')
+```
+
+```{r}
+P <- data.matrix %*% diag(c(1, 1)) %*% t(data.matrix)
+A <- draw.graph(P)
+Xhat <- embedding(A, 2, 0)
+plot(Xhat, col = z * 2, asp = 1, main = 'ASE')
+```
+
+```{r cache = TRUE}
+z.init <- hclust(dist(Xhat), method = 'single') %>% 
+  cutree(2)
+nonintersect.out <- manifold.clustering(Xhat, 2, 
+                                        initialization = z.init,
+                                        intercept = TRUE, 
+                                        animate = animate,
+                                        animation.title = 'nonintersect')
+```
+
+```{r}
+t.1 <- seq(min(nonintersect.out$t[[1]]), max(nonintersect.out$t[[1]]), .01)
+t.2 <- seq(min(nonintersect.out$t[[2]]), max(nonintersect.out$t[[2]]), .01)
+Y1 <- bezier.curve(t.1, nonintersect.out$p[[1]])
+Y2 <- bezier.curve(t.2, nonintersect.out$p[[2]])
+
+ggplot() + 
+  geom_point(aes(x = Xhat[, 1], y = Xhat[, 2], 
+                 colour = factor(nonintersect.out$z)),
+             size = .5) + 
+  labs(x = expression(x[1]), y = expression(x[2]), colour = NULL) + 
+  theme_bw() + 
+  coord_fixed() +
+  theme(legend.position = 'none') +
+  geom_path(aes(x = Y1[, 1], y = Y1[, 2])) +
+  geom_path(aes(x = Y2[, 1], y = Y2[, 2])) + 
+  xlim(min(Xhat[, 1]), max(Xhat[, 1])) + ylim(min(Xhat[, 2]), max(Xhat[, 2]))
+```
 
 \end{example}
 

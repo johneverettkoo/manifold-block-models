@@ -167,12 +167,12 @@ estimate.bezier.curve.2 <- function(X,
         p <- matrix(rnorm(d * r), nrow = r, ncol = d)
       }
       t.hat <- estimate.t.bezier(X, p, intercept = intercept, parallel = parallel)
-      if (!intercept) {
-        if (sum((c(0, 0) %*% p) ^ 2) > sum((c(1, 1) %*% p) ^ 2)) {
-        # if (sum(X[which.min(t.hat), ] ^ 2) > sum(X[which.max(t.hat), ] ^ 2)) {
-          t.hat <- 1 - t.hat
-        }
-      }
+      # if (!intercept) {
+      #   if (sum((c(0, 0) %*% p) ^ 2) > sum((c(1, 1) %*% p) ^ 2)) {
+      #   # if (sum(X[which.min(t.hat), ] ^ 2) > sum(X[which.max(t.hat), ] ^ 2)) {
+      #     t.hat <- 1 - t.hat
+      #   }
+      # }
       
     } else if (initialization == 'isomap') {
       isomap.out <- estimate.bezier.curve.isomap(X, k.isomap, weights, 
@@ -188,9 +188,6 @@ estimate.bezier.curve.2 <- function(X,
     # if (!intercept) {
     #   if (sum(X[which.min(t.hat), ] ^ 2) > sum(X[which.max(t.hat), ] ^ 2)) {
     #     t.hat <- 1 - t.hat
-    #     T <- construct.bezier.model.matrix(t.hat, r, intercept = intercept)
-    #     # p <- solve(t(T) %*% W %*% T, t(T) %*% W %*% X)
-    #     # t.hat <- estimate.t.bezier(X, p, intercept = intercept, parallel = parallel)
     #   }
     # }
   }
@@ -256,6 +253,8 @@ estimate.bezier.curve.2 <- function(X,
     }
   }
   
+  # T <- construct.bezier.model.matrix(t.hat, r, intercept = intercept)
+  # p <- solve(t(T) %*% W %*% T, t(T) %*% W %*% X)
   X.hat <- T %*% p
   
   return(list(p = p, 
@@ -289,12 +288,14 @@ estimate.bezier.curve.isomap <- function(X, k = as.integer(sqrt(nrow(X))),
   D <- knn.graph(X, k)
   
   t.hat <- as.vector(cmdscale(sqrt(D), 1))
+  
+  if (normalize) t.hat <- ecdf(t.hat)(t.hat)
+  
   if (!intercept) {
-    if (sum(X[which.min(t.hat), ] ^ 2) > sum(X[which.max(t.hat), ] ^ 2)) {
+    if (sum(X[which.min(abs(t.hat)), ] ^ 2) > sum(X[which.max(abs(t.hat)), ] ^ 2)) {
       t.hat <- 1 - t.hat
     }
   }
-  if (normalize) t.hat <- ecdf(t.hat)(t.hat)
   
   T <- construct.bezier.model.matrix(t.hat, r, intercept = intercept)
   p <- solve(t(T) %*% W %*% T, t(T) %*% W %*% X)
@@ -321,6 +322,7 @@ manifold.clustering <- function(X, K = 2,
                                 intercept = TRUE, 
                                 maxit = 50,
                                 k.isomap = as.integer(sqrt(nrow(X)) / K),
+                                curve.init = 'isomap',
                                 eps = 1e-3,
                                 parallel = TRUE,
                                 verbose = FALSE,
@@ -373,6 +375,7 @@ manifold.clustering <- function(X, K = 2,
       curve1 <- estimate.bezier.curve.2(X1, 
                                         k.isomap = k.isomap, 
                                         intercept = intercept,
+                                        initialization = curve.init, 
                                         parallel = parallel)
     }
     if (verbose) print('fitting curve 2')
@@ -386,6 +389,7 @@ manifold.clustering <- function(X, K = 2,
       curve2 <- estimate.bezier.curve.2(X2, 
                                         k.isomap = k.isomap, 
                                         intercept = intercept,
+                                        initialization = curve.init,
                                         parallel = parallel)
     }
     
@@ -458,8 +462,8 @@ manifold.clustering <- function(X, K = 2,
     #   geom_text(aes(x = X[, 1], y = X[, 2],
     #                 # colour = factor(z.hat),
     #                 label = seq(n)),
-    #             size = 2) + 
-    #   coord_fixed() + 
+    #             size = 2) +
+    #   coord_fixed() +
     #   labs(x = NULL, y = NULL, colour = NULL, shape = NULL)
     # print(loss)
     # print(curve1$mse %>% diff())

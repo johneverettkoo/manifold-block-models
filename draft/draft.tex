@@ -335,22 +335,22 @@ Setting this $\geq 1 - \epsilon$ and solving for $n$ yields the desired rate.
 \subsection{Intersecting Manifolds}\label{intersecting-manifolds}}
 
 \begin{algorithm}[h]
-  \DontPrintSemicolon
-  \SetAlgoLined
-  \KwData{Adjacency matrix $A$, number of communities $K$, embedding dimensions $p$, $q$, stopping criterion $\epsilon$}
-  \KwResult{Community assignments $1, ..., K$, curves $g_1, ..., g_K$}
-    Compute $X$, the ASE of $A$ using the $p$ most positive and $q$ most negative eigenvalues and their corresponding eigenvectors.\;
-    Initialize community labels $z_1, ..., z_n$.\;
-    \Repeat {$\sum_k \sum_{i \in C_k} \|x_i - g_k(t_i)\|^2 < \epsilon$} {
-      \For {$k = 1, ..., K$} {
-        Define $X_k$ as the rows of $X$ for which $z_i = k$.\;
-        Fit curve $g_k$ and positions $t_{k_i}$ to $X_k$ by minimizing $\sum_{k_i} \|x_{k_i} - g_k(t_{k_i})\|^2$.\;
-      }
-      \For {$k = 1, ..., K$} {
-        Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$.\
-      }
-    }
-  \caption{$K$-Curves Clustering.}
+\DontPrintSemicolon
+\SetAlgoLined
+\KwData{Adjacency matrix $A$, number of communities $K$, embedding dimensions $p$, $q$, stopping criterion $\epsilon$}
+\KwResult{Community assignments $1, ..., K$, curves $g_1, ..., g_K$}
+Compute $X$, the ASE of $A$ using the $p$ most positive and $q$ most negative eigenvalues and their corresponding eigenvectors.\;
+Initialize community labels $z_1, ..., z_n$.\;
+\Repeat {$\sum_k \sum_{i \in C_k} \|x_i - g_k(t_i)\|^2 < \epsilon$} {
+\For {$k = 1, ..., K$} {
+Define $X_k$ as the rows of $X$ for which $z_i = k$.\;
+Fit curve $g_k$ and positions $t_{k_i}$ to $X_k$ by minimizing $\sum_{k_i} \|x_{k_i} - g_k(t_{k_i})\|^2$.\;
+}
+\For {$k = 1, ..., K$} {
+Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$.\
+}
+}
+\caption{$K$-Curves Clustering.}
 \end{algorithm}
 
 \begin{theorem}
@@ -419,7 +419,30 @@ The sixth also initializes via spectral clustering but allows the intercept to b
 
 \end{example}
 
-\begin{example}
+\begin{example}[Macaque visuotactile brain areas and connections]
+
+
+\begin{center}\includegraphics{draft_files/figure-latex/unnamed-chunk-7-1} \end{center}
+
+
+
+
+\begin{center}\includegraphics{draft_files/figure-latex/unnamed-chunk-9-1} \end{center}
+
+\end{example}
+
+\begin{example}[Non-intersecting curves]
+
+
+\begin{center}\includegraphics{draft_files/figure-latex/unnamed-chunk-10-1} \end{center}
+
+
+\begin{center}\includegraphics{draft_files/figure-latex/unnamed-chunk-11-1} \end{center}
+
+
+
+
+\begin{center}\includegraphics{draft_files/figure-latex/unnamed-chunk-13-1} \end{center}
 
 \end{example}
 
