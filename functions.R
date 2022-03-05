@@ -20,11 +20,11 @@ spectral.clustering <- function(W, K = 2, d = K, normalized = TRUE) {
 }
 
 estimate.one.t.bezier <- function(x, p, 
-                                  min.t = 0, max.t = 2, 
+                                  min.t = 0, max.t = 1, 
                                   intercept = TRUE, 
                                   tol = 1e-9,
                                   method = 'polyroot') {
-  polynomial <- function(t, p) {
+  polynomial <- function(t, p, intercept) {
     if (intercept) {
       r <- nrow(p) - 1
       T <- sapply(seq(0, r), function(s) {
@@ -38,11 +38,19 @@ estimate.one.t.bezier <- function(x, p,
     }
     as.numeric(T %*% p)
   }
-  l <- function(t) log(as.numeric(crossprod(polynomial(t, p) - x)))
+  l <- function(t, intercept) {
+    log(as.numeric(crossprod(polynomial(t, p, intercept) - x)))
+  }
   if (method == 'optimize') {
-    minima <- optimize(l, c(min.t, max.t), tol = tol)$minimum
+    minima <- optimize(l, 
+                       c(min.t, max.t),
+                       intercept = intercept, 
+                       tol = tol)$minimum
   } else if (method == 'optim') {
-    minima <- optim((min.t + max.t) / 2, l, method = 'SANN')$par
+    minima <- optim(par = (min.t + max.t) / 2, 
+                    fn = l, 
+                    intercept = intercept, 
+                    method = 'SANN')$par
   } else if (method == 'polyroot') {
     if (!intercept) {
       p <- rbind(0, p)
@@ -56,13 +64,18 @@ estimate.one.t.bezier <- function(x, p,
     b3 <- -sum((p0 - 2 * p1 + p2) ^ 2)
     roots <- polyroot(c(b0, b1, b2, b3))
     roots <- Re(roots[abs(Im(roots)) < tol])
+    roots <- roots[roots >= min.t]
+    roots <- roots[roots <= max.t]
+    roots <- c(roots, min.t, max.t)
     if (length(roots) > 1) {
-      minima <- roots[which.min(sapply(roots, l))]
+      minima <- roots[which.min(sapply(roots, l, intercept = TRUE))]
     } else if (length(roots) == 1) {
       minima <- roots
     } else if (length(roots) == 0) {
       warning('failed to find a real root')
-      minima <- optimize(l, c(min.t, max.t), tol = tol)$minimum
+      # minima <- optimize(l, c(min.t, max.t), intercept = FALSE, tol = tol)$minimum
+      minima <- c(min.t, max.t)
+      minima <- minima[which.min(sapply(minima, l, intercept = TRUE))]
     }
   } else {
     stop('invalid method for finding t')
@@ -74,7 +87,7 @@ estimate.one.t.bezier <- function(x, p,
 
 estimate.t.bezier <- function(X, p, t.prev, 
                               intercept = TRUE, 
-                              min.t = 0, max.t = 2, 
+                              min.t = 0, max.t = 1, 
                               tol = 1e-9,
                               parallel = FALSE) {
   if (missing(t.prev)) {
@@ -86,7 +99,8 @@ estimate.t.bezier <- function(X, p, t.prev,
   } else {
     t.hat <- plyr::laply(seq_along(t.prev), function(i) {
       estimate.one.t.bezier(X[i, ], p, 
-                            t.prev[i] - 2, t.prev[i] + 2, 
+                            min.t = max(min.t, t.prev[i] - 2),
+                            max.t = min(max.t, t.prev[i] + 2), 
                             tol = tol, intercept = intercept)
     }, .parallel = parallel)
     loss.new <- sapply(seq_along(t.hat),
@@ -145,11 +159,11 @@ estimate.bezier.curve.2 <- function(X,
                                     eps = 1e-3, 
                                     maxit = 200,
                                     initialization = 'isomap', 
-                                    normalize = TRUE, 
+                                    normalize = FALSE, 
                                     normalize.method = 'umvue',
                                     k.isomap = as.integer(sqrt(nrow(X))),
                                     intercept = TRUE,
-                                    parallel = FALSE) {
+                                    parallel = TRUE) {
   n <- nrow(X)
   d <- ncol(X)
   r <- 2
@@ -167,6 +181,7 @@ estimate.bezier.curve.2 <- function(X,
         p <- matrix(rnorm(d * r), nrow = r, ncol = d)
       }
       t.hat <- estimate.t.bezier(X, p, intercept = intercept, parallel = parallel)
+      t.hat <- normalize.umvue(t.hat)
       # if (!intercept) {
       #   if (sum((c(0, 0) %*% p) ^ 2) > sum((c(1, 1) %*% p) ^ 2)) {
       #   # if (sum(X[which.min(t.hat), ] ^ 2) > sum(X[which.max(t.hat), ] ^ 2)) {
@@ -179,12 +194,19 @@ estimate.bezier.curve.2 <- function(X,
                                                  intercept = intercept)
       p <- isomap.out$p
       t.hat <- isomap.out$t
+    } else  if (initialization == 'x') {
+      t.hat <- X[, 1]
+      if (!intercept) t.hat <- abs(t.hat)
+      t.hat <- normalize.umvue(t.hat)
+      T <- construct.bezier.model.matrix(t.hat, r, intercept = intercept)
+      p <- solve(t(T) %*% W %*% T, t(T) %*% W %*% X)
     } else {
       stop('initialization must be random or isomap')
     }
   } else {
     p <- init.params
     t.hat <- estimate.t.bezier(X, p, intercept = intercept, parallel = parallel)
+    # t.hat <- normalize.umvue(t.hat)
     # if (!intercept) {
     #   if (sum(X[which.min(t.hat), ] ^ 2) > sum(X[which.max(t.hat), ] ^ 2)) {
     #     t.hat <- 1 - t.hat
@@ -192,21 +214,9 @@ estimate.bezier.curve.2 <- function(X,
     # }
   }
   
-  if (normalize) {
-    if (normalize.method == 'umvue') {
-      t.hat <- normalize.umvue(t.hat)
-    } else if (normalize.method == 'ecdf') {
-      t.hat <- normalize.ecdf(t.hat)
-    } else {
-      stop('normalize.method must be umvue or ecdf')
-    }
-  } else {
-    # t.hat <- t.hat + min(t.hat)
-  }
-  
   mse <- bezier.mse(X, t.hat, p, intercept)
   
-  mse.b <- c()
+  mse.b <- mse
   
   niter <- 0
   while (TRUE) {
@@ -218,6 +228,16 @@ estimate.bezier.curve.2 <- function(X,
     #     t.hat <- 1 - t.hat
     #   }
     # }
+    
+    if (normalize) {
+      if (normalize.method == 'umvue') {
+        t.hat <- normalize.umvue(t.hat)
+      } else if (normalize.method == 'ecdf') {
+        t.hat <- normalize.ecdf(t.hat)
+      } else {
+        stop('normalize.method must be umvue or ecdf')
+      }
+    }
     
     T <- construct.bezier.model.matrix(t.hat, r, intercept = intercept)
     p <- solve(t(T) %*% W %*% T, t(T) %*% W %*% X)
@@ -231,20 +251,12 @@ estimate.bezier.curve.2 <- function(X,
                                parallel = parallel)
     
     mse <- bezier.mse(X, t.hat, p, intercept = intercept)
+    # T <- construct.bezier.model.matrix(t.hat, r, intercept = intercept)
+    # mse <- norm(X - T %*% p, type = 'F') ^ 2
     mse.b <- c(mse.b, mse)
     
     d.mse <- (mse.prev - mse) / mse.prev
     if (d.mse < eps) break
-    
-    if (normalize) {
-      if (normalize.method == 'umvue') {
-        t.hat <- normalize.umvue(t.hat)
-      } else if (normalize.method == 'ecdf') {
-        t.hat <- normalize.ecdf(t.hat)
-      } else {
-        stop('normalize.method must be umvue or ecdf')
-      }
-    }
     
     niter <- niter + 1
     if (niter >= maxit) {
@@ -311,8 +323,10 @@ estimate.bezier.curve.isomap <- function(X, k = as.integer(sqrt(nrow(X))),
 compute.distances.bezier <- function(X, p, 
                                      min.t = 0, max.t = 1, 
                                      parallel = FALSE, intercept = TRUE) {
-  t.hat <- estimate.t.bezier(X, p, parallel = parallel, intercept = intercept,
-                             min.t = 0, max.t = 1)
+  t.hat <- estimate.t.bezier(X, p, 
+                             parallel = parallel, 
+                             intercept = intercept,
+                             min.t = min.t, max.t = max.t)
   X.hat <- bezier.curve(t.hat, p, intercept = intercept)
   apply(X - X.hat, 1, function(x) sum(x ^ 2))
 }
@@ -395,28 +409,30 @@ manifold.clustering <- function(X, K = 2,
     
     if (verbose) print('reassigning clusters')
     d1 <- compute.distances.bezier(X, curve1$p, 
-                                   # min.t = min(curve1$t), 
+                                   # min.t = min(curve1$t),
                                    # max.t = max(curve1$t),
-                                   min.t = 0, max.t = 1,
+                                   min.t = 0,
+                                   max.t = 1,
                                    parallel = parallel, 
                                    intercept = intercept)
     d2 <- compute.distances.bezier(X, curve2$p, 
-                                   # min.t = min(curve2$t), 
-                                   # max.t = max(curve2$t),
-                                   min.t = 0, max.t = 1,
+                                   # min.t = min(curve1$t),
+                                   # max.t = max(curve1$t),
+                                   min.t = 0,
+                                   max.t = 1,
                                    parallel = parallel, 
                                    intercept = intercept)
     distances <- cbind(d1, d2)
     
-    # ggplot() +
-    #   # viridis::scale_colour_viridis() +
-    #   geom_point(aes(x = X[, 1], y = X[, 2],
-    #                  colour = factor(z.hat),
-    #                  shape = factor(z.hat)),
-    #              size = 5) +
-    #   geom_point(aes(x = curve1$X[, 1], y = curve1$X[, 2]), colour = 'red') +
-    #   geom_point(aes(x = curve2$X[, 1], y = curve2$X[, 2]), colour = 'blue') +
-    #   coord_fixed()
+    ggplot() +
+      # viridis::scale_colour_viridis() +
+      geom_point(aes(x = X[, 1], y = X[, 2],
+                     colour = factor(z.hat),
+                     shape = factor(z.hat)),
+                 size = 5) +
+      geom_point(aes(x = curve1$X[, 1], y = curve1$X[, 2]), colour = 'red') +
+      geom_point(aes(x = curve2$X[, 1], y = curve2$X[, 2]), colour = 'blue') +
+      coord_fixed()
     
     if (animate) {
       update.curve1.df <- dplyr::tibble(X = curve1$X[, 1], 
@@ -451,20 +467,20 @@ manifold.clustering <- function(X, K = 2,
     # plot(X, col = z.hat)
     # points(curve1$X, pch = '*')
     # points(curve2$X, pch = '*', col = 2)
-    # ggplot() +
-    #   # viridis::scale_colour_viridis() +
-    #   geom_point(aes(x = X[, 1], y = X[, 2],
-    #                  colour = factor(z.hat),
-    #                  shape = factor(z.hat)),
-    #              size = 5) +
-    #   geom_point(aes(x = curve1$X[, 1], y = curve1$X[, 2]), colour = 'red') +
-    #   geom_point(aes(x = curve2$X[, 1], y = curve2$X[, 2]), colour = 'blue') +
-    #   geom_text(aes(x = X[, 1], y = X[, 2],
-    #                 # colour = factor(z.hat),
-    #                 label = seq(n)),
-    #             size = 2) +
-    #   coord_fixed() +
-    #   labs(x = NULL, y = NULL, colour = NULL, shape = NULL)
+    ggplot() +
+      # viridis::scale_colour_viridis() +
+      geom_point(aes(x = X[, 1], y = X[, 2],
+                     colour = factor(z.hat),
+                     shape = factor(z.hat)),
+                 size = 5) +
+      geom_point(aes(x = curve1$X[, 1], y = curve1$X[, 2]), colour = 'red') +
+      geom_point(aes(x = curve2$X[, 1], y = curve2$X[, 2]), colour = 'blue') +
+      geom_text(aes(x = X[, 1], y = X[, 2],
+                    # colour = factor(z.hat),
+                    label = seq(n)),
+                size = 2) +
+      coord_fixed() +
+      labs(x = NULL, y = NULL, colour = NULL, shape = NULL)
     # print(loss)
     # print(curve1$mse %>% diff())
     # print(curve2$mse %>% diff())

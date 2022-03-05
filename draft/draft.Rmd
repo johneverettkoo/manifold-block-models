@@ -386,8 +386,8 @@ animation.dir <- '~/dev/manifold-block-models/draft'
 random.starts <- 2
 eps <- 1e-3
 out <- lapply(seq(random.starts), function(i) {
-  set.seed(i)
   intercept <- (i / random.starts > .5 + eps)
+  set.seed(i)
   manifold.clustering(Xhat, 2, 
                       parallel = TRUE, 
                       intercept = intercept, 
@@ -495,9 +495,10 @@ ggplot(loss.df) +
 plots.list <- lapply(seq_along(out), function(i) {
   zhat.manifold <- out[[i]]$z
   
-  t. <- seq(0, 1, .01)
-  Y1 <- bezier.curve(t., out[[i]]$p[[1]])
-  Y2 <- bezier.curve(t., out[[i]]$p[[2]])
+  t.1 <- seq(min(out[[i]]$t[[1]]), max(out[[i]]$t[[1]]), .01)
+  t.2 <- seq(min(out[[i]]$t[[2]]), max(out[[i]]$t[[2]]), .01)
+  Y1 <- bezier.curve(t.1, out[[i]]$p[[1]])
+  Y2 <- bezier.curve(t.2, out[[i]]$p[[2]])
   
   # Y1 <- out[[i]]$X[[1]][order(out[[i]]$t[[1]]), ]
   # Y2 <- out[[i]]$X[[2]][order(out[[i]]$t[[2]]), ]
@@ -535,21 +536,23 @@ plot(Xhat, col = z, asp = 1)
 ```
 
 ```{r cache = TRUE}
-set.seed(123)
+# set.seed(123)
 z.spectral <- spectral.clustering(A)
 macaque.out <- manifold.clustering(Xhat, 2, 
-                                   initialization = z.spectral, 
-                                   intercept = TRUE, 
+                                   # initialization = 'random',
+                                   # initialization = z.spectral, 
+                                   initialization = z,
+                                   intercept = FALSE, 
                                    parallel = TRUE, 
                                    verbose = FALSE, 
                                    animate = animate, 
-                                   curve.init = 'random',
+                                   curve.init = 'x',
                                    animation.title = 'macaque')
 ```
 
 ```{r}
-t.1 <- seq(min(macaque.out$t[[1]]), max(macaque.out$t[[1]]), .01)
-t.2 <- seq(min(macaque.out$t[[2]]), max(macaque.out$t[[2]]), .01)
+t.1 <- seq(min(c(0, macaque.out$t[[1]])), max(macaque.out$t[[1]]), .01)
+t.2 <- seq(min(c(0, macaque.out$t[[2]])), max(macaque.out$t[[2]]), .01)
 Y1 <- bezier.curve(t.1, macaque.out$p[[1]])
 Y2 <- bezier.curve(t.2, macaque.out$p[[2]])
 
@@ -562,8 +565,7 @@ ggplot() +
   coord_fixed() +
   theme(legend.position = 'none') +
   geom_path(aes(x = Y1[, 1], y = Y1[, 2])) +
-  geom_path(aes(x = Y2[, 1], y = Y2[, 2])) + 
-  xlim(min(Xhat[, 1]), max(Xhat[, 1])) + ylim(min(Xhat[, 2]), max(Xhat[, 2]))
+  geom_path(aes(x = Y2[, 1], y = Y2[, 2]))
 ```
 
 \end{example}
@@ -583,15 +585,14 @@ x2 <- 1 + cos(pi / 3 * u2 + pi)
 y2 <- 1 + sin(pi / 3 * u2 + pi)
 data.matrix <- cbind(c(x1, x2), c(y1, y2))
 
-plot(data.matrix, col = z * 2, asp = 1, xlab = NA, ylab = NA,
-     main = 'Latent configuration')
+plot(data.matrix, col = z * 2, asp = 1, xlab = NA, ylab = NA)
 ```
 
 ```{r}
 P <- data.matrix %*% diag(c(1, 1)) %*% t(data.matrix)
 A <- draw.graph(P)
 Xhat <- embedding(A, 2, 0)
-plot(Xhat, col = z * 2, asp = 1, main = 'ASE')
+# plot(Xhat, col = z * 2, asp = 1)
 ```
 
 ```{r cache = TRUE}
