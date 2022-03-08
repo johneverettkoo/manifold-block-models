@@ -163,6 +163,8 @@ estimate.bezier.curve.2 <- function(X,
                                     normalize.method = 'umvue',
                                     k.isomap = as.integer(sqrt(nrow(X))),
                                     intercept = TRUE,
+                                    min.t = 0, 
+                                    max.t = 1,
                                     parallel = TRUE) {
   n <- nrow(X)
   d <- ncol(X)
@@ -221,7 +223,7 @@ estimate.bezier.curve.2 <- function(X,
   niter <- 0
   while (TRUE) {
     mse.prev <- mse
-
+    
     # if (!intercept) {
     #   if (sum((c(0, 0) %*% p) ^ 2) > sum((c(1, 1) %*% p) ^ 2)) {
     #   # if (sum(X[which.min(t.hat), ] ^ 2) > sum(X[which.max(t.hat), ] ^ 2)) {
@@ -248,6 +250,8 @@ estimate.bezier.curve.2 <- function(X,
     
     t.hat <- estimate.t.bezier(X, p, t.hat, 
                                intercept = intercept, 
+                               min.t = min.t,
+                               max.t = max.t, 
                                parallel = parallel)
     
     mse <- bezier.mse(X, t.hat, p, intercept = intercept)
@@ -337,6 +341,9 @@ manifold.clustering <- function(X, K = 2,
                                 maxit = 50,
                                 k.isomap = as.integer(sqrt(nrow(X)) / K),
                                 curve.init = 'isomap',
+                                min.t = 0, 
+                                max.t = 1, 
+                                normalize = FALSE, 
                                 eps = 1e-3,
                                 parallel = TRUE,
                                 verbose = FALSE,
@@ -344,6 +351,7 @@ manifold.clustering <- function(X, K = 2,
                                 animation.dir = '.',
                                 animation.title = 'plot') {
   n <- nrow(X)
+  r <- 2
   
   if (length(initialization) == n) {
     z.hat <- initialization
@@ -370,59 +378,57 @@ manifold.clustering <- function(X, K = 2,
                                          Y = numeric(0),
                                          iter = numeric(0),
                                          type = character(0))
+    curves.df <- data.frame(X = numeric(0),
+                            Y = numeric(0),
+                            Z = integer(0),
+                            iter = numeric(0),
+                            type = character(0))
+    
+    t.seq <- seq(min.t, max.t, length.out = 100)
   }
   
   while (TRUE) {
     z.hat.prev <- z.hat
     
-    X1 <- X[z.hat == 1, ]
-    X2 <- X[z.hat == 2, ]
+    X.list <- lapply(seq(K), function(k) {
+      X[z.hat == k, ]
+    })
     
-    if (verbose) print('fitting curve 1')
-    if (exists('curve1')) {
-      curve1 <- estimate.bezier.curve.2(X1, 
-                                        init.params = curve1$p,
-                                        k.isomap = k.isomap, 
-                                        intercept = intercept,
-                                        parallel = parallel)
+    if (verbose) print('fitting curves')
+    if (!exists('curves')) {
+      curves <- lapply(seq(K), function(k) {
+        estimate.bezier.curve.2(X.list[[k]],
+                                k.isomap = k.isomap,
+                                intercept = intercept,
+                                initialization = curve.init,
+                                min.t = min.t, 
+                                max.t = max.t, 
+                                normalize = normalize,
+                                parallel = parallel, 
+                                eps = eps / K)
+      })
     } else {
-      curve1 <- estimate.bezier.curve.2(X1, 
-                                        k.isomap = k.isomap, 
-                                        intercept = intercept,
-                                        initialization = curve.init, 
-                                        parallel = parallel)
-    }
-    if (verbose) print('fitting curve 2')
-    if (exists('curve2')) {
-      curve2 <- estimate.bezier.curve.2(X2, 
-                                        init.params = curve2$p,
-                                        k.isomap = k.isomap, 
-                                        intercept = intercept,
-                                        parallel = parallel)
-    } else {
-      curve2 <- estimate.bezier.curve.2(X2, 
-                                        k.isomap = k.isomap, 
-                                        intercept = intercept,
-                                        initialization = curve.init,
-                                        parallel = parallel)
+      curves <- lapply(seq(K), function(k) {
+        estimate.bezier.curve.2(X.list[[k]],
+                                init.params = curves[[k]]$p,
+                                intercept = intercept,
+                                min.t = min.t, 
+                                max.t = max.t, 
+                                normalize = normalize,
+                                parallel = parallel, 
+                                eps = eps / K)
+      })
     }
     
     if (verbose) print('reassigning clusters')
-    d1 <- compute.distances.bezier(X, curve1$p, 
-                                   # min.t = min(curve1$t),
-                                   # max.t = max(curve1$t),
-                                   min.t = 0,
-                                   max.t = 1,
-                                   parallel = parallel, 
-                                   intercept = intercept)
-    d2 <- compute.distances.bezier(X, curve2$p, 
-                                   # min.t = min(curve1$t),
-                                   # max.t = max(curve1$t),
-                                   min.t = 0,
-                                   max.t = 1,
-                                   parallel = parallel, 
-                                   intercept = intercept)
-    distances <- cbind(d1, d2)
+    distances <- do.call('cbind', lapply(seq(K), function(k) {
+      compute.distances.bezier(X, 
+                               curves[[k]]$p,
+                               min.t = min.t,
+                               max.t = max.t, 
+                               parallel = parallel,
+                               intercept = intercept)
+    }))
     
     ggplot() +
       # viridis::scale_colour_viridis() +
@@ -430,17 +436,21 @@ manifold.clustering <- function(X, K = 2,
                      colour = factor(z.hat),
                      shape = factor(z.hat)),
                  size = 5) +
-      geom_point(aes(x = curve1$X[, 1], y = curve1$X[, 2]), colour = 'red') +
-      geom_point(aes(x = curve2$X[, 1], y = curve2$X[, 2]), colour = 'blue') +
+      geom_point(aes(x = curves[[1]]$X[, 1], 
+                     y = curves[[1]]$X[, 2]), 
+                 colour = 'red') +
+      geom_point(aes(x = curves[[2]]$X[, 1], 
+                     y = curves[[2]]$X[, 2]), 
+                 colour = 'blue') +
       coord_fixed()
     
     if (animate) {
-      update.curve1.df <- dplyr::tibble(X = curve1$X[, 1], 
-                                        Y = curve1$X[, 2],
+      update.curve1.df <- dplyr::tibble(X = curves[[1]]$X[, 1], 
+                                        Y = curves[[1]]$X[, 2],
                                         iter = niter,
                                         type = 'curvefit')
-      update.curve2.df <- dplyr::tibble(X = curve2$X[, 1], 
-                                        Y = curve2$X[, 2],
+      update.curve2.df <- dplyr::tibble(X = curves[[2]]$X[, 1], 
+                                        Y = curves[[2]]$X[, 2],
                                         iter = niter,
                                         type = 'curvefit')
       curve1.df %<>% dplyr::bind_rows(update.curve1.df)
@@ -452,10 +462,21 @@ manifold.clustering <- function(X, K = 2,
                                       iter = niter,
                                       type = 'curvefit')
       iter.df %<>% dplyr::bind_rows(update.iter.df)
+      
+      update.curves.df <- plyr::ldply(seq(K), function(k) {
+        X.hat <- construct.bezier.model.matrix(t.seq, r, intercept) %*% curves[[k]]$p
+        dplyr::tibble(X = X.hat[, 1],
+                      Y = X.hat[, 2],
+                      Z = k,
+                      iter = niter,
+                      type = 'curvefit')
+      })
+      curves.df %<>% dplyr::bind_rows(update.curves.df)
+      
     }
     
     prev.loss <- new.loss
-    curves <- list(curve1, curve2)
+    # curves <- list(curve1, curve2)
     new.loss <- sapply(seq(K), function(k) {
       norm(X[z.hat == k, ] - curves[[k]]$X, 'F') ^ 2
     }) %>% 
@@ -473,8 +494,8 @@ manifold.clustering <- function(X, K = 2,
                      colour = factor(z.hat),
                      shape = factor(z.hat)),
                  size = 5) +
-      geom_point(aes(x = curve1$X[, 1], y = curve1$X[, 2]), colour = 'red') +
-      geom_point(aes(x = curve2$X[, 1], y = curve2$X[, 2]), colour = 'blue') +
+      geom_point(aes(x = curves[[1]]$X[, 1], y = curves[[1]]$X[, 2]), colour = 'red') +
+      geom_point(aes(x = curves[[2]]$X[, 1], y = curves[[2]]$X[, 2]), colour = 'blue') +
       geom_text(aes(x = X[, 1], y = X[, 2],
                     # colour = factor(z.hat),
                     label = seq(n)),
@@ -486,26 +507,14 @@ manifold.clustering <- function(X, K = 2,
     # print(curve2$mse %>% diff())
     # print(table(z.hat, z.hat.prev))
     # print(d.loss)
-    # 
-    # sapply(seq(K), function(k) {
-    #   X.k <- X[z.hat == k, ]
-    #   p.k <- curves[[k]]$p
-    #   t.k <- estimate.t.bezier(X.k, p.k,
-    #                            min.t = min(curves[[k]]$t),
-    #                            max.t = max(curves[[k]]$t),
-    #                            parallel = parallel, intercept = intercept)
-    #   T.k <- construct.bezier.model.matrix(t.k, r = 2, intercept = intercept)
-    #   norm(X.k - T.k %*% p.k, 'F') ^ 2
-    # }) %>%
-    #   sum()
     
     if (animate) {
-      update.curve1.df <- dplyr::tibble(X = curve1$X[, 1], 
-                                        Y = curve1$X[, 2],
+      update.curve1.df <- dplyr::tibble(X = curves[[1]]$X[, 1], 
+                                        Y = curves[[1]]$X[, 2],
                                         iter = niter + .5,
                                         type = 'reassign')
-      update.curve2.df <- dplyr::tibble(X = curve2$X[, 1], 
-                                        Y = curve2$X[, 2],
+      update.curve2.df <- dplyr::tibble(X = curves[[2]]$X[, 1], 
+                                        Y = curves[[2]]$X[, 2],
                                         iter = niter + .5,
                                         type = 'reassign')
       curve1.df %<>% dplyr::bind_rows(update.curve1.df)
@@ -517,6 +526,16 @@ manifold.clustering <- function(X, K = 2,
                                       iter = niter + .5,
                                       type = 'reassign')
       iter.df %<>% dplyr::bind_rows(update.iter.df)
+      
+      update.curves.df <- plyr::ldply(seq(K), function(k) {
+        X.hat <- construct.bezier.model.matrix(t.seq, r, intercept) %*% curves[[k]]$p
+        dplyr::tibble(X = X.hat[, 1],
+                      Y = X.hat[, 2],
+                      Z = k,
+                      iter = niter + .5,
+                      type = 'reassign')
+      })
+      curves.df %<>% dplyr::bind_rows(update.curves.df)
     }
     
     if (d.loss < eps) break
@@ -542,20 +561,26 @@ manifold.clustering <- function(X, K = 2,
                  aes(x = X, y = Y), colour = 'red') +
       geom_point(data = curve2.df,
                  aes(x = X, y = Y), colour = 'blue') +
+      geom_path(data = curves.df,
+                aes(x = X, y = Y, group = Z)) +
       coord_fixed() +
       labs(x = NULL, y = NULL, colour = NULL, shape = NULL) + 
       transition_states(iter,
                         wrap = FALSE,
                         transition_length = 0,
-                        state_length = 2)
+                        state_length = 1) + 
+      enter_fade() + 
+      exit_fade()
     anim_save(paste0(animation.title, '.gif'),
               anim,
               path = animation.dir)
   }
   
   return(list(z = z.hat, 
-              X = list(curve1$X, curve2$X),
-              t = list(curve1$t, curve2$t),
+              # X = list(curve1$X, curve2$X),
+              X = lapply(curves, function(curve) curve$X),
+              # t = list(curve1$t, curve2$t),
+              t = lapply(curves, function(curve) curve$t),
               p = p.list,
               niter = niter,
               loss = loss))
