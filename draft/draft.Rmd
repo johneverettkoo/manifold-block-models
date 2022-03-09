@@ -418,6 +418,7 @@ names(out) <- sapply(seq(random.starts), function(i) {
 
 out[['spectral clust\n(w/o intercept)']] <- manifold.clustering(
   Xhat, 2, 
+  A = A, 
   parallel = TRUE, 
   intercept = FALSE, 
   normalize = normalize, 
@@ -431,6 +432,7 @@ out[['spectral clust\n(w/o intercept)']] <- manifold.clustering(
 
 out[['spectral clust\n(w/ intercept)']] <- manifold.clustering(
   Xhat, 2,
+  A = A, 
   parallel = TRUE,
   intercept = TRUE,
   normalize = normalize, 
@@ -505,29 +507,7 @@ ggplot(loss.df) +
 
 ```{r, fig.width = 6, fig.height = 5, fig.cap = 'ASE labeled by estimated community labels for each initialization strategy.'}
 plots.list <- lapply(seq_along(out), function(i) {
-  zhat.manifold <- out[[i]]$z
-  
-  t.1 <- seq(min(out[[i]]$t[[1]]), max(out[[i]]$t[[1]]), .01)
-  t.2 <- seq(min(out[[i]]$t[[2]]), max(out[[i]]$t[[2]]), .01)
-  Y1 <- bezier.curve(t.1, out[[i]]$p[[1]])
-  Y2 <- bezier.curve(t.2, out[[i]]$p[[2]])
-  
-  # Y1 <- out[[i]]$X[[1]][order(out[[i]]$t[[1]]), ]
-  # Y2 <- out[[i]]$X[[2]][order(out[[i]]$t[[2]]), ]
-  
-  
-  ggplot() + 
-    geom_point(aes(x = Xhat[, 1], y = Xhat[, 2], 
-                   colour = factor(zhat.manifold)),
-               size = .5) + 
-    labs(x = expression(x[1]), y = expression(x[2]), colour = NULL,
-         title = names(out)[i]) + 
-    theme_bw() + 
-    # coord_fixed() +
-    theme(legend.position = 'none') +
-    geom_path(aes(x = Y1[, 1], y = Y1[, 2])) +
-    geom_path(aes(x = Y2[, 1], y = Y2[, 2])) + 
-    xlim(min(Xhat[, 1]), max(Xhat[, 1])) + ylim(min(Xhat[, 2]), max(Xhat[, 2]))
+  plot.estimated.curves(Xhat, out[[i]])
 })
 
 gridExtra::grid.arrange(grobs = plots.list, ncol = 3)
@@ -536,6 +516,8 @@ gridExtra::grid.arrange(grobs = plots.list, ncol = 3)
 \end{example}
 
 \begin{example}[Macaque visuotactile brain areas and connections]
+
+\cite{https://doi.org/10.1111/j.1460-9568.2006.04678.x}
 
 ```{r}
 data(macaque, package = 'igraphdata')
@@ -563,21 +545,7 @@ macaque.out <- manifold.clustering(Xhat, 2,
 ```
 
 ```{r}
-t.1 <- seq(min(c(0, macaque.out$t[[1]])), max(macaque.out$t[[1]]), .01)
-t.2 <- seq(min(c(0, macaque.out$t[[2]])), max(macaque.out$t[[2]]), .01)
-Y1 <- bezier.curve(t.1, macaque.out$p[[1]])
-Y2 <- bezier.curve(t.2, macaque.out$p[[2]])
-
-ggplot() + 
-  geom_point(aes(x = Xhat[, 1], y = Xhat[, 2], 
-                 colour = factor(macaque.out$z)),
-             size = .5) + 
-  labs(x = expression(x[1]), y = expression(x[2]), colour = NULL) + 
-  theme_bw() + 
-  coord_fixed() +
-  theme(legend.position = 'none') +
-  geom_path(aes(x = Y1[, 1], y = Y1[, 2])) +
-  geom_path(aes(x = Y2[, 1], y = Y2[, 2]))
+plot.estimated.curves(Xhat, macaque.out)
 ```
 
 ```{r}
@@ -615,29 +583,15 @@ Xhat <- embedding(A, 2, 0)
 z.init <- hclust(dist(Xhat), method = 'single') %>% 
   cutree(2)
 nonintersect.out <- manifold.clustering(Xhat, 2, 
-                                        # initialization = z.init,
-                                        initialization = 'random', 
+                                        initialization = z.init,
+                                        # initialization = 'random', 
                                         intercept = TRUE, 
                                         animate = animate,
                                         animation.title = 'nonintersect')
 ```
 
 ```{r}
-t.1 <- seq(min(nonintersect.out$t[[1]]), max(nonintersect.out$t[[1]]), .01)
-t.2 <- seq(min(nonintersect.out$t[[2]]), max(nonintersect.out$t[[2]]), .01)
-Y1 <- bezier.curve(t.1, nonintersect.out$p[[1]])
-Y2 <- bezier.curve(t.2, nonintersect.out$p[[2]])
-
-ggplot() + 
-  geom_point(aes(x = Xhat[, 1], y = Xhat[, 2], 
-                 colour = factor(nonintersect.out$z)),
-             size = .5) + 
-  labs(x = expression(x[1]), y = expression(x[2]), colour = NULL) + 
-  theme_bw() + 
-  coord_fixed() +
-  theme(legend.position = 'none') +
-  geom_path(aes(x = Y1[, 1], y = Y1[, 2])) +
-  geom_path(aes(x = Y2[, 1], y = Y2[, 2]))
+plot.estimated.curves(Xhat, nonintersect.out)
 ```
 
 \end{example}

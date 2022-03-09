@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.8.22)  7 MAR 2022 16:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.8.22)  9 MAR 2022 09:14
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -426,111 +426,106 @@ File: draft_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
 Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-3-1.pdf  used o
 n input line 387.
 (pdftex.def)             Requested size: 141.5284pt x 204.76448pt.
-<draft_files/figure-latex/unnamed-chunk-5-1.pdf, id=124, 421.575pt x 137.51375p
+<draft_files/figure-latex/unnamed-chunk-6-1.pdf, id=124, 421.575pt x 137.51375p
 t>
-File: draft_files/figure-latex/unnamed-chunk-5-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-5-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-5-1.pdf  used o
-n input line 404.
+File: draft_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-6-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-6-1.pdf  used o
+n input line 406.
 (pdftex.def)             Requested size: 421.57396pt x 137.51341pt.
 [7pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) 
 has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.409 \end{figure}
+l.411 \end{figure}
                   pdfTeX warning (ext4): destination with the same identifier (
 name{figure.2}) has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.409 \end{figure}
+l.411 \end{figure}
                    <./draft_files/figure-latex/unnamed-chunk-2-1.pdf> <./draft_
 files/figure-latex/unnamed-chunk-3-1.pdf>]
-<draft_files/figure-latex/unnamed-chunk-6-1.pdf, id=148, 424.58624pt x 349.305p
-t>
-File: draft_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-6-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-6-1.pdf  used o
-n input line 413.
-(pdftex.def)             Requested size: 424.5852pt x 349.30414pt.
-<draft_files/figure-latex/unnamed-chunk-7-1.pdf, id=149, 328.22626pt x 142.5325
+<draft_files/figure-latex/unnamed-chunk-7-1.pdf, id=148, 416.55624pt x 351.3125
 pt>
 File: draft_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
 <use draft_files/figure-latex/unnamed-chunk-7-1.pdf>
 Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-7-1.pdf  used o
-n input line 425.
+n input line 415.
+(pdftex.def)             Requested size: 416.55522pt x 351.31163pt.
+<draft_files/figure-latex/unnamed-chunk-8-1.pdf, id=150, 328.22626pt x 142.5325
+pt>
+File: draft_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-8-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-8-1.pdf  used o
+n input line 429.
 (pdftex.def)             Requested size: 328.22545pt x 142.53214pt.
 [8pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) 
 has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.430 \begin{center}
-                    \includegraphics{draft_files/figure-latex/unnamed-chunk-...
-pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) ha
-s been already used, duplicate ignored
+l.429 ...ure-latex/unnamed-chunk-8-1} \end{center}
+                                                  pdfTeX warning (ext4): destin
+ation with the same identifier (name{figure.4}) has been already used, duplicat
+e ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.430 \begin{center}
-                    \includegraphics{draft_files/figure-latex/unnamed-chunk-...
- <./draft_files/figure-latex/unnamed-chunk-5-1.pdf> <./draft_files/figure-latex
-/unnamed-chunk-6-1.pdf>]
-<draft_files/figure-latex/unnamed-chunk-9-1.pdf, id=170, 170.6375pt x 204.765pt
->
-File: draft_files/figure-latex/unnamed-chunk-9-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-9-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-9-1.pdf  used o
-n input line 430.
-(pdftex.def)             Requested size: 170.63707pt x 204.76448pt.
-<draft_files/figure-latex/unnamed-chunk-10-1.pdf, id=171, 329.23pt x 146.5475pt
->
+l.429 ...ure-latex/unnamed-chunk-8-1} \end{center}
+                                                   <./draft_files/figure-latex/
+unnamed-chunk-6-1.pdf> <./draft_files/figure-latex/unnamed-chunk-7-1.pdf>]
+<draft_files/figure-latex/unnamed-chunk-10-1.pdf, id=173, 166.6225pt x 204.765p
+t>
 File: draft_files/figure-latex/unnamed-chunk-10-1.pdf Graphic file (type pdf)
 <use draft_files/figure-latex/unnamed-chunk-10-1.pdf>
 Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-10-1.pdf  used 
-on input line 433.
-(pdftex.def)             Requested size: 329.22919pt x 146.54712pt.
-<draft_files/figure-latex/unnamed-chunk-11-1.pdf, id=172, 299.1175pt x 111.4162
-4pt>
+on input line 434.
+(pdftex.def)             Requested size: 166.62209pt x 204.76448pt.
+<draft_files/figure-latex/unnamed-chunk-11-1.pdf, id=174, 329.23pt x 146.5475pt
+>
 File: draft_files/figure-latex/unnamed-chunk-11-1.pdf Graphic file (type pdf)
 <use draft_files/figure-latex/unnamed-chunk-11-1.pdf>
 Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-11-1.pdf  used 
-on input line 440.
+on input line 437.
+(pdftex.def)             Requested size: 329.22919pt x 146.54712pt.
+<draft_files/figure-latex/unnamed-chunk-12-1.pdf, id=175, 299.1175pt x 111.4162
+4pt>
+File: draft_files/figure-latex/unnamed-chunk-12-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-12-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-12-1.pdf  used 
+on input line 444.
 (pdftex.def)             Requested size: 299.11676pt x 111.41597pt.
-[9 <./draft_files/figure-latex/unnamed-chunk-7-1.pdf> <./draft_files/figure-lat
-ex/unnamed-chunk-9-1.pdf> <./draft_files/figure-latex/unnamed-chunk-10-1.pdf>]
-<draft_files/figure-latex/unnamed-chunk-14-1.pdf, id=198, 122.4575pt x 204.765p
-t>
-File: draft_files/figure-latex/unnamed-chunk-14-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-14-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-14-1.pdf  used 
-on input line 447.
-(pdftex.def)             Requested size: 122.45718pt x 204.76448pt.
-(./draft.bbl
-
-Package natbib Warning: Empty `thebibliography' environment on input line 3.
-
-)
+[9 <./draft_files/figure-latex/unnamed-chunk-8-1.pdf> <./draft_files/figure-lat
+ex/unnamed-chunk-10-1.pdf> <./draft_files/figure-latex/unnamed-chunk-11-1.pdf>]
+<draft_files/figure-latex/unnamed-chunk-15-1.pdf, id=201, 137.51375pt x 206.772
+5pt>
+File: draft_files/figure-latex/unnamed-chunk-15-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-15-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-15-1.pdf  used 
+on input line 451.
+(pdftex.def)             Requested size: 137.51341pt x 206.77199pt.
+(./draft.bbl)
 
 Package natbib Warning: There were undefined citations.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 457.
-[10 <./draft_files/figure-latex/unnamed-chunk-11-1.pdf> <./draft_files/figure-l
-atex/unnamed-chunk-14-1.pdf>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 457.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 461.
+[10 <./draft_files/figure-latex/unnamed-chunk-12-1.pdf> <./draft_files/figure-l
+atex/unnamed-chunk-15-1.pdf>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 461.
 (./draft.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 457.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 457.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 461.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 461.
 Package rerunfilecheck Info: File `draft.out' has not changed.
 (rerunfilecheck)             Checksum: 2F3D5D3C02000DA1F6F544A6A329D2E7;469.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 457.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 461.
  ) 
 Here is how much of TeX's memory you used:
- 8229 strings out of 481239
- 126343 string characters out of 5920377
- 406787 words of memory out of 5000000
- 23271 multiletter control sequences out of 15000+600000
+ 8236 strings out of 481239
+ 126596 string characters out of 5920377
+ 406858 words of memory out of 5000000
+ 23276 multiletter control sequences out of 15000+600000
  540597 words of font info for 53 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  34i,14n,32p,320b,527s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -549,10 +544,10 @@ usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/sh
 are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/tex
 live/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/t
 exmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on draft.pdf (10 pages, 517797 bytes).
+Output written on draft.pdf (10 pages, 602731 bytes).
 PDF statistics:
- 288 PDF objects out of 1000 (max. 8388607)
- 230 compressed objects within 3 object streams
- 67 named destinations out of 1000 (max. 500000)
+ 291 PDF objects out of 1000 (max. 8388607)
+ 233 compressed objects within 3 object streams
+ 69 named destinations out of 1000 (max. 500000)
  110 words of extra memory for PDF output out of 10000 (max. 10000000)
 
