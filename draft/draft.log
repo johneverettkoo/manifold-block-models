@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.8.22)  16 MAR 2022 11:53
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2021.8.22)  13 APR 2022 13:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -325,30 +325,37 @@ Package: amsthm 2017/10/31 v2.20.4
 \dth@everypar=\toks30
 ) (/usr/share/texlive/texmf-dist/tex/latex/comment/comment.sty
 \CommentStream=\write4
-Excluding comment 'comment') (/usr/share/texlive/texmf-dist/tex/latex/l3backend
-/l3backend-pdfmode.def
+Excluding comment 'comment') (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/
+amsfonts.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
+) (/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2020-02-03 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count277
 \l__pdf_internal_box=\box57
 ) (./draft.aux)
 \openout1 = `draft.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 39.
-LaTeX Font Info:    ... okay on input line 39.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 40.
+LaTeX Font Info:    ... okay on input line 40.
 (/usr/share/texlive/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count278
@@ -371,7 +378,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \AtBeginShipoutBox=\box59
-Package hyperref Info: Link coloring OFF on input line 39.
+Package hyperref Info: Link coloring OFF on input line 40.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2019/09/16 v2.46 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty
@@ -381,14 +388,23 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count284
 )
-LaTeX Info: Redefining \ref on input line 39.
-LaTeX Info: Redefining \pageref on input line 39.
-LaTeX Info: Redefining \nameref on input line 39.
+LaTeX Info: Redefining \ref on input line 40.
+LaTeX Info: Redefining \pageref on input line 40.
+LaTeX Info: Redefining \nameref on input line 40.
 (./draft.out) (./draft.out)
 \@outlinefile=\write5
 \openout5 = `draft.out'.
 
-[1
+LaTeX Font Info:    Trying to load font information for U+msa on input line 58.
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 58.
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+) [1
 Non-PDF special ignored!
 <special> header=psfrag.pro
 
@@ -399,155 +415,173 @@ Non-PDF special ignored!
 \c@remark=\count288
 \c@definition=\count289
 \c@example=\count290
-[2] [3] [4]
+[2] [3] [4] [5] [6]
 
-Package natbib Warning: Citation `trosset2020rehabilitating' on page 5 undefine
-d on input line 310.
+Package natbib Warning: Citation `trosset2020rehabilitating' on page 7 undefine
+d on input line 427.
 
-[5]
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
+[7]
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-<draft_files/figure-latex/unnamed-chunk-2-1.pdf, id=101, 147.55125pt x 132.495p
+[8pdfTeX warning (ext4): destination with the same identifier (name{algocf.1}) 
+has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.506 G
+       iven \(\{t_i\}\) and \(\{z_i\}\), it is straightforward to obtain]
+Overfull \hbox (24.18121pt too wide) in paragraph at lines 508--513
+\OT1/cmr/m/n/12 where $\OML/cmm/m/it/12 T[]$ \OT1/cmr/m/n/12 is an $\OML/cmm/m/
+it/12 n[] \OMS/cmsy/m/n/12 ^^B \OT1/cmr/m/n/12 (\OML/cmm/m/it/12 R \OT1/cmr/m/n
+/12 + 1)$ ma-trix with rows $[]$.
+ []
+
+
+Overfull \hbox (3.71802pt too wide) in paragraph at lines 515--524
+\OT1/cmr/m/n/12 This is equiv-a-lent to solv-ing $0 = (\OML/cmm/m/it/12 x[] \OM
+S/cmsy/m/n/12 ^^@ \OML/cmm/m/it/12 g\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 t\OT1/cmr
+/m/n/12 ; \OML/cmm/m/it/12 p[]\OT1/cmr/m/n/12 ))[]([](\OML/cmm/m/it/12 t\OT1/cm
+r/m/n/12 ; \OML/cmm/m/it/12 p[]\OT1/cmr/m/n/12 ))$. Set-ting $\OML/cmm/m/it/12 
+c[] \OT1/cmr/m/n/12 = [][](\OMS/cmsy/m/n/12 ^^@\OT1/cmr/m/n/12 1)[][]\OML/cmm/m
+/it/12 p[]$
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[9pdfTeX warning (ext4): destination with the same identifier (name{algocf.2}) 
+has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.550 \end{theorem}
+                   ]
+<draft_files/figure-latex/unnamed-chunk-2-1.pdf, id=147, 147.55125pt x 132.495p
 t>
 File: draft_files/figure-latex/unnamed-chunk-2-1.pdf Graphic file (type pdf)
 <use draft_files/figure-latex/unnamed-chunk-2-1.pdf>
 Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-2-1.pdf  used o
-n input line 411.
+n input line 560.
 (pdftex.def)             Requested size: 147.55087pt x 132.49466pt.
-[6pdfTeX warning (ext4): destination with the same identifier (name{algocf.1}) 
-has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.417 
-      ]
-<draft_files/figure-latex/unnamed-chunk-3-1.pdf, id=118, 141.52875pt x 204.765p
-t>
-File: draft_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-3-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-3-1.pdf  used o
-n input line 422.
-(pdftex.def)             Requested size: 141.5284pt x 204.76448pt.
-[7pdfTeX warning (ext4): destination with the same identifier (name{algocf.2}) 
-has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.428 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-1}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.428 
-       <./draft_files/figure-latex/unnamed-chunk-2-1.pdf>]
-Overfull \vbox (50.21208pt too high) has occurred while \output is active []
-
-[8pdfTeX warning (ext4): destination with the same identifier (name{algocf.3}) 
-has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.428 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-2}) has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.428 
-       <./draft_files/figure-latex/unnamed-chunk-3-1.pdf>]
-<draft_files/figure-latex/unnamed-chunk-6-1.pdf, id=170, 421.575pt x 137.51375p
-t>
-File: draft_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-6-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-6-1.pdf  used o
-n input line 441.
-(pdftex.def)             Requested size: 421.57396pt x 137.51341pt.
-<draft_files/figure-latex/unnamed-chunk-7-1.pdf, id=171, 416.55624pt x 351.3125
-pt>
-File: draft_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-7-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-7-1.pdf  used o
-n input line 450.
-(pdftex.def)             Requested size: 416.55522pt x 351.31163pt.
-[9pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) 
-has been already used, duplicate ignored
-
-\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
-                                                  \fi \fi 
-l.456 
-       <./draft_files/figure-latex/unnamed-chunk-6-1.pdf>]
-<draft_files/figure-latex/unnamed-chunk-8-1.pdf, id=185, 328.22626pt x 142.5325
-pt>
-File: draft_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-8-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-8-1.pdf  used o
-n input line 464.
-(pdftex.def)             Requested size: 328.22545pt x 142.53214pt.
-<draft_files/figure-latex/unnamed-chunk-10-1.pdf, id=186, 166.6225pt x 204.765p
-t>
-File: draft_files/figure-latex/unnamed-chunk-10-1.pdf Graphic file (type pdf)
-<use draft_files/figure-latex/unnamed-chunk-10-1.pdf>
-Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-10-1.pdf  used 
-on input line 469.
-(pdftex.def)             Requested size: 166.62209pt x 204.76448pt.
-[10pdfTeX warning (ext4): destination with the same identifier (name{figure.4})
+[10pdfTeX warning (ext4): destination with the same identifier (name{algocf.3})
  has been already used, duplicate ignored
 
 \AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
                                                   \fi \fi 
-l.469 ...re-latex/unnamed-chunk-10-1} \end{center}
+l.565 \end{figure}
+                  ]
+<draft_files/figure-latex/unnamed-chunk-3-1.pdf, id=167, 141.52875pt x 204.765p
+t>
+File: draft_files/figure-latex/unnamed-chunk-3-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-3-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-3-1.pdf  used o
+n input line 571.
+(pdftex.def)             Requested size: 141.5284pt x 204.76448pt.
+<draft_files/figure-latex/unnamed-chunk-6-1.pdf, id=168, 421.575pt x 137.51375p
+t>
+File: draft_files/figure-latex/unnamed-chunk-6-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-6-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-6-1.pdf  used o
+n input line 590.
+(pdftex.def)             Requested size: 421.57396pt x 137.51341pt.
+[11pdfTeX warning (ext4): destination with the same identifier (name{figure.1})
+ has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.595 \end{figure}
+                  pdfTeX warning (ext4): destination with the same identifier (
+name{figure.2}) has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.595 \end{figure}
+                   <./draft_files/figure-latex/unnamed-chunk-2-1.pdf> <./draft_
+files/figure-latex/unnamed-chunk-3-1.pdf>]
+<draft_files/figure-latex/unnamed-chunk-7-1.pdf, id=190, 416.55624pt x 351.3125
+pt>
+File: draft_files/figure-latex/unnamed-chunk-7-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-7-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-7-1.pdf  used o
+n input line 599.
+(pdftex.def)             Requested size: 416.55522pt x 351.31163pt.
+<draft_files/figure-latex/unnamed-chunk-8-1.pdf, id=192, 328.22626pt x 142.5325
+pt>
+File: draft_files/figure-latex/unnamed-chunk-8-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-8-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-8-1.pdf  used o
+n input line 613.
+(pdftex.def)             Requested size: 328.22545pt x 142.53214pt.
+[12pdfTeX warning (ext4): destination with the same identifier (name{figure.3})
+ has been already used, duplicate ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.613 ...ure-latex/unnamed-chunk-8-1} \end{center}
+                                                  pdfTeX warning (ext4): destin
+ation with the same identifier (name{figure.4}) has been already used, duplicat
+e ignored
+
+\AtBegShi@Output ...ipout \box \AtBeginShipoutBox 
+                                                  \fi \fi 
+l.613 ...ure-latex/unnamed-chunk-8-1} \end{center}
                                                    <./draft_files/figure-latex/
-unnamed-chunk-7-1.pdf> <./draft_files/figure-latex/unnamed-chunk-8-1.pdf>]
-<draft_files/figure-latex/unnamed-chunk-11-1.pdf, id=208, 329.23pt x 146.5475pt
+unnamed-chunk-6-1.pdf> <./draft_files/figure-latex/unnamed-chunk-7-1.pdf>]
+<draft_files/figure-latex/unnamed-chunk-10-1.pdf, id=215, 166.6225pt x 204.765p
+t>
+File: draft_files/figure-latex/unnamed-chunk-10-1.pdf Graphic file (type pdf)
+<use draft_files/figure-latex/unnamed-chunk-10-1.pdf>
+Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-10-1.pdf  used 
+on input line 618.
+(pdftex.def)             Requested size: 166.62209pt x 204.76448pt.
+<draft_files/figure-latex/unnamed-chunk-11-1.pdf, id=216, 329.23pt x 146.5475pt
 >
 File: draft_files/figure-latex/unnamed-chunk-11-1.pdf Graphic file (type pdf)
 <use draft_files/figure-latex/unnamed-chunk-11-1.pdf>
 Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-11-1.pdf  used 
-on input line 472.
+on input line 621.
 (pdftex.def)             Requested size: 329.22919pt x 146.54712pt.
-<draft_files/figure-latex/unnamed-chunk-12-1.pdf, id=209, 299.1175pt x 111.4162
+<draft_files/figure-latex/unnamed-chunk-12-1.pdf, id=217, 299.1175pt x 111.4162
 4pt>
 File: draft_files/figure-latex/unnamed-chunk-12-1.pdf Graphic file (type pdf)
 <use draft_files/figure-latex/unnamed-chunk-12-1.pdf>
 Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-12-1.pdf  used 
-on input line 479.
+on input line 628.
 (pdftex.def)             Requested size: 299.11676pt x 111.41597pt.
-<draft_files/figure-latex/unnamed-chunk-15-1.pdf, id=210, 137.51375pt x 206.772
+[13 <./draft_files/figure-latex/unnamed-chunk-8-1.pdf> <./draft_files/figure-la
+tex/unnamed-chunk-10-1.pdf> <./draft_files/figure-latex/unnamed-chunk-11-1.pdf>
+]
+<draft_files/figure-latex/unnamed-chunk-15-1.pdf, id=244, 137.51375pt x 206.772
 5pt>
 File: draft_files/figure-latex/unnamed-chunk-15-1.pdf Graphic file (type pdf)
 <use draft_files/figure-latex/unnamed-chunk-15-1.pdf>
 Package pdftex.def Info: draft_files/figure-latex/unnamed-chunk-15-1.pdf  used 
-on input line 486.
+on input line 635.
 (pdftex.def)             Requested size: 137.51341pt x 206.77199pt.
-[11 <./draft_files/figure-latex/unnamed-chunk-10-1.pdf> <./draft_files/figure-l
-atex/unnamed-chunk-11-1.pdf> <./draft_files/figure-latex/unnamed-chunk-12-1.pdf
->] (./draft.bbl)
+(./draft.bbl)
 
 Package natbib Warning: There were undefined citations.
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 496.
-[12 <./draft_files/figure-latex/unnamed-chunk-15-1.pdf>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 496.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 645.
+[14 <./draft_files/figure-latex/unnamed-chunk-12-1.pdf> <./draft_files/figure-l
+atex/unnamed-chunk-15-1.pdf>]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 645.
 (./draft.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 496.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 496.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 645.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 645.
 Package rerunfilecheck Info: File `draft.out' has not changed.
 (rerunfilecheck)             Checksum: 2F3D5D3C02000DA1F6F544A6A329D2E7;469.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 496.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 645.
  ) 
 Here is how much of TeX's memory you used:
- 8257 strings out of 481239
- 126830 string characters out of 5920377
- 412859 words of memory out of 5000000
- 23276 multiletter control sequences out of 15000+600000
- 540597 words of font info for 53 fonts, out of 8000000 for 9000
+ 8369 strings out of 481239
+ 128287 string characters out of 5920377
+ 412374 words of memory out of 5000000
+ 23365 multiletter control sequences out of 15000+600000
+ 543485 words of font info for 67 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 34i,14n,32p,320b,527s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 34i,14n,32p,320b,523s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/shar
 e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx8.pfb></usr/share/texli
@@ -562,11 +596,12 @@ s/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
 usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/sh
 are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/tex
 live/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on draft.pdf (12 pages, 607395 bytes).
+exmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive/texmf-d
+ist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on draft.pdf (14 pages, 626602 bytes).
 PDF statistics:
- 322 PDF objects out of 1000 (max. 8388607)
- 262 compressed objects within 3 object streams
- 90 named destinations out of 1000 (max. 500000)
+ 343 PDF objects out of 1000 (max. 8388607)
+ 280 compressed objects within 3 object streams
+ 97 named destinations out of 1000 (max. 500000)
  110 words of extra memory for PDF output out of 10000 (max. 10000000)
 

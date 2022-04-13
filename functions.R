@@ -396,7 +396,29 @@ manifold.clustering <- function(X, K = 2,
   n <- nrow(X)
   
   if (length(initialization) == n) {
-    z.hat <- initialization
+    if (all(!is.na(initialization))) {
+      z.hat <- initialization
+    } else {
+      z.hat.partial <- initialization[!is.na(initialization)]
+      X.partial <- X[!is.na(initialization), ]
+      clustering.partial <- manifold.clustering(
+        X = X.partial, 
+        K = K,
+        degree = degree,
+        initialization = z.hat.partial,
+        intercept = intercept,
+        maxit = maxit,
+        k.isomap = k.isomap * length(z.hat.partial) / n,
+        curve.init = curve.init,
+        min.t = min.t, 
+        max.t = max.t, 
+        normalize = normalize,
+        eps = eps,
+        parallel = paralle,
+        verbose = verbose, 
+        animate = FALSE)
+      z.hat <- clustering.partial$z
+    }
   } else if (initialization == 'spectral') {
     if (missing(A)) {
       stop('adjacency matrix required for spectral initialization')

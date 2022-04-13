@@ -26,6 +26,7 @@ header-includes:
 - \usepackage{verbatim}
 - \usepackage{amsthm}
 - \usepackage{comment}
+- \usepackage{amsfonts}
 ---
 
 \newcommand{\diag}{\mathrm{diag}}
@@ -51,6 +52,7 @@ header-includes:
 \newtheorem{example}{Example}
 \newcommand{\dd}{\mathrm{d}}
 \newcommand{\as}{\stackrel{\mathrm{a.s.}}{\to}}
+\newcommand{\ER}{\text{Erd\"{o}s-R\'{e}nyi}}
 
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, 
@@ -83,15 +85,54 @@ doMC::registerDoMC(parallel::detectCores())
 
 # Introduction
 
+We define a *Bernoulli graph* as a random graph model for which edge probabilities are contained in an edge probability matrix $P \in [0, 1]^{n \times n}$, and an edge occurs between vertices $i$ and $j$ with probability $P_{ij}$. 
+Common random graph models then impose structure on $P$, based on various assumptions about the way in which the data are generated, or to allow $P$ to be estimated. 
+One example is the $\ER$ model, in which all edge probabilities are fixed, i.e., $P_{ij} = p$. 
+
+One common analysis task for graph and network data is community detection, which assumes that each vertex of a graph has a hidden community label. The goal of the analysis is then to retrieve these labels. In order to perform this analysis as a statistical inference task is to define a probability model with inherent community structure. We call such models *block models*: 
+First, each vertex is assigned a label $z_1, ..., z_n \in \{1, 2, ..., K\}$ where $K \ll n$. 
+Then each edge probability $P_{ij}$ is said to depend on the labels $z_i$ and $z_j$, possibly along with some other parameters. 
+For example, the stochastic block model (SBM) sets a fixed edge probability for each pair of communities, i.e., $P_{ij} = \omega_{z_i, z_j}$. 
+The degree-corrected block model (DCBM) assigns an additional parameter $\theta_i$ to each vertex by which edge probabilities are scaled, i.e., $P_{ij} = \theta_i \theta_j \omega_{z_i, z_j}$. 
+The popularity adjusted block model (PABM) assigns $K$ parameters to each vertex $\lambda_{i1}, \lambda_{i2}, ..., \lambda_{iK}$ that describe that vertex's affinity toward each community; 
+the edge probability between vertices $i$ and $j$ is then defined as the product of vertex $i$'s affinity toward vertex $j$'s community and vertex $j$'s affinity toward vertex $i$'s community, i.e., $P_{ij} = \lambda_{i z_j} \lambda_{j z_i}$. 
+
+The three block model types, as well as the $\ER$ model, impose structure on $P$, including on the rank of $P$. 
+$P$ has rank 1 for the $\ER$ model, rank $K$ for the SBM and DCBM, and rank $K^2$ for the PABM. 
+This provides the intuition behind another family of Bernoulli graphs called the *random dot product graph* (RDPG) and *generalized random dot product graph* (GRDPG). 
+In the RDPG, each vertex has a corresponding latent vector in $d$-dimensional Euclidean space, where $d$ is the rank of $P$ and $P$ is positive semidefinite. Then the edge probability between each pair of vertices is defined as the inner product between the corresponding latent vectors, i.e., $P_{ij} = x_i^\top x_j$. If the latent vectors are collected in a data matrix $X = \bigl[ x_1 \mid \cdots \mid x_n \bigr]^\top$, then the edge probability matrix for the RDPG is $P = X X^\top$. 
+Similarly, the edge probability between each pair of vertices for the GRDPG is defined as the indefinite inner product between the corresponding latent vectors, i.e., $P_{ij} = x_i^\top I_{p,q} x_j$, where $I_{p,q} = \blockdiag(I_p, -I_q)$ and $p + q = d$. Then the edge probability matrix for the GRDPG is $P = X I_{p,q} X^\top$. This allows for a model similar to the RDPG for non-positive semidefinite $P$. 
+While the RDPG and GRDPG do not necessarily have community structure, it has been shown that block models are specific cases of the RDPG or GRDPG in which latent vectors are organized by community. This includes the SBM, in which communities correspond to point masses, DCBM, in which communities correspond to line segments, and PABM, in which communities correspond to orthogonal subspaces. In this work, we extend this idea to communities organized into more general latent structures. In particular, we assume that each community corresponds to a manifold in the latent space.
+
 # Latent Structure Block Models
 
-All block models are latent structure block models.
+All block models are latent structure models. 
+
+Insert something about ASE and its consistency here.
 
 # Methods
 
-Here, we provide two algorithms for LSBM community detection. 
+Here, we provide two algorithms for MBM community detection. 
+
+First, we consider the case in which communities correspond to manifolds in the latent space that do not intersect and are separated by some finite distance. In this scenario, we use the convergence of the ASE to show that single linkage clustering on the latent space produces a clustering such that the total number of misclustered vertices goes to zero, with high probability. 
+
+Next, we consider the case in which communities correspond to one-dimensional manifolds in the latent space and may or may not intersect. In this scenario, we propose an alternating coordinate descent algorithm that alternates between estimating the structure of the manifolds and the community labels, which we call $K$-curves clustering. We again use the convergence of the ASE to show that under certain conditions, $K$-curves clustering produces a clustering such that the proportion of misclustered vertices goes to zero, with high probability. 
 
 ## Nonintersecting Manifolds
+
+In this section, we consider the following scenario: Suppose that each community is represented by a manifold $\mathcal{M}_k$, $k \in \{1, ..., K\}$ in the latent space of a RDPG or GDRPG, and the manifolds do not intersect each other. 
+Define $\delta = \min\limits_{k, \ell} \min\limits_{x \in \mathcal{M}_k, y \in \mathcal{M}_\ell} \|x - y\|$, the minimum distance between two manifolds. 
+We assume that $\delta > 0$. 
+
+First, we consider the case in which each $\mathcal{M}_k \subset \mathbb{R}^d$ is a one-dimensional manifold, which can be characterized by a function $g_k : [0, 1] \to \mathcal{M}_k$. 
+Let $F$ be a probability distribution with support $[0, 1]$. 
+Then we define a mixture model as follows:
+
+1. Draw $t_1, ..., t_n \iid F$.
+2. Draw $z_1, ..., z_n \iid \Multinomial(\alpha_1, ..., \alpha_K)$, the community labels.
+3. Let each $x_i = g_{z_i}(t_i)$ be the latent vector for vertex $v_i$.  
+Assume $\min_{k, \ell} \min_{t, s} \|g_k(t) - g_\ell(s)\| = \delta > 0$. 
+4. Draw $A \sim \RDPG(X)$ or $A \sim \GRDPG_{p,q}(X)$.
 
 ### Preliminary Theory
 
@@ -293,6 +334,9 @@ Apply single linkage clustering with $K$ communities on the ASE.\;
 
 ## Intersecting Manifolds
 
+In this section, we again consider the setting for the RDPG or GRDPG in which each community lies on a manifold in the latent space. 
+However, this time, we do not assume that the manifolds are nonintersecting. 
+
 \begin{algorithm}[h]
 \DontPrintSemicolon
 \SetAlgoLined
@@ -324,6 +368,21 @@ $K$-curves clustering is a batch coordinate descent algorithm.
 Thus, in order to show that it converges to a stationary point, it is sufficient to show that each descent step decreases the objective function. 
 \end{proof}
 
+$K$-curves clustering assumes that the functional form of $g_k$ is known. 
+The choice of $g_k$ affects the difficulty of the algorithm. 
+As a balance between flexibility and ease of estimation, we consider the case where each $g_k$ is a Bezier polynomial of degree $R$ with coefficients $p_k$. 
+Then we have $g_k(t) = g(t; p_k) = \sum_{r=0}^R p_k^{(r)} \binom{R}{r} (1-t)^{R-r} t^r$. 
+
+Given $\{t_i\}$ and $\{z_i\}$, it is straightforward to obtain $\hat{p}_k = \arg\min_p \sum_{k_i} \|x_{k_i} - g_k (t_{k_i}; p)\|^2$
+$$\hat{p}_k = (T_k^\top T_k)^{-1} T_k^\top X_k,$$
+where $T_k$ is an $n_k \times (R+1)$ matrix with rows $\begin{bmatrix} (1 - t_{k_i})^R & (1 - t_{k_i})^{R-1} t_{k_i} & \cdots & (1 - t_{k_i}) t_{k_i}^{R-1} & t_{k_i}^R \end{bmatrix}$.
+Estimation of $\{t_i\}$ given $\{z_i\}$ and $\{p_k\}$ is more difficult. 
+Each $t_i$ can be estimated separately: 
+\begin{equation} \label{eq:min-t}
+\hat{t}_i = \arg\min_t \|x_i - g(t; p_{z_i})\|^2. 
+\end{equation}
+This is equivalent to solving $0 = (x_i - g(t; p_{z_i}))^\top (\dot{g}(t; p_{z_i}))$. 
+Setting $c^{(s)} = \sum_{r=0}^s (-1)^{s-r} \binom{R}{r} p^{(r)}_{z_i}$ for $s \neq 0$ and $c^{(0)} = p^{(0)}_{z_i} - x_i$, let $c = \begin{bmatrix} c^{(0)} & \cdots & c^{(R)} \end{bmatrix}^\top$. Then solving Eq. \ref{eq:min-t} is equivalent to finding the real roots of a polynomial with coefficients that are the sums of the reverse diagonals of $C D^\top$, where $C_{ij} = c_{ij} (-1)^i \binom{R}{i}$ and $D_{ij} = c_{i-1,j} (-1)^{i-1} \binom{R-1}{i-1}$. 
 
 \begin{algorithm}[h]
 \DontPrintSemicolon
@@ -346,8 +405,10 @@ Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$, holding the known
 \end{algorithm}
 
 \begin{theorem}
-Let each $g_k$ be smooth. 
-Then as $n \to \infty$, the proportion of misclustered vertices approaches $0$ with probability $1$.
+Let each $g(\cdot; p_k)$ be a nonintersecting Bezier polynomial of order $R$, 
+and a GRDPG is drawn from vectors that lie on the curves. 
+Suppose we observe the true labels of $m_k$ vertices from each community, and each $m_k > R + 1$. Suppose further that latent vectors $x_j = g(t_i; p_{z_j})$ that correspond to vertices with observed labels are such that 
+Then as $n \to \infty$, the proportion of misclustered vertices from $K$-curves clustering approaches $0$ with probability $1$.
 \end{theorem}
 
 # Examples
