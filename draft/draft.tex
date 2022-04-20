@@ -31,7 +31,6 @@
 \usepackage{mathtools}
 \usepackage{natbib}
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
-\setcitestyle{numbers,square,comma}
 \usepackage{verbatim}
 \usepackage{amsthm}
 \usepackage{comment}
@@ -177,19 +176,44 @@ Models}\label{latent-structure-block-models}}
 
 All block models are latent structure models.
 
+\begin{definition}[Manifold block model]
+Let $p, q \geq 0$, $d = p + q \geq 1$, $K \geq 1$, and $n \geq 1$ be integers.
+If there are manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathcal{X}$ for $\mathcal{X} = \{x, y \in \mathbb{R}^d : x^\top I_{p,q} y \in [0, 1] \}$, and 
+$X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}$ such that each $x_i \in \mathcal{M}_k$ for some $k \in [K]$, then $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ is a \emph{manifold block model}.
+\end{definition}
+
+In practice, we define each manifold \(\mathcal{M}_k\) by a function
+\(f_k : [0, 1]^r \to \mathcal{X}\), where \(1 \geq r < d\) is the
+dimensionality of manifold \(\mathcal{M}_k\).
+
 Insert something about ASE and its consistency here.
+
+\begin{example}
+Let $p = 2$, $q = 0$, $K = 2$, and $r = 1$. 
+Define two manifolds by $f_1(t) = \begin{bmatrix} \cos(\frac{\pi}{3} t) & \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$ and $f_2(t) = \begin{bmatrix} 1 - \cos(\frac{\pi}{3} t) & 1 - \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$.
+Draw $t_1, ..., t_n \sim \mathrm{Uniform}(0, 1)$ and $z_1, ..., z_n \mathrm{Multinomial}(\frac{1}{2}, \frac{1}{2})$, and compute latent vectors $x_i = f_{z_i}(t_i)$, which are collected in data matrix $\begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$. 
+Finally, let $A \sim \mathrm{RDPG}(X)$. 
+
+\begin{figure}[H]
+
+{\centering \includegraphics{draft_files/figure-latex/fig1-1} 
+
+}
+
+\caption{Manifold block model described in Example 1. The latent configuration is on the left, and a random dot product graph drawn from the latent configuration is on the middle, and the ASE is on the right.}\label{fig:fig1}
+\end{figure}
+\end{example}
 
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
 
-Here, we provide two algorithms for MBM community detection.
-
-First, we consider the case in which communities correspond to manifolds
-in the latent space that do not intersect and are separated by some
-finite distance. In this scenario, we use the convergence of the ASE to
-show that single linkage clustering on the latent space produces a
-clustering such that the total number of misclustered vertices goes to
-zero, with high probability.
+Here, we provide two algorithms for MBM community detection. First, we
+consider the case in which communities correspond to manifolds in the
+latent space that do not intersect and are separated by some finite
+distance. In this scenario, we use the convergence of the ASE to show
+that single linkage clustering on the latent space produces a clustering
+such that the total number of misclustered vertices goes to zero, with
+high probability.
 
 Next, we consider the case in which communities correspond to
 one-dimensional manifolds in the latent space and may or may not
@@ -238,223 +262,36 @@ follows:
   \(A \sim \mathrm{GRDPG}_{p,q}(X)\).
 \end{enumerate}
 
-\hypertarget{preliminary-theory}{%
-\subsubsection{Preliminary Theory}\label{preliminary-theory}}
-
-\hypertarget{distributions-of-differences-of-order-statistics}{%
-\paragraph{Distributions of differences of order
-statistics}\label{distributions-of-differences-of-order-statistics}}
-
-Let \(D_i = X_{(i+1)} - X_{(i)}\). Then if \(\max_i D_i < \delta\), we
-have sufficient separation of points in \(\mathcal{M}_1\). Then it is
-sufficient to quantify \(P(\max_i D_i > \delta)\) as a function of \(n\)
-and \(\delta\) and show that this converges to zero as \(n\) grows to
-\(\infty\).
-
-We denote \(f(x)\) as the density of each \(X_i\), \(g_i(x)\) as the
-density of \(X_{(i)}\), \(g_{ij}(x, y)\) as the joint density of
-\(X_{(i)}, X_{(j)}\), and \(h_i(d)\) as the density of \(D_i\) (with
-corresponding capital letters for the cumulative distribution
-functions).
-
-The following are taken as given\footnote{\url{https://en.wikipedia.org/wiki/Order_statistic}}:
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  \(g_i(x) = \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x))^{n-i} f(x)\).
-\item
-  \(g_{ij}(x, y) = \frac{n!}{(i-1)! (j-i-1)! (n-j)!} (F(x))^{i-1} (F(y) - F(x))^{j-i-1} (1 - F(y))^{n-j} f(x) f(y)\).
-\item
-  By convolution,
-  \(h_i(d) = \int_0^{1} g_{i, i+1} (x, x + d) \mathrm{d}x\).
-\end{enumerate}
-
-\begin{lemma}[The probability density function of $D_i$]
-\begin{equation}
-\label{eq:pdf}
-h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} (1 - F(x+d))^{n-i-1} f(x) f(x+d) \mathrm{d}x 
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-This is just a direct consequence of 2 and 3 under the given statements. 
-We also note that because the support of $X_i$ is $[0, 1]$, 
-the integral only needs to be evaluated from $0$ to $1 - d$ 
-because of the $f(x+d)$ and $1 - F(x+d)$ terms.
-\end{proof}
-
-\begin{lemma}[The cumulative distribution function of $D_i$]
-
-\begin{equation}
-\label{eq:cdf}
-P(D_i < \delta) = H_i(\delta) = 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x
-\end{equation}
-\end{lemma}
-
-\begin{proof}
-$$
-\begin{aligned}
-H_i(\delta) & = \int_x^{x+\delta} h_i(d) \mathrm{d}d \\
-& = \int_x^{x+\delta} \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} ((F(x))^{i-1} (1 - F(x+d))^{n-i-1} f(x) f(x+d) \mathrm{d}x \mathrm{d}d \\
-& = \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} f(x) \int_x^{x+\delta} (1 - F(x+d))^{n-i-1} f(x+d) \mathrm{d}d \mathrm{d}x \\
-& = \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} f(x) \int_{F(x)}^{F(x+\delta)} (1 - u)^{n-i-1} \mathrm{d}u \mathrm{d}x \\
-& = \int_0^{1} \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} f(x) ((1 - F(x))^{n-i} - (1 - F(x + \delta))^{n-i}) \mathrm{d}x \\ 
-& = \int_0^1 g_i(x) \mathrm{d}x - \int_0^1 \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x \\
-& = 1 - \int_0^1 \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x \\
-\end{aligned}
-$$
-
-Because of the $x + \delta$ term, we can't actually evaluate this integral all the way up to $1$, and so we are left with 
-$$
-\begin{aligned}
-& = 1 - \int_0^{1 - \delta} \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x.
-\end{aligned}
-$$
-\end{proof}
-
-\hypertarget{uniform-case}{%
-\paragraph{Uniform case}\label{uniform-case}}
-
-\begin{lemma}[Differences between order statistics of a uniform distribution]
-If $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Uniform}(0, 1)$, then each $D_i \sim \mathrm{Beta}(1, n)$.
-\end{lemma}
-
-\begin{proof}
-We begin with Eq. (\ref{eq:pdf}), plugging in $f(x) = 1$ and $F(x) = x$:
-
-$$
-h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} x^{i-1} (1-x-d)^{n-i-1} \mathrm{d}x
-$$
-
-Then we proceed with integration by parts, setting 
-$u = x^{i-1} \implies du = (i-1) x^{i-2}$ and 
-$dv = (1-x-d)^{n-i-1} dx \implies v = -\frac{1}{n-i} (1-x-d)^{n-i-1}$. 
-Note that $u v |_0^{1-d} = 0$ in this case. This yields
-
-$$
-= \frac{n!}{(i-1)! (n-i-1)!} \int \frac{i-1}{n-i} x^{i-2} (1-x-d)^{n-i} \mathrm{d}x
-$$
-
-Then applying integration by parts again until the $x^p$ term disappears, we get:
-
-$$
-\begin{aligned}
-& = \frac{n!}{(i-1)! (n-i-1)!} \frac{(i-1)!}{(n-i) \cdots (n-2)} \int_0^{1-d} (1-x-d)^{n-2} \mathrm{d}x \\
-& = -\frac{n (n-1)}{n-1} (1-x-d)^{n-1} \Big|_0^{1-d} \\
-& = n (1 - d)^{n-1}
-\end{aligned}
-$$
-
-This the density function for $\mathrm{Beta}(1, n)$, completing the proof.
-\end{proof}
-
-\begin{theorem}
-Let $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Uniform}(0, 1)$. 
-Then for any $\epsilon$ and $\delta > 0$, 
-there exists an $N = O \big(\frac{-\log \epsilon}{\delta} \big)$ such that 
-$P(\max_i X_{(i+1)} - X_{(i)} < \delta) \geq 1 - \epsilon$ when $n > N$.
+\begin{theorem}[Community detection for one-dimensional nonintersecting manifolds without noise]
+\label{nonintersect-no-noise}
+Let $x_1, ..., x_n$ be points sampled on $K$ one-dimensional manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$, defined by arc-length parameterizations $g_1, ..., g_K$. 
+Suppose $\delta = \min_{k, \ell} \min_{t, s} \| g_k(t) - g_\ell(s) \| > 0$. 
+Let $A_n$ be the event such that $\max_k \max_i \|x_{(i+1)}^{(k)} - x_{(i)}^{(k)}\| > \delta$, where $x_{(i)}^{(k)}$ is the $i^{th}$ order statistic on the $k^{th}$ manifold. 
+Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(A_n) < \epsilon$. 
 \end{theorem}
 
-\begin{proof}[Proof (sketch)]
-Since $X_{(i+1)} - X_{(i)} = D_i \sim \mathrm{Beta}(1, n)$, 
-$P(X_{(i+1)} - X_{(i)} < \delta) = 1 - (1 - \delta)^n $. This yields
-
-$$
-\begin{aligned}
-P(\max_i D_i < \delta) & \geq (P(D_i < \delta))^{n-1} \\
-& = (1 - (1 - \delta)^n)^{n-1} \\
-& \approx e^{-n \exp(-n \delta)}.
-\end{aligned}
-$$
-
-In the limit $n \to \infty$, this goes to 1.
-\end{proof}
-
-\hypertarget{general-case-for-one-dimensional-manifolds}{%
-\paragraph{General case for one-dimensional
-manifolds}\label{general-case-for-one-dimensional-manifolds}}
-
-\begin{theorem}
-\label{thm:generalized}
-Let $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}F$ with support $[0, 1]$, and suppose $f(x)$ is continuous and $f(x) \geq a > 0$ everywhere on the support. 
-Let $D_i = X_{(i+1)} - X_{(i)}$. 
-Then for any $\epsilon > 0$, there exists $N > 0$ such that $P(\max_i D_i < \delta) \geq 1 - \epsilon$ when $n > N$.
+\begin{theorem}[Community detection for one-dimensional nonintersecting manifolds with noise]
+\label{nonintersect-with-noise}
+Suppose the same setup as in Theorem \ref{nonintersect-no-noise}. 
+Define $y_i = x_i + e_i$ and $B_n$ as the event such that $\|y_{(i+1)}^{(k)} - y_{(i)}^{(k)}\| > \|y_{(i)}^{(k)} - y_{(j)}^{(\ell)}\|$ for some $i$, $j$, $k$, and $\ell$. 
+Then if $\max_i \|e_i\| < \delta / 3$, for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(B_n) < \epsilon$. 
 \end{theorem}
 
-\begin{proof}[Proof (sketch)]
-We start with Eq. (\ref{eq:cdf}):
-
-$$P(D_i \leq \delta) = 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x.$$
-
-Making the approximation $F(x+\delta) \approx F(x) + \delta f(x)$ 
-and bounding $f(x) \geq a$, we get:
-
-$$P(D_i \leq \delta) \geq 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x) - a \delta)^{n-i} f(x) \mathrm{d}x.$$
-
-Then making the substitution $u = F(x) \implies du = f(x) \mathrm{d}x$, we obtain 
-
-$$1 - \int_0^{F(1-\delta)} \frac{n!}{(n-i)! (i-1)!} u^{i-1} (1 - u - a \delta)^{n-i} \mathrm{d}u$$
-
-Evaluating the integral yields
-
-$$P(D_i < \delta) = 1 - (1 - a \delta)^n + (1 - F(1-\delta) - a \delta)^n.$$
-
-Then as before,
-
-$$
-\begin{aligned}
-P(\max_i D_i < \delta) & = P(\text{all } D_i < \delta) \\
-& = 1 - P(\text{some } D_i > \delta) \\
-& \geq 1 - \sum_i^{n-1} P(D_i > \delta) \\
-& = 1 - (n - 1) (1 - a \delta)^n + (n - 1) (1 - F(1 - \delta) - a \delta)^n
-\end{aligned}
-$$
-
-This converges to $1$ in the limit $n \to \infty$.
-
-We can also approximate $F(1 - \delta) \approx 1 - a \delta$, which yields 
-$1 - (n - 1) (1 - a \delta)^n$. Setting this $\geq 1 - \epsilon$ ...
-\end{proof}
-
-\hypertarget{extension-to-multidimensional-manifolds}{%
-\paragraph{Extension to multidimensional
-manifolds}\label{extension-to-multidimensional-manifolds}}
-
-Here, we extend the results on the line to the unit hypercube. The
-following theorem is a direct consequence of Lemma 2 of
-\citet{trosset2020rehabilitating}.
-
-\begin{theorem}
-\label{thm:multidim}
-Let $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}F$ with support $[0, 1]^r$, and $f(x) \geq a > 0$ everywhere on the support. 
-Define $E_n$ as the event that an $\eta$-neighborhood graph constructed from the sample is connected. 
-Then for any $\epsilon > 0$, there exists $N = O \bigg( \frac{\log \epsilon \eta^r / r^{r/2}}{\log (1 - \frac{a \eta^r}{r^{r / 2}})} \bigg)$ such that $P(E_n) > 1 - \epsilon$ when $n \geq N$.
+\begin{theorem}[Community detection for one-dimensional nonintersecting manifold block models]
+\label{nonintersect-mbm}
+Suppose we have the same setup as in Theorem \ref{nonintersect-no-noise}. 
+Let $p, q \geq 0$ such that $p + q = d$ where $d$ is the dimension of the range of each $g_k$. 
+Suppose we draw $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ for some sparsity parameter $\rho_n \in (0, 1]$, and let $\hat{X}$ be the ASE of $A$. 
+Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, single linkage clustering produces zero community detection error with probability 1. 
 \end{theorem}
-
-\begin{proof}[Proof (sketch)]
-Divide the hypercube $[0, 1]^r$ into a grid of sub-hypercubes of side length at most $\eta / \sqrt{r}$. 
-$E_n$ is satisfied if each sub-hypercube contains at least one $X_i$ from the sample. 
-
-$$
-\begin{aligned}
-P(E_n) & = 1 - P(\text{some cells don't contain } X_i) \\
-& \geq 1 - \sum_k^{\lceil \sqrt{r} / \eta \rceil^r} \prod_i^n P(X_i \text{ is not in the } k^{th} \text{ hypercube}) \\
-& \geq 1 - \lceil \sqrt{r} / \eta \rceil^r (1 - a \eta^r / r^{r/2})^n
-\end{aligned}
-$$
-
-Setting this $\geq 1 - \epsilon$ and solving for $n$ yields the desired rate. 
-\end{proof}
 
 \begin{algorithm}[h]
 \DontPrintSemicolon
 \SetAlgoLined
 \KwData{Adjacency matrix $A$, number of communities $K$, embedding dimensions $p$ and $q$.}
-\KwResult{Community assignments $1, ..., K$.}
-Compute $X$, the ASE of $A$ using the $p$ most positive and $q$ most negative eigenvalues and their corresponding eigenvectors.\;
-Apply single linkage clustering with $K$ communities on the ASE.\;
+\KwResult{Community assignments $z_1, ..., z_n \in \{1, ..., K\}$.}
+Compute $\hat{X}$, the ASE of $A$ using the $p$ most positive and $q$ most negative eigenvalues and their corresponding eigenvectors.\;
+Apply single linkage clustering with $K$ communities on $\hat{X}$\;
 \caption{ASE clustering for nonintersecting communities.}
 \end{algorithm}
 
@@ -605,9 +442,7 @@ The sixth also initializes via spectral clustering but allows the intercept to b
 
 \end{example}
 
-\begin{example}[Macaque visuotactile brain areas and connections]
-
-\cite{https://doi.org/10.1111/j.1460-9568.2006.04678.x}
+\begin{example}[Macaque visuotactile brain areas and connections \citep{https://doi.org/10.1111/j.1460-9568.2006.04678.x}]
 
 
 \begin{center}\includegraphics{draft_files/figure-latex/unnamed-chunk-8-1} \end{center}
@@ -638,6 +473,209 @@ The sixth also initializes via spectral clustering but allows the intercept to b
 
 \hypertarget{simulation-study}{%
 \section{Simulation Study}\label{simulation-study}}
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+\appendix
+
+\section{Proofs of Theorems}
+
+To prove theorems \ref{nonintersect-no-noise},
+\ref{nonintersect-with-noise}, and \ref{nonintersect-mbm}, we first need
+to introduce some theory for order statistics. Let
+\(D_i = X_{(i+1)} - X_{(i)}\). Then if \(\max_i D_i < \delta\), we have
+sufficient separation of points in \(\mathcal{M}_1\). Then it is
+sufficient to quantify \(P(\max_i D_i > \delta)\) as a function of \(n\)
+and \(\delta\) and show that this converges to zero as \(n\) grows to
+\(\infty\).
+
+We denote \(f(x)\) as the density of each \(X_i\), \(g_i(x)\) as the
+density of \(X_{(i)}\), \(g_{ij}(x, y)\) as the joint density of
+\(X_{(i)}, X_{(j)}\), and \(h_i(d)\) as the density of \(D_i\) (with
+corresponding capital letters for the cumulative distribution
+functions).
+
+The following are taken as given\footnote{\url{https://en.wikipedia.org/wiki/Order_statistic}}:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \(g_i(x) = \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x))^{n-i} f(x)\).
+\item
+  \(g_{ij}(x, y) = \frac{n!}{(i-1)! (j-i-1)! (n-j)!} (F(x))^{i-1} (F(y) - F(x))^{j-i-1} (1 - F(y))^{n-j} f(x) f(y)\).
+\item
+  By convolution,
+  \(h_i(d) = \int_0^{1} g_{i, i+1} (x, x + d) \mathrm{d}x\).
+\end{enumerate}
+
+\begin{lemma}[The probability density function of $D_i$]
+\begin{equation}
+\label{eq:pdf}
+h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} (1 - F(x+d))^{n-i-1} f(x) f(x+d) \mathrm{d}x 
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+This is just a direct consequence of 2 and 3 under the given statements. 
+We also note that because the support of $X_i$ is $[0, 1]$, 
+the integral only needs to be evaluated from $0$ to $1 - d$ 
+because of the $f(x+d)$ and $1 - F(x+d)$ terms.
+\end{proof}
+
+\begin{lemma}[The cumulative distribution function of $D_i$]
+
+\begin{equation}
+\label{eq:cdf}
+P(D_i < \delta) = H_i(\delta) = 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+$$
+\begin{aligned}
+H_i(\delta) & = \int_x^{x+\delta} h_i(d) \mathrm{d}d \\
+& = \int_x^{x+\delta} \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} ((F(x))^{i-1} (1 - F(x+d))^{n-i-1} f(x) f(x+d) \mathrm{d}x \mathrm{d}d \\
+& = \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} f(x) \int_x^{x+\delta} (1 - F(x+d))^{n-i-1} f(x+d) \mathrm{d}d \mathrm{d}x \\
+& = \int_0^{1} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} f(x) \int_{F(x)}^{F(x+\delta)} (1 - u)^{n-i-1} \mathrm{d}u \mathrm{d}x \\
+& = \int_0^{1} \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} f(x) ((1 - F(x))^{n-i} - (1 - F(x + \delta))^{n-i}) \mathrm{d}x \\ 
+& = \int_0^1 g_i(x) \mathrm{d}x - \int_0^1 \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x \\
+& = 1 - \int_0^1 \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x \\
+\end{aligned}
+$$
+
+Because of the $x + \delta$ term, we can't actually evaluate this integral all the way up to $1$, and so we are left with 
+$$
+\begin{aligned}
+& = 1 - \int_0^{1 - \delta} \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x.
+\end{aligned}
+$$
+\end{proof}
+
+We now focus on the case where points are sampled uniformly on the unit
+interval to build up to more general distributions.
+
+\begin{lemma}[Differences between order statistics of a uniform distribution]
+If $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Uniform}(0, 1)$, then each $D_i \sim \mathrm{Beta}(1, n)$.
+\end{lemma}
+
+\begin{proof}
+We begin with Eq. (\ref{eq:pdf}), plugging in $f(x) = 1$ and $F(x) = x$:
+
+$$
+h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} x^{i-1} (1-x-d)^{n-i-1} \mathrm{d}x
+$$
+
+Then we proceed with integration by parts, setting 
+$u = x^{i-1} \implies du = (i-1) x^{i-2}$ and 
+$dv = (1-x-d)^{n-i-1} dx \implies v = -\frac{1}{n-i} (1-x-d)^{n-i-1}$. 
+Note that $u v |_0^{1-d} = 0$ in this case. This yields
+
+$$
+= \frac{n!}{(i-1)! (n-i-1)!} \int \frac{i-1}{n-i} x^{i-2} (1-x-d)^{n-i} \mathrm{d}x
+$$
+
+Then applying integration by parts again until the $x^p$ term disappears, we get:
+
+$$
+\begin{aligned}
+& = \frac{n!}{(i-1)! (n-i-1)!} \frac{(i-1)!}{(n-i) \cdots (n-2)} \int_0^{1-d} (1-x-d)^{n-2} \mathrm{d}x \\
+& = -\frac{n (n-1)}{n-1} (1-x-d)^{n-1} \Big|_0^{1-d} \\
+& = n (1 - d)^{n-1}
+\end{aligned}
+$$
+
+This the density function for $\mathrm{Beta}(1, n)$, completing the proof.
+\end{proof}
+
+\begin{lemma}
+Let $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Uniform}(0, 1)$. 
+Then for any $\epsilon$ and $\delta > 0$, 
+there exists an $N = O \big(\frac{-\log \epsilon}{\delta} \big)$ such that 
+$P(\max_i X_{(i+1)} - X_{(i)} < \delta) \geq 1 - \epsilon$ when $n > N$.
+\end{lemma}
+
+\begin{proof}[Proof (sketch)]
+Since $X_{(i+1)} - X_{(i)} = D_i \sim \mathrm{Beta}(1, n)$, 
+$P(X_{(i+1)} - X_{(i)} < \delta) = 1 - (1 - \delta)^n $. This yields
+
+$$
+\begin{aligned}
+P(\max_i D_i < \delta) & \geq (P(D_i < \delta))^{n-1} \\
+& = (1 - (1 - \delta)^n)^{n-1} \\
+& \approx e^{-n \exp(-n \delta)}.
+\end{aligned}
+$$
+
+In the limit $n \to \infty$, this goes to 1.
+\end{proof}
+
+Now we extend this lemma to general distributions on the unit interval.
+
+\begin{lemma}
+Let $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}F$ with support $[0, 1]$, and suppose $f(x)$ is continuous and $f(x) \geq a > 0$ everywhere on the support. 
+Let $D_i = X_{(i+1)} - X_{(i)}$. 
+Then for any $\epsilon > 0$, there exists $N > 0$ such that $P(\max_i D_i < \delta) \geq 1 - \epsilon$ when $n > N$.
+\end{lemma}
+
+\begin{proof}[Proof (sketch)]
+We start with Eq. (\ref{eq:cdf}):
+
+$$P(D_i \leq \delta) = 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x.$$
+
+Making the approximation $F(x+\delta) \approx F(x) + \delta f(x)$ 
+and bounding $f(x) \geq a$, we get:
+
+$$P(D_i \leq \delta) \geq 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x) - a \delta)^{n-i} f(x) \mathrm{d}x.$$
+
+Then making the substitution $u = F(x) \implies du = f(x) \mathrm{d}x$, we obtain 
+
+$$1 - \int_0^{F(1-\delta)} \frac{n!}{(n-i)! (i-1)!} u^{i-1} (1 - u - a \delta)^{n-i} \mathrm{d}u$$
+
+Evaluating the integral yields
+
+$$P(D_i < \delta) = 1 - (1 - a \delta)^n + (1 - F(1-\delta) - a \delta)^n.$$
+
+Then as before,
+
+$$
+\begin{aligned}
+P(\max_i D_i < \delta) & = P(\text{all } D_i < \delta) \\
+& = 1 - P(\text{some } D_i > \delta) \\
+& \geq 1 - \sum_i^{n-1} P(D_i > \delta) \\
+& = 1 - (n - 1) (1 - a \delta)^n + (n - 1) (1 - F(1 - \delta) - a \delta)^n
+\end{aligned}
+$$
+
+This converges to $1$ in the limit $n \to \infty$.
+\end{proof}
+
+Here, we extend the results on the line to the unit hypercube. The
+following theorem is a direct consequence of Lemma 2 of
+\citet{trosset2020rehabilitating}.
+
+\begin{lemma}
+\label{thm:multidim}
+Let $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}F$ with support $[0, 1]^r$, and $f(x) \geq a > 0$ everywhere on the support. 
+Define $E_n$ as the event that an $\eta$-neighborhood graph constructed from the sample is connected. 
+Then for any $\epsilon > 0$, there exists $N = O \bigg( \frac{\log \epsilon \eta^r / r^{r/2}}{\log (1 - \frac{a \eta^r}{r^{r / 2}})} \bigg)$ such that $P(E_n) > 1 - \epsilon$ when $n \geq N$.
+\end{lemma}
+
+\begin{proof}[Proof (sketch)]
+Divide the hypercube $[0, 1]^r$ into a grid of sub-hypercubes of side length at most $\eta / \sqrt{r}$. 
+$E_n$ is satisfied if each sub-hypercube contains at least one $X_i$ from the sample. 
+
+$$
+\begin{aligned}
+P(E_n) & = 1 - P(\text{some cells don't contain } X_i) \\
+& \geq 1 - \sum_k^{\lceil \sqrt{r} / \eta \rceil^r} \prod_i^n P(X_i \text{ is not in the } k^{th} \text{ hypercube}) \\
+& \geq 1 - \lceil \sqrt{r} / \eta \rceil^r (1 - a \eta^r / r^{r/2})^n
+\end{aligned}
+$$
+
+Setting this $\geq 1 - \epsilon$ and solving for $n$ yields the desired rate. 
+\end{proof}
 
 \bibliographystyle{agsm}
 \bibliography{bibliography.bib}
