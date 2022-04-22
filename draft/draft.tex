@@ -47,7 +47,8 @@
 
 \if0\blind
 {
-  \title{\bf Manifold Clustering for Latent Structure Block Models}
+  \title{\bf Manifold Clustering in the Generalized Random Dot Product
+Graph}
 
   \author{
         John Koo \\
@@ -62,7 +63,8 @@
   \bigskip
   \bigskip
   \begin{center}
-    {\LARGE\bf Manifold Clustering for Latent Structure Block Models}
+    {\LARGE\bf Manifold Clustering in the Generalized Random Dot Product
+Graph}
   \end{center}
   \medskip
 } \fi
@@ -179,19 +181,19 @@ All block models are latent structure models.
 \begin{definition}[Manifold block model]
 Let $p, q \geq 0$, $d = p + q \geq 1$, $K \geq 1$, and $n \geq 1$ be integers.
 If there are manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathcal{X}$ for $\mathcal{X} = \{x, y \in \mathbb{R}^d : x^\top I_{p,q} y \in [0, 1] \}$, and 
-$X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}$ such that each $x_i \in \mathcal{M}_k$ for some $k \in [K]$, then $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ is a \emph{manifold block model}.
+$X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$ such that each $x_i \in \mathcal{M}_k$ for some $k \in [K]$, then $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ is a \emph{manifold block model}.
 \end{definition}
 
-In practice, we define each manifold \(\mathcal{M}_k\) by a function
-\(f_k : [0, 1]^r \to \mathcal{X}\), where \(1 \geq r < d\) is the
-dimensionality of manifold \(\mathcal{M}_k\).
+In practice, we define each manifold \(\mathcal{M}_k\) by a continuous
+function \(g_k : [0, 1]^r \to \mathcal{X}\), where \(1 \leq r < d\) is
+the dimensionality of manifold \(\mathcal{M}_k\).
 
 Insert something about ASE and its consistency here.
 
 \begin{example}
 Let $p = 2$, $q = 0$, $K = 2$, and $r = 1$. 
 Define two manifolds by $f_1(t) = \begin{bmatrix} \cos(\frac{\pi}{3} t) & \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$ and $f_2(t) = \begin{bmatrix} 1 - \cos(\frac{\pi}{3} t) & 1 - \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$.
-Draw $t_1, ..., t_n \sim \mathrm{Uniform}(0, 1)$ and $z_1, ..., z_n \mathrm{Multinomial}(\frac{1}{2}, \frac{1}{2})$, and compute latent vectors $x_i = f_{z_i}(t_i)$, which are collected in data matrix $\begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$. 
+Draw $t_1, ..., t_n \sim \mathrm{Uniform}(0, 1)$ and $z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\frac{1}{2}, \frac{1}{2})$, and compute latent vectors $x_i = f_{z_i}(t_i)$, which are collected in data matrix $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$. 
 Finally, let $A \sim \mathrm{RDPG}(X)$. 
 
 \begin{figure}[H]
@@ -484,17 +486,22 @@ The sixth also initializes via spectral clustering but allows the intercept to b
 To prove theorems \ref{nonintersect-no-noise},
 \ref{nonintersect-with-noise}, and \ref{nonintersect-mbm}, we first need
 to introduce some theory for order statistics. Let
-\(D_i = X_{(i+1)} - X_{(i)}\). Then if \(\max_i D_i < \delta\), we have
-sufficient separation of points in \(\mathcal{M}_1\). Then it is
-sufficient to quantify \(P(\max_i D_i > \delta)\) as a function of \(n\)
+\(D_i^{(k)} = X_{(i+1)}^{(k)} - X_{(i)}^{(k)}\), where \(X_{(i)}^{(k)}\)
+is the \(i^{th}\) order statistic of univariate sample
+\(X_1^{(k)}, ..., X_n^{(k)} \stackrel{\mathrm{iid}}{\sim}F^{(k)}\) and
+\(F^{(k)}\) is a continuous distribution on manifold \(\mathcal{M}_k\).
+If \(\max_i D_i^{(k)} < \delta\), then there is sufficient separation of
+points between each manifold. Then it is sufficient to quantify
+\(P(\max_i D_i^{(k)} > \delta)\) for each \(k\) as a function of \(n\)
 and \(\delta\) and show that this converges to zero as \(n\) grows to
 \(\infty\).
 
-We denote \(f(x)\) as the density of each \(X_i\), \(g_i(x)\) as the
-density of \(X_{(i)}\), \(g_{ij}(x, y)\) as the joint density of
-\(X_{(i)}, X_{(j)}\), and \(h_i(d)\) as the density of \(D_i\) (with
-corresponding capital letters for the cumulative distribution
-functions).
+For ease of notation, we drop the superscript denoting
+community/manifold membership until lemma 6. Denote \(f(x)\) as the
+density of each \(F\), \(g_i(x)\) as the density of \(X_{(i)}\),
+\(g_{ij}(x, y)\) as the joint density of \(X_{(i)}, X_{(j)}\), and
+\(h_i(d)\) as the density of \(D_i\) (with corresponding capital letters
+for the cumulative distribution functions).
 
 The following are taken as given\footnote{\url{https://en.wikipedia.org/wiki/Order_statistic}}:
 
@@ -511,6 +518,10 @@ The following are taken as given\footnote{\url{https://en.wikipedia.org/wiki/Ord
 \end{enumerate}
 
 \begin{lemma}[The probability density function of $D_i$]
+Suppose $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}F$ and the support of $F$ is the unit interval. 
+Let $D_i = X_{(i+1)} - X_{(i)}$. 
+Then the density of each $D_i$ is: 
+
 \begin{equation}
 \label{eq:pdf}
 h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} (1 - F(x+d))^{n-i-1} f(x) f(x+d) \mathrm{d}x 
@@ -518,13 +529,16 @@ h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} (F(x))^{i-1} (1 - F(x+d))^{n-i-
 \end{lemma}
 
 \begin{proof}
-This is just a direct consequence of 2 and 3 under the given statements. 
+This is a direct consequence of 2 and 3. 
 We also note that because the support of $X_i$ is $[0, 1]$, 
 the integral only needs to be evaluated from $0$ to $1 - d$ 
 because of the $f(x+d)$ and $1 - F(x+d)$ terms.
 \end{proof}
 
 \begin{lemma}[The cumulative distribution function of $D_i$]
+Suppose $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}F$ and the support of $F$ is the unit interval. 
+Let $D_i = X_{(i+1)} - X_{(i)}$. 
+Then the distribution function of each $D_i$ is:
 
 \begin{equation}
 \label{eq:cdf}
@@ -545,7 +559,8 @@ H_i(\delta) & = \int_x^{x+\delta} h_i(d) \mathrm{d}d \\
 \end{aligned}
 $$
 
-Because of the $x + \delta$ term, we can't actually evaluate this integral all the way up to $1$, and so we are left with 
+Because of the $x + \delta$ term and the fact that the support is $[0, 1]$, the integrand is zero above $1 - \delta$, so we are left with 
+
 $$
 \begin{aligned}
 & = 1 - \int_0^{1 - \delta} \frac{n!}{(i-1)! (n-i)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x.
@@ -564,7 +579,7 @@ If $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Uniform}(0, 1)$, then eac
 We begin with Eq. (\ref{eq:pdf}), plugging in $f(x) = 1$ and $F(x) = x$:
 
 $$
-h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} x^{i-1} (1-x-d)^{n-i-1} \mathrm{d}x
+h_i(d) = \int_0^{1-d} \frac{n!}{(i-1)! (n-i-1)!} x^{i-1} (1-x-d)^{n-i-1} \mathrm{d}x.
 $$
 
 Then we proceed with integration by parts, setting 
@@ -573,7 +588,7 @@ $dv = (1-x-d)^{n-i-1} dx \implies v = -\frac{1}{n-i} (1-x-d)^{n-i-1}$.
 Note that $u v |_0^{1-d} = 0$ in this case. This yields
 
 $$
-= \frac{n!}{(i-1)! (n-i-1)!} \int \frac{i-1}{n-i} x^{i-2} (1-x-d)^{n-i} \mathrm{d}x
+= \frac{n!}{(i-1)! (n-i-1)!} \int \frac{i-1}{n-i} x^{i-2} (1-x-d)^{n-i} \mathrm{d}x.
 $$
 
 Then applying integration by parts again until the $x^p$ term disappears, we get:
@@ -582,7 +597,7 @@ $$
 \begin{aligned}
 & = \frac{n!}{(i-1)! (n-i-1)!} \frac{(i-1)!}{(n-i) \cdots (n-2)} \int_0^{1-d} (1-x-d)^{n-2} \mathrm{d}x \\
 & = -\frac{n (n-1)}{n-1} (1-x-d)^{n-1} \Big|_0^{1-d} \\
-& = n (1 - d)^{n-1}
+& = n (1 - d)^{n-1}.
 \end{aligned}
 $$
 
@@ -596,7 +611,7 @@ there exists an $N = O \big(\frac{-\log \epsilon}{\delta} \big)$ such that
 $P(\max_i X_{(i+1)} - X_{(i)} < \delta) \geq 1 - \epsilon$ when $n > N$.
 \end{lemma}
 
-\begin{proof}[Proof (sketch)]
+\begin{proof}
 Since $X_{(i+1)} - X_{(i)} = D_i \sim \mathrm{Beta}(1, n)$, 
 $P(X_{(i+1)} - X_{(i)} < \delta) = 1 - (1 - \delta)^n $. This yields
 
@@ -614,12 +629,13 @@ In the limit $n \to \infty$, this goes to 1.
 Now we extend this lemma to general distributions on the unit interval.
 
 \begin{lemma}
+\label{lem:lim-d}
 Let $X_1, ..., X_n \stackrel{\mathrm{iid}}{\sim}F$ with support $[0, 1]$, and suppose $f(x)$ is continuous and $f(x) \geq a > 0$ everywhere on the support. 
 Let $D_i = X_{(i+1)} - X_{(i)}$. 
 Then for any $\epsilon > 0$, there exists $N > 0$ such that $P(\max_i D_i < \delta) \geq 1 - \epsilon$ when $n > N$.
 \end{lemma}
 
-\begin{proof}[Proof (sketch)]
+\begin{proof}
 We start with Eq. (\ref{eq:cdf}):
 
 $$P(D_i \leq \delta) = 1 - \int_0^{1-\delta} \frac{n!}{(n-i)! (i-1)!} (F(x))^{i-1} (1 - F(x + \delta))^{n-i} f(x) \mathrm{d}x.$$
@@ -651,8 +667,24 @@ $$
 This converges to $1$ in the limit $n \to \infty$.
 \end{proof}
 
+\begin{proof}[Proof of Theorem \ref{nonintersect-no-noise}]
+For this theorem to be true, there are two additional conditions: 
+First, each $n_k \to \infty$ as $n \to \infty$, or the sample size on each manifold grows with $n$, and second, the number of manifolds $K$ remains fixed. 
+Then this is a direct consequence of Lemma \ref{lem:lim-d}. 
+Here, we denote $m = \min_k n_k$ as the sample size of the manifold with the fewest points. 
+
+$$
+\begin{aligned}
+P(\max_{k,i} \|X_{(i+1)}^{(k)} - X_{(i)}^{(k)}\| < \delta) & = P(\forall k, i ~ D_i^{(k)} < \delta) \\
+& \geq \prod_{k=1}^K P(D_i^{(k)} < \delta) \\
+& \geq (1 - (m-1) (1 - a \delta)^{m} + (m-1) (1 - F(1-\delta) - a \delta)^{m})^K
+\end{aligned}
+$$
+Since as $n \to \infty$, $m \to \infty$ as well, and $K$ is fixed, this approaches $(1)^K = 1$. 
+\end{proof}
+
 Here, we extend the results on the line to the unit hypercube. The
-following theorem is a direct consequence of Lemma 2 of
+following theorem is based on Lemma 2 of
 \citet{trosset2020rehabilitating}.
 
 \begin{lemma}
@@ -676,6 +708,8 @@ $$
 
 Setting this $\geq 1 - \epsilon$ and solving for $n$ yields the desired rate. 
 \end{proof}
+
+\section{Details on Fitting Bezier Curves with Noise}
 
 \bibliographystyle{agsm}
 \bibliography{bibliography.bib}
