@@ -274,14 +274,14 @@ Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $
 
 \begin{theorem}[Community detection for one-dimensional nonintersecting manifolds with noise]
 \label{nonintersect-with-noise}
-Suppose the same setup as in Theorem \ref{nonintersect-no-noise}. 
+Suppose the same setup as in theorem \ref{nonintersect-no-noise}. 
 Define $y_i = x_i + e_i$ and $B_n$ as the event such that $\|y_{(i+1)}^{(k)} - y_{(i)}^{(k)}\| > \|y_{(i)}^{(k)} - y_{(j)}^{(\ell)}\|$ for some $i$, $j$, $k$, and $\ell$. 
 Then if $\max_i \|e_i\| < \delta / 3$, for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(B_n) < \epsilon$. 
 \end{theorem}
 
 \begin{theorem}[Community detection for one-dimensional nonintersecting manifold block models]
 \label{nonintersect-mbm}
-Suppose we have the same setup as in Theorem \ref{nonintersect-no-noise}. 
+Suppose we have the same setup as in theorem \ref{nonintersect-no-noise}. 
 Let $p, q \geq 0$ such that $p + q = d$ where $d$ is the dimension of the range of each $g_k$. 
 Suppose we draw $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ for some sparsity parameter $\rho_n \in (0, 1]$, and let $\hat{X}$ be the ASE of $A$. 
 Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, single linkage clustering produces zero community detection error with probability 1. 
@@ -664,14 +664,16 @@ P(\max_i D_i < \delta) & = P(\text{all } D_i < \delta) \\
 \end{aligned}
 $$
 
-This converges to $1$ in the limit $n \to \infty$.
+Since $(1 - a \delta) < 1$ and $(1 - F(1-\delta) - a \delta) < 1$, this converges to $1$ in the limit $n \to \infty$. 
+Then for any $\epsilon \in (0, 1)$, we can always solve for an $n$ such that $1 - (n-1) (1 - a \delta)^n (n-1) (1 - F(1 - \delta) - a \delta)^n \geq 1 - \epsilon$ holds. 
 \end{proof}
 
-\begin{proof}[Proof of Theorem \ref{nonintersect-no-noise}]
-For this theorem to be true, there are two additional conditions: 
-First, each $n_k \to \infty$ as $n \to \infty$, or the sample size on each manifold grows with $n$, and second, the number of manifolds $K$ remains fixed. 
+\begin{proof}[Proof of theorem \ref{nonintersect-no-noise}]
+This theorem requires two additional conditions: 
+First, each $n_k \to \infty$ as $n \to \infty$, and second, the number of manifolds $K$ remains fixed. 
+These are satisified by the model assumptions. 
 Then this is a direct consequence of Lemma \ref{lem:lim-d}. 
-Here, we denote $m = \min_k n_k$ as the sample size of the manifold with the fewest points. 
+Denoting $m = \min_k n_k$ as the sample size of the manifold with the fewest points, 
 
 $$
 \begin{aligned}
@@ -683,8 +685,14 @@ $$
 Since as $n \to \infty$, $m \to \infty$ as well, and $K$ is fixed, this approaches $(1)^K = 1$. 
 \end{proof}
 
+\begin{proof}[Proof of theorem \ref{nonintersect-with-noise}]
+\end{proof}
+
+\begin{proof}[Proof of theorem \ref{nonintersect-mbm}]
+\end{proof}
+
 Here, we extend the results on the line to the unit hypercube. The
-following theorem is based on Lemma 2 of
+following lemma is based on lemma 2 of
 \citet{trosset2020rehabilitating}.
 
 \begin{lemma}
