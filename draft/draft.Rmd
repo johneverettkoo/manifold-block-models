@@ -209,12 +209,12 @@ Instead, we sample points directly on the manifolds themselves.
 We will return to the parameterizations in Section \ref{section:intersecting}. 
 
 In this setting, although each manifold is in $d$-dimensional space, since the manifolds are one-dimensional, it is possible to consider an ordering of points sampled on the manifold. 
-In the original latent space in which there is no noise, the condition for which community detection is possible via $\eta$-neighborhood graph clustering or single linkage clustering is each pair of adjacent order statistics on each manifold being less than $\delta$ apart. 
+In the original latent space in which there is no noise, the condition for which community detection is possible via $\eta$-neighborhood graph clustering or single linkage clustering is satisfied if each pair of adjacent order statistics on each manifold is less than $\delta$ apart. 
 
 \begin{theorem}[Community detection for one-dimensional nonintersecting manifolds without noise]
 \label{nonintersect-no-noise}
 Let $x_1, ..., x_n$ be points sampled on $K$ one-dimensional manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$. 
-Suppose $\delta = \min_{k \neq \ell} \min_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
+Suppose $\delta = \min\limits_{k \neq \ell} \min\limits_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
 Let $A_n$ be the event such that $\max_k \max_i \|x_{(i+1)}^{(k)} - x_{(i)}^{(k)}\| < \delta$, where $x_{(i)}^{(k)}$ is the $i^{th}$ order statistic on the $k^{th}$ manifold. 
 Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(A_n) > 1 - \epsilon$. 
 \end{theorem}
@@ -225,8 +225,7 @@ If the errors are small, which is guaranteed by the consistency property of the 
 \begin{theorem}[Community detection for one-dimensional nonintersecting manifolds with noise]
 \label{nonintersect-with-noise}
 Suppose the same setup as in theorem \ref{nonintersect-no-noise}. 
-Define $y_i = x_i + e_i$ and $B_n$ as the event such that $\|y_{(i+1)}^{(k)} - y_{(i)}^{(k)}\| < \|y_{(i)}^{(k)} - y_{(j)}^{(\ell)}\|$ for any $k \neq \ell$. 
-Here, $y_{(i)}^{(k)}$ is the $i^{th}$ order statistic on the $k^{th}$ manifold plus its corresponding noise. 
+Define $y_i = x_i + e_i$ and $B_n$ as the event such that $\|y_{(i+1)}^{(k)} - y_{(i)}^{(k)}\| < \|y_{(i)}^{(k)} - y_{(j)}^{(\ell)}\|$ for any $k \neq \ell$, where, $y_{(i)}^{(k)}$ is the $i^{th}$ order statistic on the $k^{th}$ manifold plus its corresponding noise. 
 Then if $\max_i \|e_i\| < \delta / 3$, for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(B_n) > 1 - \epsilon$. 
 \end{theorem}
 
