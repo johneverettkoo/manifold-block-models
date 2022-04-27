@@ -184,25 +184,44 @@ If there are manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathcal{X}$ f
 $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$ such that each $x_i \in \mathcal{M}_k$ for some $k \in [K]$, then $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ is a \emph{manifold block model}.
 \end{definition}
 
-In practice, we define each manifold \(\mathcal{M}_k\) by a continuous
-function \(g_k : [0, 1]^r \to \mathcal{X}\), where \(1 \leq r < d\) is
-the dimensionality of manifold \(\mathcal{M}_k\).
+In practice, we often define each manifold \(\mathcal{M}_k\) by a
+continuous function \(g_k : [0, 1]^r \to \mathcal{X}\), where
+\(1 \leq r < d\) is the dimensionality of manifold \(\mathcal{M}_k\). To
+complete the probability model, we define a probability distribution
+\(F\) with support \([0, 1]^r\) and draw the community memberships from
+a multinomial distribution.
 
-Insert something about ASE and its consistency here.
+The full mixture model can be described as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Draw labels
+  \(z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\alpha_1, ..., \alpha_K)\).
+\item
+  Draw latent vectors by first drawing each
+  \(t_1, ..., t_n \stackrel{\mathrm{iid}}{\sim}F\) and then computing
+  each \(x_i = g_{z_i}(t_i)\).
+\item
+  Let \(X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top\), and
+  draw \(A \sim \mathrm{RDPG}(X)\) or
+  \(A \sim \mathrm{GRDPG}_{p,q}(X)\).
+\end{enumerate}
 
 \begin{example}
 Let $p = 2$, $q = 0$, $K = 2$, and $r = 1$. 
-Define two manifolds by $f_1(t) = \begin{bmatrix} \cos(\frac{\pi}{3} t) & \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$ and $f_2(t) = \begin{bmatrix} 1 - \cos(\frac{\pi}{3} t) & 1 - \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$.
-Draw $t_1, ..., t_n \sim \mathrm{Uniform}(0, 1)$ and $z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\frac{1}{2}, \frac{1}{2})$, and compute latent vectors $x_i = f_{z_i}(t_i)$, which are collected in data matrix $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$. 
-Finally, let $A \sim \mathrm{RDPG}(X)$. 
+Define two one-dimensional manifolds by $f_1(t) = \begin{bmatrix} \cos(\frac{\pi}{3} t) & \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$ and $f_2(t) = \begin{bmatrix} 1 - \cos(\frac{\pi}{3} t) & 1 - \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$.
+Draw $t_1, ..., t_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Uniform}(0, 1)$ and $z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\frac{1}{2}, \frac{1}{2})$, and compute latent vectors $x_i = f_{z_i}(t_i)$, which are collected in data matrix $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$. 
+Finally, let $A \sim \mathrm{RDPG}(X)$. Fig \ref{fig:example1} shows the latent configuration drawn from this latent distribution, a random dot product graph drawn from the latent configuration, and the adjacency spectral embedding of the graph. 
 
 \begin{figure}[H]
 
-{\centering \includegraphics{draft_files/figure-latex/fig1-1} 
+{\centering \includegraphics{draft_files/figure-latex/example1-1} 
 
 }
 
-\caption{Manifold block model described in Example 1. The latent configuration is on the left, and a random dot product graph drawn from the latent configuration is on the middle, and the ASE is on the right.}\label{fig:fig1}
+\caption{Manifold block model described in Example 1. The latent configuration is on the left, and a random dot product graph drawn from the latent configuration is on the middle, and the ASE is on the right.}\label{fig:example1}
 \end{figure}
 \end{example}
 
@@ -230,62 +249,27 @@ probability.
 \hypertarget{nonintersecting-manifolds}{%
 \subsection{Nonintersecting Manifolds}\label{nonintersecting-manifolds}}
 
+\label{section:nonintersecting}
+
 In this section, we consider the following scenario: Suppose that each
 community is represented by a manifold \(\mathcal{M}_k\),
 \(k \in \{1, ..., K\}\) in the latent space of a RDPG or GDRPG, and the
 manifolds do not intersect each other. Define
-\(\delta = \min\limits_{k, \ell} \min\limits_{x \in \mathcal{M}_k, y \in \mathcal{M}_\ell} \|x - y\|\),
+\(\delta = \min\limits_{k \neq \ell} \min\limits_{x \in \mathcal{M}_k, y \in \mathcal{M}_\ell} \|x - y\|\),
 the minimum distance between two manifolds. We assume that
-\(\delta > 0\).
+\(\delta > 0\), i.e., the manifolds do not intersect.
 
-First, we consider the case in which each
-\(\mathcal{M}_k \subset \mathbb{R}^d\) is a one-dimensional manifold,
-which can be characterized by a function
-\(g_k : [0, 1] \to \mathcal{M}_k\). Let \(F\) be a probability
-distribution with support \([0, 1]\). Then we define a mixture model as
-follows:
-
-\begin{enumerate}
-\def\labelenumi{\arabic{enumi}.}
-\tightlist
-\item
-  Draw \(t_1, ..., t_n \stackrel{\mathrm{iid}}{\sim}F\).
-\item
-  Draw
-  \(z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\alpha_1, ..., \alpha_K)\),
-  the community labels.
-\item
-  Let each \(x_i = g_{z_i}(t_i)\) be the latent vector for vertex
-  \(v_i\).\\
-  Assume
-  \(\min_{k, \ell} \min_{t, s} \|g_k(t) - g_\ell(s)\| = \delta > 0\).
-\item
-  Draw \(A \sim \mathrm{RDPG}(X)\) or
-  \(A \sim \mathrm{GRDPG}_{p,q}(X)\).
-\end{enumerate}
-
-\begin{theorem}[Community detection for one-dimensional nonintersecting manifolds without noise]
-\label{nonintersect-no-noise}
-Let $x_1, ..., x_n$ be points sampled on $K$ one-dimensional manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$, defined by arc-length parameterizations $g_1, ..., g_K$. 
-Suppose $\delta = \min_{k, \ell} \min_{t, s} \| g_k(t) - g_\ell(s) \| > 0$. 
-Let $A_n$ be the event such that $\max_k \max_i \|x_{(i+1)}^{(k)} - x_{(i)}^{(k)}\| > \delta$, where $x_{(i)}^{(k)}$ is the $i^{th}$ order statistic on the $k^{th}$ manifold. 
-Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(A_n) < \epsilon$. 
-\end{theorem}
-
-\begin{theorem}[Community detection for one-dimensional nonintersecting manifolds with noise]
-\label{nonintersect-with-noise}
-Suppose the same setup as in theorem \ref{nonintersect-no-noise}. 
-Define $y_i = x_i + e_i$ and $B_n$ as the event such that $\|y_{(i+1)}^{(k)} - y_{(i)}^{(k)}\| > \|y_{(i)}^{(k)} - y_{(j)}^{(\ell)}\|$ for some $i$, $j$, $k$, and $\ell$. 
-Then if $\max_i \|e_i\| < \delta / 3$, for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(B_n) < \epsilon$. 
-\end{theorem}
-
-\begin{theorem}[Community detection for one-dimensional nonintersecting manifold block models]
-\label{nonintersect-mbm}
-Suppose we have the same setup as in theorem \ref{nonintersect-no-noise}. 
-Let $p, q \geq 0$ such that $p + q = d$ where $d$ is the dimension of the range of each $g_k$. 
-Suppose we draw $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ for some sparsity parameter $\rho_n \in (0, 1]$, and let $\hat{X}$ be the ASE of $A$. 
-Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, single linkage clustering produces zero community detection error with probability 1. 
-\end{theorem}
+In the noiseless setting, if the subsample on each manifold is
+sufficiently dense, it is possible to construct for each manifold an
+\(\eta_k\)-neighborhood graph for each manifold for some \(\eta_k > 0\)
+such that the graph is connected. Then if
+\(\max_k \eta_k = \eta < \delta\), an \(\eta\)-neighborhood graph for
+the entire sample will consist of \(K\) disconnected subgraphs that map
+onto each manifold. Equivalently, we can apply single-linkage
+clustering. The remainder of this section explores under which
+conditions these criteria are met for the latent configuration, in which
+latent vectors lie exactly on manifolds, as well as the ASE, which
+introduces noise.
 
 \begin{algorithm}[h]
 \DontPrintSemicolon
@@ -297,12 +281,102 @@ Apply single linkage clustering with $K$ communities on $\hat{X}$\;
 \caption{ASE clustering for nonintersecting communities.}
 \end{algorithm}
 
+Consider the specific case in which each
+\(\mathcal{M}_k \subset \mathbb{R}^d\) is a one-dimensional manifold.
+Let \(F_k\) be a probability distribution with support
+\(\mathcal{M}_k\). Then we define a mixture model as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Draw labels
+  \(z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\alpha_1, ..., \alpha_K)\).
+\item
+  Draw latent vectors each as
+  \(x_i \stackrel{\mathrm{ind}}{\sim}F_{z_i}\) for distributions
+  \(F_1, ..., F_K\) with respective supports
+  \(\mathcal{M}_1, ..., \mathcal{M}_K\).
+\item
+  Let \(X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top\), and
+  draw \(A \sim \mathrm{RDPG}(X)\) or
+  \(A \sim \mathrm{GRDPG}_{p,q}(X)\).
+\end{enumerate}
+
+Note that here, we redefine the model to ignore \(g_1, ..., g_K\), the
+parameterizations of each manifold. Instead, we sample points directly
+on the manifolds themselves. We will return to the parameterizations in
+Section \ref{section:intersecting}.
+
+In this setting, although each manifold is in \(d\)-dimensional space,
+since the manifolds are one-dimensional, it is possible to consider an
+ordering of points sampled on the manifold. In the original latent space
+in which there is no noise, the condition for which community detection
+is possible via \(\eta\)-neighborhood graph clustering or single linkage
+clustering is each pair of adjacent order statistics on each manifold
+being less than \(\delta\) apart.
+
+\begin{theorem}[Community detection for one-dimensional nonintersecting manifolds without noise]
+\label{nonintersect-no-noise}
+Let $x_1, ..., x_n$ be points sampled on $K$ one-dimensional manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$. 
+Suppose $\delta = \min_{k \neq \ell} \min_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
+Let $A_n$ be the event such that $\max_k \max_i \|x_{(i+1)}^{(k)} - x_{(i)}^{(k)}\| < \delta$, where $x_{(i)}^{(k)}$ is the $i^{th}$ order statistic on the $k^{th}$ manifold. 
+Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(A_n) > 1 - \epsilon$. 
+\end{theorem}
+
+Sampling a graph from this latent configuration and constructing an ASE
+from the graph introduces error relative to the original latent vectors.
+If the errors are small, which is guaranteed by the consistency property
+of the ASE for sufficiently large \(n\), then sufficient separation
+between embedding points belonging to different manifolds is still
+guaranteed.
+
+\begin{theorem}[Community detection for one-dimensional nonintersecting manifolds with noise]
+\label{nonintersect-with-noise}
+Suppose the same setup as in theorem \ref{nonintersect-no-noise}. 
+Define $y_i = x_i + e_i$ and $B_n$ as the event such that $\|y_{(i+1)}^{(k)} - y_{(i)}^{(k)}\| < \|y_{(i)}^{(k)} - y_{(j)}^{(\ell)}\|$ for any $k \neq \ell$. 
+Here, $y_{(i)}^{(k)}$ is the $i^{th}$ order statistic on the $k^{th}$ manifold plus its corresponding noise. 
+Then if $\max_i \|e_i\| < \delta / 3$, for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, $P(B_n) > 1 - \epsilon$. 
+\end{theorem}
+
+\begin{theorem}[Community detection for one-dimensional nonintersecting manifold block models]
+\label{nonintersect-mbm}
+Suppose we have the same setup as in theorem \ref{nonintersect-no-noise}. 
+Let $p, q \geq 0$ such that $p + q = d$ where $d$ is the dimension of the range of each $g_k$. 
+Suppose we draw $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ for some sparsity parameter $\rho_n \in (0, 1]$, and let $\hat{X}$ be the ASE of $A$. 
+Then for any $\epsilon > 0$, there exists an $N \in \mathbb{N}$ such that when $n > N$, single linkage clustering produces zero community detection error with high probability. 
+\end{theorem}
+
 \hypertarget{intersecting-manifolds}{%
 \subsection{Intersecting Manifolds}\label{intersecting-manifolds}}
 
+\label{section:intersecting}
+
 In this section, we again consider the setting for the RDPG or GRDPG in
 which each community lies on a manifold in the latent space. However,
-this time, we do not assume that the manifolds are nonintersecting.
+this time, we do not assume that the manifolds are nonintersecting. We
+also restrict this case to one-dimensional manifolds which are each
+described by \(g_k : [0, 1] \to \mathcal{X}\). Then we define a mixture
+model as follows:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Draw \(t_1, ..., t_n \stackrel{\mathrm{iid}}{\sim}F\) for probability
+  distribution \(F\) with support \([0, 1]\).
+\item
+  Draw
+  \(z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\alpha_1, ..., \alpha_K)\),
+  the community labels.
+\item
+  Let each \(x_i = g_{z_i}(t_i)\) be the latent vector for vertex
+  \(v_i\), and collect the latent vectors into matrix
+  \(X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top\).
+\item
+  Draw \(A \sim \mathrm{RDPG}(X)\) or
+  \(A \sim \mathrm{GRDPG}_{p,q}(X)\).
+\end{enumerate}
 
 \begin{algorithm}[h]
 \DontPrintSemicolon
@@ -671,7 +745,7 @@ Then for any $\epsilon \in (0, 1)$, we can always solve for an $n$ such that $1 
 \begin{proof}[Proof of theorem \ref{nonintersect-no-noise}]
 This theorem requires two additional conditions: 
 First, each $n_k \to \infty$ as $n \to \infty$, and second, the number of manifolds $K$ remains fixed. 
-These are satisified by the model assumptions. 
+These are satisfied by the model assumptions. 
 Then this is a direct consequence of Lemma \ref{lem:lim-d}. 
 Denoting $m = \min_k n_k$ as the sample size of the manifold with the fewest points, 
 
@@ -682,10 +756,11 @@ P(\max_{k,i} \|X_{(i+1)}^{(k)} - X_{(i)}^{(k)}\| < \delta) & = P(\forall k, i ~ 
 & \geq (1 - (m-1) (1 - a \delta)^{m} + (m-1) (1 - F(1-\delta) - a \delta)^{m})^K
 \end{aligned}
 $$
-Since as $n \to \infty$, $m \to \infty$ as well, and $K$ is fixed, this approaches $(1)^K = 1$. 
+Since as $n \to \infty$, $m \to \infty$ as well, and $K$ is fixed, this approaches $(1)^K = 1$. Then setting this $\geq 1 - \epsilon$, it is always possible to solve this for $m$. 
 \end{proof}
 
 \begin{proof}[Proof of theorem \ref{nonintersect-with-noise}]
+Let $\max_i \|e_i\| \leq \xi$. 
 \end{proof}
 
 \begin{proof}[Proof of theorem \ref{nonintersect-mbm}]
