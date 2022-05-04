@@ -121,8 +121,6 @@ Suppose instead that each $P_{ij}$ is drawn from a distribution with density $f(
 Then it can be shown that this model is equivalent to a random dot product graph with a two dimensional latent space in which latent vectors are sampled uniformly along the curve $g(t) = \begin{bmatrix} \cos(\frac{\pi}{2} t) & \sin(\frac{\pi}{2} t) \end{bmatrix}^\top$, $0 \leq t \leq 1$. 
 \end{example}
 
-
-
 \begin{definition}[Manifold block model]
 Let $p, q \geq 0$, $d = p + q \geq 1$, $K \geq 1$, and $n \geq 1$ be integers.
 If there are manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathcal{X}$ for $\mathcal{X} = \{x, y \in \mathbb{R}^d : x^\top I_{p,q} y \in [0, 1] \}$, and 
@@ -145,7 +143,7 @@ Define two one-dimensional manifolds by $f_1(t) = \begin{bmatrix} \cos(\frac{\pi
 Draw $t_1, ..., t_n \iid \Uniform(0, 1)$ and $z_1, ..., z_n \iid \Multinomial(\frac{1}{2}, \frac{1}{2})$, and compute latent vectors $x_i = f_{z_i}(t_i)$, which are collected in data matrix $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$. 
 Finally, let $A \sim \RDPG(X)$. Fig \ref{fig:example1} shows the latent configuration drawn from this latent distribution, a random dot product graph drawn from the latent configuration, and the adjacency spectral embedding of the graph. 
 
-```{r example1, fig.cap = 'Manifold block model described in Example 1. The latent configuration is on the left, and a random dot product graph drawn from the latent configuration is on the middle, and the ASE is on the right.', fig.height = 2.5, fig.width = 7}
+```{r example1, fig.cap = 'Manifold block model described in Example 1. The latent configuration is on the left, a random dot product graph drawn from the latent configuration is on the middle, and the ASE is on the right.', fig.height = 2.5, fig.width = 7}
 set.seed(123456)
 n1 <- 2 ** 5
 n2 <- 2 ** 5
@@ -614,7 +612,7 @@ The following lemma is based on lemma 2 of \citet{trosset2020rehabilitating}.
 \label{lem:one-hypercube}
 Let $x_1, ..., x_n \iid F$ with support $[0, 1]^r$, and $f(x) \geq a > 0$ everywhere on the support. 
 Define $H_n$ as the event that an $\eta$-neighborhood graph constructed from the sample is connected for any $\eta > 0$. 
-Then for any $\epsilon > 0$, there exists $N = O \bigg( \frac{\log \epsilon + r \log \eta - \frac{r}{2} \log r}{\log (1 - a \eta^r r^{-r / 2})} \bigg)$ such that $P(E_n) > 1 - \epsilon$ when $n \geq N$.
+Then for any $\epsilon > 0$, there exists $N = O \bigg( \frac{\log \epsilon + r \log \eta - \frac{r}{2} \log r}{\log (1 - a \eta^r r^{-r / 2})} \bigg)$ such that $P(H_n) > 1 - \epsilon$ when $n \geq N$.
 \end{lemma}
 
 \begin{proof}
@@ -630,6 +628,19 @@ P(H_n) & = 1 - P(\text{some cells don't contain } X_i) \\
 $$
 which approaches $1$ as $n \to \infty$. 
 Setting this quantity as  $\geq 1 - \epsilon$ and solving for $n$ yields the desired rate. 
+\end{proof}
+
+Lemma \ref{lem:one-hypercube} extends to the case in which vectors are drawn from hypercubes with noise, given that the noise is bounded. 
+
+\begin{lemma}
+\label{lem:one-hypercube-noise}
+Suppose the setup from lemma \ref{lem:one-hypercube}, but instead of observing each $x_i$, we observe each $y_i = x_i + e_i$ for some $e_1, ..., e_n \in \mathbb{R}^d$. 
+Let $\nu = \max_i \|e_i\| < \infty$ be bounded. 
+Define $\tilde{H}_n$ as the event in which an $(\eta + 2 \nu)$-neighborhood graph constructed from sample $y_1, ..., y_n$ is connected. 
+Then for any $\epsilon > 0$, there exists $N = O \bigg( \frac{\log \epsilon + r \log \eta - \frac{r}{2} \log r}{\log (1 - a \eta^r r^{-r / 2})} \bigg)$ such that $P(\tilde{H}_n) > 1 - \epsilon$ when $n \geq N$.
+\end{lemma}
+
+\begin{proof}
 \end{proof}
 
 \begin{lemma}
@@ -665,5 +676,8 @@ Setting this quantity to $\geq 1 - \epsilon$ and solving for $n$ yields the desi
 
 \begin{proof}[Proof of theorem \ref{nonintersect-no-noise}]
 \end{proof}
+
+It can similarly be shown that the scenario in lemma \ref{lem:K-hypercubes} with bounded noise can be achieved by replacing the $\eta$-neighborhood graph with an $(\eta + 2 \nu)$-neighborhood graph, where $\nu = \max_i \|e_i\|$. 
+This time, it is necessary to bound the noise as $\nu < \delta / 3$ to maintain separation between the hypercubes. 
 
 \section{Details on Fitting Bezier Curves with Noise}
