@@ -116,32 +116,21 @@ In the following example, instead of fixing the edge probability, it is sampled 
 
 \begin{example}[Hierarchical $\ER$ model]
 In the $\ER$ model, the edge probability matrix has a fixed value $[P_{ij}] \equiv p \in [0, 1]$. 
-Suppose instead that each $P_{ij}$ is drawn from a distribution with density $f(p) = \frac{1}{\frac{\pi}{2} - 1} \Big(\frac{1}{\sqrt{1 - p^2}} - 1 \Big)$. 
 
-Then it can be shown that this model is equivalent to a random dot product graph with a two dimensional latent space in which latent vectors are sampled uniformly along the curve $g(t) = \begin{bmatrix} \cos(\frac{\pi}{2} t) & \sin(\frac{\pi}{2} t) \end{bmatrix}^\top$, $0 \leq t \leq 1$. 
+Suppose that we have a random dot product graph in which the latent space is $\mathbb{R}^2$ and latent vectors are drawn uniformly from the quarter circle defined by $g(t) = \begin{bmatrix} \cos(\frac{\pi}{2} t) & \sin(\frac{\pi}{2} t) \end{bmatrix}^\top$, $0 \leq t \leq 1$. 
+Then it can be shown that in this model, instead of a fixed $P_{ij} = p$, the edge probabilities are distributed with density $f(p) = \frac{2}{\pi - 2} \Big(\frac{1}{\sqrt{1 - p^2}} - 1 \Big)$. 
 \end{example}
 
-\begin{definition}[Manifold block model]
-Let $p, q \geq 0$, $d = p + q \geq 1$, $K \geq 1$, and $n \geq 1$ be integers.
-If there are manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathcal{X}$ for $\mathcal{X} = \{x, y \in \mathbb{R}^d : x^\top I_{p,q} y \in [0, 1] \}$, and 
-$X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$ such that each $x_i \in \mathcal{M}_k$ for some $k \in [K]$, then $A \sim \GRDPG_{p,q}(X; \rho_n)$ is a \emph{manifold block model}.
-\end{definition} 
-
-In practice, we often define each manifold $\mathcal{M}_k$ by a continuous function $g_k : [0, 1]^r \to \mathcal{X}$, where $1 \leq r < d$ is the dimensionality of manifold $\mathcal{M}_k$. 
-To complete the probability model, we define a probability distribution $F$ with support $[0, 1]^r$ and draw the community memberships from a multinomial distribution. 
-
-The full mixture model can be described as follows: 
-
-1. Draw labels $z_1, ..., z_n \iid \Multinomial(\alpha_1, ..., \alpha_K)$. 
-2. Draw latent vectors by first drawing each $t_1, ..., t_n \iid F$ and then computing each $x_i = g_{z_i}(t_i)$. 
-3. Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$, 
-and draw $A \sim \RDPG(X)$ or $A \sim \GRDPG_{p,q}(X)$. 
+By changing the latent structure from a point mass to a curve, we are able to come up with more flexible Bernoulli graph models in which edge probabilities follow more general probability distributions. 
+Community structure then can be added by sampling latent vectors from multiple curves. 
+Then the adjacency spectral embedding of the resulting graph allows us to recover that community structure. 
+This is illustrated in the following example. 
 
 \begin{example}
-Let $p = 2$, $q = 0$, $K = 2$, and $r = 1$. 
-Define two one-dimensional manifolds by $f_1(t) = \begin{bmatrix} \cos(\frac{\pi}{3} t) & \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$ and $f_2(t) = \begin{bmatrix} 1 - \cos(\frac{\pi}{3} t) & 1 - \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$.
+Define two one-dimensional manifolds in $\mathbb{R}^2$ by $f_1(t) = \begin{bmatrix} \cos(\frac{\pi}{3} t) & \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$ and $f_2(t) = \begin{bmatrix} 1 - \cos(\frac{\pi}{3} t) & 1 - \sin(\frac{\pi}{3} t) \end{bmatrix}^\top$.
 Draw $t_1, ..., t_n \iid \Uniform(0, 1)$ and $z_1, ..., z_n \iid \Multinomial(\frac{1}{2}, \frac{1}{2})$, and compute latent vectors $x_i = f_{z_i}(t_i)$, which are collected in data matrix $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$. 
-Finally, let $A \sim \RDPG(X)$. Fig \ref{fig:example1} shows the latent configuration drawn from this latent distribution, a random dot product graph drawn from the latent configuration, and the adjacency spectral embedding of the graph. 
+Finally, let $A \sim \RDPG(X)$. Fig. \ref{fig:example1} shows the latent configuration drawn from this latent distribution, a random dot product graph drawn from the latent configuration, and the adjacency spectral embedding of the graph. 
+Although the community structure is not obvious from the graph, the embedding shows a clear separation between the two communities. 
 
 ```{r example1, fig.cap = 'Manifold block model described in Example 1. The latent configuration is on the left, a random dot product graph drawn from the latent configuration is on the middle, and the ASE is on the right.', fig.height = 2.5, fig.width = 7}
 set.seed(123456)
@@ -178,6 +167,21 @@ plot(Xhat, col = z * 2, asp = 1,
      xlab = NA, ylab = NA)
 ```
 \end{example}
+
+We now formally define the manifold block model. 
+
+\begin{definition}[Manifold block model]
+Let $p, q \geq 0$, $d = p + q \geq 1$, $1 \leq r < d$, $K \geq 2$, and $n \geq 1$ be integers.
+Define manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathcal{X}$ for $\mathcal{X} = \{x, y \in \mathbb{R}^d : x^\top I_{p,q} y \in [0, 1] \}$ each by continuous function $g_k : [0, 1] \to \mathcal{X}$, 
+and probability distributions $F_1, ..., F_K$ each with support $[0, 1]^r$. 
+Then the following mixture model is a manifold block model: 
+
+\begin{enumerate}
+  \item Draw labels $z_1, ..., z_n \iid \Multinomial(\alpha_1, ..., \alpha_K)$. 
+  \item Draw latent vectors by first drawing each $t_i \indep F_{z_i}$ and then computing each $x_i = g_{z_i}(t_i)$. 
+  \item Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$, and draw $A \sim \RDPG(X)$ or $A \sim \GRDPG_{p,q}(X)$. 
+\end{enumerate}
+\end{definition}
 
 # Methods
 
@@ -659,7 +663,7 @@ Then for any $\epsilon \in (0, 1)$, there exists an $N = O \Big( \frac{\log(1 - 
 \end{lemma}
 
 \begin{proof}
-Let $H^{(k)}$ be the event that lemma \ref{lem:one-hypercube} holds for $\mathcal{C}_k$. Then $H^{(k)} = H_{n_k}$ where $H_n$ is defined as in \ref{lem:one-hypercube}. 
+Let $H^{(k)}$ be the event that lemma \ref{lem:one-hypercube} holds for $\mathcal{C}_k$. Then $H^{(k)} = H_{n_k}$ where $H_n$ is defined as in lemma \ref{lem:one-hypercube}. 
 Then $P(H'_n) = P(H_{n_1} \text{ and } ... \text{ and } H_{n_K})$. 
 
 $$
