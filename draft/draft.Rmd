@@ -229,9 +229,17 @@ We will return to the parameterizations in Section \ref{section:intersecting}.
 \label{nonintersect-no-noise}
 Let $x_1, ..., x_n$ be points sampled on $K$ manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$. 
 Suppose $\delta = \min\limits_{k \neq \ell} \min\limits_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
-Define $A_n$ as the event that for a $\eta$-neighborhood graph constructed from the sample $x_1, ..., x_n$ consists of exactly $K$ disconnected subgraphs that map on exactly to each manifold for some $\eta \in (0, \delta)$. 
-Then for any $\epsilon \in (0, 1)$, there exists an $N$ such that when $n > N$, $A_n$ occurs with high probability. 
-\label{nonintersect-no-noise}
+Define $A_n$ as the event that a $\eta$-neighborhood graph constructed from the sample $x_1, ..., x_n$ consists of exactly $K$ disconnected subgraphs that map exactly to each manifold for some $\eta \in (0, \delta)$. 
+Then for any $\epsilon \in (0, 1)$, there exists an $N$ such that when $n > N$, $P(A_n) > 1 - \epsilon$. 
+\end{theorem}
+
+\begin{theorem}{Community detection for RDPG for which the communities come from nonintersecting manifolds}
+\label{nonintersect-rdpg}
+Let $x_1, ..., x_n$ be points sampled on $K$ manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$. 
+Suppose $\delta = \min\limits_{k \neq \ell} \min\limits_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
+Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$ and $A \sim \RDPG(X)$. 
+Define $B_n$ as the event that an $\eta$-neighborhood graph constructed from the ASE of $A$ consists of exactly $K$ disconnected subgraphs that map exactly to each manifold for some $\eta \in (0, \delta)$. 
+Then for any $\epsilon \in (0, 1)$, there exists an $N$ such that when $n > N$, $P(B_n) > 1 - \epsilon$. 
 \end{theorem}
 
 ## Intersecting Manifolds
