@@ -123,13 +123,14 @@ probabilities are fixed, i.e., \(P_{ij} = p\).
 
 One common analysis task for graph and network data is community
 detection, which assumes that each vertex of a graph has a hidden
-community label. The goal of the analysis is then to retrieve these
-labels. In order to perform this analysis as a statistical inference
-task is to define a probability model with inherent community structure.
-We call such models \emph{block models}: First, each vertex is assigned
-a label \(z_1, ..., z_n \in \{1, 2, ..., K\}\) where \(K \ll n\). Then
-each edge probability \(P_{ij}\) is said to depend on the labels \(z_i\)
-and \(z_j\), possibly along with some other parameters. For example, the
+community label. The goal of the analysis is then to estimate these
+labels upon observing a graph. In order to perform this analysis as a
+statistical inference task is to define a probability model with
+inherent community structure. We call such models \emph{block models}:
+First, each vertex is assigned a label
+\(z_1, ..., z_n \in \{1, 2, ..., K\}\) where \(K \ll n\). Then each edge
+probability \(P_{ij}\) is said to depend on the labels \(z_i\) and
+\(z_j\), possibly along with some other parameters. For example, the
 stochastic block model (SBM) sets a fixed edge probability for each pair
 of communities, i.e., \(P_{ij} = \omega_{z_i, z_j}\). The
 degree-corrected block model (DCBM) assigns an additional parameter
@@ -235,7 +236,7 @@ Then the following mixture model is a manifold block model:
 
 \begin{enumerate}
   \item Draw labels $z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\alpha_1, ..., \alpha_K)$. 
-  \item Draw latent vectors by first drawing each $t_i \stackrel{\mathrm{ind}}{\sim}F_{z_i}$ and then computing each $x_i = g_{z_i}(t_i)$. 
+  \item Draw latent vectors by first drawing each $t_i \stackrel{\mathrm{ind}}{\sim}F_{z_i}$ and then compute each $x_i = g_{z_i}(t_i)$. 
   \item Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$, and draw $A \sim \mathrm{RDPG}(X)$ or $A \sim \mathrm{GRDPG}_{p,q}(X)$. 
 \end{enumerate}
 \end{definition}
@@ -387,6 +388,8 @@ Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$.\
 \caption{$K$-curves clustering.}
 \end{algorithm}
 
+rves clustering.\} \textbackslash end\{algorithm\}
+
 \begin{theorem}
 \label{k-curves-clustering}
 Let each $g_k$ be smooth. 
@@ -444,6 +447,8 @@ Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$, holding the known
 }
 \caption{Semi-supervised $K$-curves clustering.}
 \end{algorithm}
+
+upervised \(K\)-curves clustering.\} \textbackslash end\{algorithm\}
 
 \begin{theorem}
 Let each $g(\cdot; p_k)$ be a nonintersecting Bezier polynomial of order $R$, 

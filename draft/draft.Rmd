@@ -88,7 +88,8 @@ We define a *Bernoulli graph* as a random graph model for which edge probabiliti
 Common random graph models then impose structure on $P$, based on various assumptions about the way in which the data are generated, or to allow $P$ to be estimated. 
 One example is the $\ER$ model, in which all edge probabilities are fixed, i.e., $P_{ij} = p$. 
 
-One common analysis task for graph and network data is community detection, which assumes that each vertex of a graph has a hidden community label. The goal of the analysis is then to retrieve these labels. In order to perform this analysis as a statistical inference task is to define a probability model with inherent community structure. We call such models *block models*: 
+One common analysis task for graph and network data is community detection, which assumes that each vertex of a graph has a hidden community label. The goal of the analysis is then to estimate these labels upon observing a graph. 
+In order to perform this analysis as a statistical inference task is to define a probability model with inherent community structure. We call such models *block models*: 
 First, each vertex is assigned a label $z_1, ..., z_n \in \{1, 2, ..., K\}$ where $K \ll n$. 
 Then each edge probability $P_{ij}$ is said to depend on the labels $z_i$ and $z_j$, possibly along with some other parameters. 
 For example, the stochastic block model (SBM) sets a fixed edge probability for each pair of communities, i.e., $P_{ij} = \omega_{z_i, z_j}$. 
@@ -178,7 +179,7 @@ Then the following mixture model is a manifold block model:
 
 \begin{enumerate}
   \item Draw labels $z_1, ..., z_n \iid \Multinomial(\alpha_1, ..., \alpha_K)$. 
-  \item Draw latent vectors by first drawing each $t_i \indep F_{z_i}$ and then computing each $x_i = g_{z_i}(t_i)$. 
+  \item Draw latent vectors by first drawing each $t_i \indep F_{z_i}$ and then compute each $x_i = g_{z_i}(t_i)$. 
   \item Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$, and draw $A \sim \RDPG(X)$ or $A \sim \GRDPG_{p,q}(X)$. 
 \end{enumerate}
 \end{definition}
@@ -417,9 +418,11 @@ out <- lapply(seq(random.starts), function(i) {
                       verbose = FALSE,
                       animate = animate,
                       animation.dir = animation.dir,
-                      animation.title = paste('random', i, ifelse(intercept,
-                                                                  'w-intercept',
-                                                                  'no-intercept'),
+                      animation.title = paste('random', 
+                                              i, 
+                                              ifelse(intercept,
+                                                     'w-intercept',
+                                                     'no-intercept'),
                                               sep = '-'))
 })
 names(out) <- paste('random', seq(random.starts))
@@ -539,6 +542,7 @@ A <- sign(A + t(A))
 z <- as.numeric(factor(igraph::vertex_attr(macaque)$shape))
 
 Xhat <- embedding(A, 2, 0)
+n <- nrow(Xhat)
 plot(Xhat, col = z, asp = 1)
 ```
 

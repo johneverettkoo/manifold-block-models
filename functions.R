@@ -395,29 +395,39 @@ manifold.clustering <- function(X, K = 2,
                                 animation.title = 'plot') {
   n <- nrow(X)
   
+  partial.init <- FALSE
   if (length(initialization) == n) {
     if (all(!is.na(initialization))) {
       z.hat <- initialization
     } else {
+      partial.init <- TRUE
       z.hat.partial <- initialization[!is.na(initialization)]
       X.partial <- X[!is.na(initialization), ]
-      clustering.partial <- manifold.clustering(
-        X = X.partial, 
-        K = K,
-        degree = degree,
-        initialization = z.hat.partial,
-        intercept = intercept,
-        maxit = maxit,
-        k.isomap = k.isomap * length(z.hat.partial) / n,
-        curve.init = curve.init,
-        min.t = min.t, 
-        max.t = max.t, 
-        normalize = normalize,
-        eps = eps,
-        parallel = paralle,
-        verbose = verbose, 
-        animate = FALSE)
-      z.hat <- clustering.partial$z
+      curves <- lapply(seq(K), function(k) {
+        estimate.bezier.curve.2(
+          X.partial[z.hat.partial == k, ],
+          degree = degree, 
+          k.isomap = as.integer(k.isomap * length(z.hat.partial) / n + 1),
+          intercept = intercept,
+          initialization = curve.init,
+          min.t = min.t, 
+          max.t = max.t, 
+          normalize = normalize,
+          parallel = parallel, 
+          eps = eps / K)
+      })
+      distances <- do.call('cbind', lapply(seq(K), function(k) {
+        compute.distances.bezier(X, 
+                                 clustering.partial$p[[k]],
+                                 min.t = min.t,
+                                 max.t = max.t, 
+                                 parallel = parallel,
+                                 intercept = intercept)
+      }))
+      z.hat <- apply(distances, 1, which.min)
+      for (k in seq(K)) {
+        z.hat[initialization == k] <- k
+      }
     }
   } else if (initialization == 'spectral') {
     if (missing(A)) {
@@ -539,7 +549,7 @@ manifold.clustering <- function(X, K = 2,
       
       update.curves.df <- plyr::ldply(seq(K), function(k) {
         X.hat <- 
-          construct.bezier.model.matrix(t.seq, r, intercept) %*% curves[[k]]$p
+          construct.bezier.model.matrix(t.seq, degree, intercept) %*% curves[[k]]$p
         dplyr::tibble(X = X.hat[, 1],
                       Y = X.hat[, 2],
                       Z = k,
@@ -558,6 +568,11 @@ manifold.clustering <- function(X, K = 2,
     loss <- c(loss, new.loss)
     
     z.hat <- apply(distances, 1, which.min)
+    if (partial.init) {
+      for (k in seq(K)) {
+        z.hat[initialization == k] <- k
+      }
+    }
     
     ggplot() +
       # viridis::scale_colour_viridis() +
@@ -601,7 +616,7 @@ manifold.clustering <- function(X, K = 2,
       iter.df %<>% dplyr::bind_rows(update.iter.df)
       
       update.curves.df <- plyr::ldply(seq(K), function(k) {
-        X.hat <- construct.bezier.model.matrix(t.seq, r, intercept) %*% curves[[k]]$p
+        X.hat <- construct.bezier.model.matrix(t.seq, degree, intercept) %*% curves[[k]]$p
         dplyr::tibble(X = X.hat[, 1],
                       Y = X.hat[, 2],
                       Z = k,
