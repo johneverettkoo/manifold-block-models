@@ -834,3 +834,112 @@ simulate.and.compute.error <- function(
   error.rate <- 1 - cluster.acc(clustering$z, z)
   return(error.rate)
 }
+
+
+mds.edm1 <- function(X) {
+  #
+  #  Computes an EDM-1 from a data matrix.
+  #
+  return(as.matrix(dist(X)))
+}
+
+
+graph.eps <- function(D,eps) {
+  #
+  #  Modifies a dissimilarity matrix D, replacing entries
+  #    greater than eps with Inf, thereby constructing the
+  #    weight matrix for a weighted eps-nbhd graph.
+  #
+  D[D>eps] <- Inf
+  return(D)
+}
+
+
+graph.knn <- function(D,k) {
+  #
+  #  Returns an nxn 0-1 matrix KNN.
+  #    KNN[i,j]=1 iff j is a neighbor of i.
+  #    Note that KNN may be asymmetric.
+  #  We assume that D[i,j]>0 except when i=j.
+  #
+  n <- nrow(D)
+  KNN <- matrix(0,nrow=n,ncol=n)
+  near <- 2:(k+1)
+  for (i in 1:n) {
+    v <- D[i,]
+    j <- order(v)
+    j <- j[near]
+    KNN[i,j] <- 1
+  }
+  return(KNN)
+}
+
+
+graph.adj <- function(KNN) {
+  #
+  #  Uses the output of graph.knn to construct an adjacency matrix.
+  #  Vertices i & j are connected iff either j is a neighbor of i
+  #    or i is a neighbor of j.
+  #
+  return(pmax(KNN,t(KNN)))
+}
+
+embedding <- function(A, p = NULL, q = NULL,
+                      scale = TRUE,
+                      eps = 1e-6) {
+  if (p + q == 0) {
+    stop('one of p or q must be > 0')
+  }
+  n <- nrow(A)
+  eigen.A <- eigen(A, symmetric = TRUE)
+  if (is.null(p) | is.null(q)) {
+    keep <- (abs(eigen.A$values) > eps)
+  } else {
+    if (p * q > 0) {
+      keep <- c(seq(p), seq(n, n - q + 1))
+    } else if (p == 0) {
+      keep <- seq(n, n - q + 1)
+    } else {
+      keep <- seq(p)
+    }
+  }
+  
+  U <- eigen.A$vectors[, keep]
+  if (scale) {
+    S <- diag(sqrt(abs(eigen.A$values[keep])))
+    return(U %*% S)
+  } else {
+    return(U * sqrt(n))
+  }
+}
+
+draw.graph <- function(P) {
+  n <- nrow(P)
+  A <- matrix(0, nrow = n, ncol = n)
+  A[upper.tri(A)] <- rbinom(n * (n - 1) / 2, 1, P[upper.tri(P)])
+  A <- A + t(A)
+  return(A)
+}
+
+graph.short <- function(W) {
+  #
+  #  Computes all shortest path distances for a weighted graph,
+  #    using output from graph.eps or graph.unit or graph.dis.
+  #  Assumes that 
+  #    W[i,j] measures dissimilarity and that
+  #    W[i,j] = Inf if there is no edge between vertices i & j.
+  #
+  n <- nrow(W)
+  E <- matrix(0,nrow=n,ncol=n)
+  m <- 1
+  while (m < n-1) {
+    for (i in 1:n) {
+      for (j in 1:n) {
+        E[i,j] <- min(W[i,]+W[,j])
+      }
+    }
+    W <- E
+    m <- 2*m
+  }
+  return(W)
+}

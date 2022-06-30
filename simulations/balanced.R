@@ -1,11 +1,13 @@
 source('~/dev/manifold-block-models/functions.R')
+source('~/dev/pabm-grdpg/functions.R')
 import::from(magrittr, `%>%`)
 import::from(foreach, foreach, `%do%`, `%dopar%`)
 library(ggplot2)
 
 n.vec <- 2 ^ c(7, 8, 9, 10)
+n.vec <- sort(n.vec, decreasing = TRUE)
 nsamp.vec <- c(6, 8, 10)
-iter <- 32
+iter <- 50
 
 doMC::registerDoMC(parallel::detectCores())
 
