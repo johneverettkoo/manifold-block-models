@@ -403,7 +403,7 @@ manifold.clustering <- function(X, K = 2,
       partial.init <- TRUE
       z.hat.partial <- initialization[!is.na(initialization)]
       X.partial <- X[!is.na(initialization), ]
-      curves <- lapply(seq(K), function(k) {
+      curves.partial <- lapply(seq(K), function(k) {
         estimate.bezier.curve.2(
           X.partial[z.hat.partial == k, ],
           degree = degree, 
@@ -418,7 +418,7 @@ manifold.clustering <- function(X, K = 2,
       })
       distances <- do.call('cbind', lapply(seq(K), function(k) {
         compute.distances.bezier(X, 
-                                 clustering.partial$p[[k]],
+                                 curves.partial[[k]]$p,
                                  min.t = min.t,
                                  max.t = max.t, 
                                  parallel = parallel,
@@ -729,4 +729,108 @@ plot.estimated.curves <- function(X, curves,
     theme(legend.position = 'none') +
     geom_path(data = manifold.df,
               aes(x = x, y = y, group = z))
+}
+
+grdpg.edge.prob.matrix <- function(X, p = ncol(X), q = 0) {
+  if (q == 0) {
+    P <- X %*% t(X)
+  } else {
+    if (p + q != ncol(X)) {
+      stop('p + q must be equal to ncol(X)')
+    }
+    Ipq <- diag(c(rep(1, p), rep(-1, q)))
+    P <- X %*% Ipq %*% t(X)
+  }
+  return(P)
+}
+
+sample.points <- function(z, nsamp = 10) {
+  n <- length(z)
+  K <- max(z)
+  z.init <- rep(NA, n)
+  for (k in seq(K)) {
+    init.ind <- sample(which(z == k), nsamp)
+    z.init[init.ind] <- k
+  }
+  return(z.init)
+}
+
+cluster.acc <- function(yhat, yobs, reorder.mat) {
+  K <- max(c(yhat, yobs))
+  n <- length(yhat)
+  if (missing(reorder.mat)) {
+    reorder.mat <- gtools::permutations(K, K)
+  }
+  
+  original <- seq(K)
+  accuracies <- apply(reorder.mat, 1, function(reorder) {
+    yhat.remap <- plyr::mapvalues(yhat, original, reorder)
+    table(yhat.remap, yobs) %>% 
+      as.matrix() %>% 
+      diag() %>% 
+      sum() %>% 
+      magrittr::divide_by(n) %>% 
+      return()
+  })
+  return(max(accuracies))
+}
+
+simulate.and.compute.error <- function(
+    n, 
+    p.list = list(matrix(c(0, 1, 1, 0), nrow = 2, ncol = 2),
+                  matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)),
+    degree = 2, 
+    intercept = FALSE,
+    initialization = 'random',
+    ground.truth.sample = 8,
+    normalize = TRUE,
+    parallel = FALSE, 
+    maxit = 100,
+    eps = 1e-3,
+    verbose = FALSE,
+    animate = FALSE,
+    animation.dir = '.',
+    animation.title = 'test') {
+  K <- length(p.list)
+  
+  z <- sample(seq(K), n, replace = TRUE)
+  z <- sort(z)
+  
+  t <- runif(n)
+  
+  X <- lapply(seq(K), function(k) {
+    bezier.curve(t[z == k], 
+                 p.list[[k]], 
+                 intercept = intercept)
+  }) %>% 
+    do.call('rbind', .)
+  p <- ncol(X)
+  q <- 0
+  P <- grdpg.edge.prob.matrix(X, p, q)
+  A <- draw.graph(P)
+  Xhat <- embedding(A, p, q)
+  
+  if (initialization == 'ground truth') {
+    initialization <- sample.points(z, ground.truth.sample)
+  }
+  
+  clustering <- manifold.clustering(
+    X = Xhat, 
+    K = K, 
+    degree = degree,
+    A = A,
+    initialization = initialization,
+    parallel = parallel,
+    intercept = intercept,
+    normalize = normalize,
+    maxit = maxit,
+    eps = eps,
+    verbose = verbose,
+    animate = animate,
+    animation.dir = animation.dir,
+    animation.title = animation.title
+  )
+  
+  error.rate <- 1 - cluster.acc(clustering$z, z)
+  return(error.rate)
 }
