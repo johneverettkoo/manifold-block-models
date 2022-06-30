@@ -414,7 +414,8 @@ manifold.clustering <- function(X, K = 2,
           max.t = max.t, 
           normalize = normalize,
           parallel = parallel, 
-          eps = eps / K)
+          eps = eps / K,
+          maxit = 32)
       })
       distances <- do.call('cbind', lapply(seq(K), function(k) {
         compute.distances.bezier(X, 
@@ -490,7 +491,8 @@ manifold.clustering <- function(X, K = 2,
                                 max.t = max.t, 
                                 normalize = normalize,
                                 parallel = parallel, 
-                                eps = eps / K)
+                                eps = eps / K,
+                                maxit = 32)
       })
     } else {
       curves <- lapply(seq(K), function(k) {
@@ -502,7 +504,8 @@ manifold.clustering <- function(X, K = 2,
                                 max.t = max.t, 
                                 normalize = normalize,
                                 parallel = parallel, 
-                                eps = eps / K)
+                                eps = eps / K,
+                                maxit = 32)
       })
     }
     
