@@ -597,6 +597,40 @@ plot.estimated.curves(Xhat, nonintersect.out)
 
 # Simulation Study
 
+```{r}
+clustering.df <- readr::read_csv('../simulations/balanced.csv')
+```
+
+```{r}
+clust.summary.df <- clustering.df %>% 
+  dplyr::group_by(n, nsamp) %>% 
+  dplyr::summarise(
+    med.count = median(error.count),
+    first.q.count = quantile(error.count, .25),
+    third.q.count = quantile(error.count, .75),
+    med.rate = median(error.rate),
+    first.q.rate = quantile(error.rate, .25),
+    third.q.rate = quantile(error.rate, .75)
+  ) %>% 
+  dplyr::ungroup()
+
+n.vec <- unique(clustering.df$n)
+
+ggplot(clust.summary.df) + 
+  theme_bw() + 
+  theme(text = element_text(size = 10)) + 
+  scale_y_log10() +
+  scale_x_log10(breaks = n.vec) +
+  labs(y = 'community detection error rate',
+       colour = NULL, shape = NULL) + 
+  geom_line(aes(x = n, y = med.rate, colour = factor(nsamp))) + 
+  geom_point(aes(x = n, y = med.rate, colour = factor(nsamp))) + 
+  geom_errorbar(aes(x = n, 
+                    ymin = first.q.rate, ymax = third.q.rate, 
+                    colour = factor(nsamp))) + 
+  scale_colour_brewer(palette = 'Set1')
+```
+
 # Discussion
 
 \appendix
