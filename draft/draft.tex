@@ -229,6 +229,7 @@ Although the community structure is not obvious from the graph, the embedding sh
 We now formally define the manifold block model.
 
 \begin{definition}[Manifold block model]
+\label{def:manifold-block-model}
 Let $p, q \geq 0$, $d = p + q \geq 1$, $1 \leq r < d$, $K \geq 2$, and $n \geq 1$ be integers.
 Define manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathcal{X}$ for $\mathcal{X} = \{x, y \in \mathbb{R}^d : x^\top I_{p,q} y \in [0, 1] \}$ each by continuous function $g_k : [0, 1] \to \mathcal{X}$, 
 and probability distributions $F_1, ..., F_K$ each with support $[0, 1]^r$. 
@@ -237,7 +238,7 @@ Then the following mixture model is a manifold block model:
 \begin{enumerate}
   \item Draw labels $z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\alpha_1, ..., \alpha_K)$. 
   \item Draw latent vectors by first drawing each $t_i \stackrel{\mathrm{ind}}{\sim}F_{z_i}$ and then compute each $x_i = g_{z_i}(t_i)$. 
-  \item Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$, and draw $A \sim \mathrm{RDPG}(X)$ or $A \sim \mathrm{GRDPG}_{p,q}(X)$. 
+  \item Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$, and draw $A \sim \mathrm{RDPG}(X; \rho_n)$ or $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$. 
 \end{enumerate}
 \end{definition}
 
@@ -312,8 +313,8 @@ Let \(F_k\) be a probability distribution with support
   \(\mathcal{M}_1, ..., \mathcal{M}_K\).
 \item
   Let \(X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top\), and
-  draw \(A \sim \mathrm{RDPG}(X)\) or
-  \(A \sim \mathrm{GRDPG}_{p,q}(X)\).
+  draw \(A \sim \mathrm{RDPG}(X; \rho_n)\) or
+  \(A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)\).
 \end{enumerate}
 
 Note that here, we redefine the model to ignore \(g_1, ..., g_K\), the
@@ -321,22 +322,16 @@ parameterizations of each manifold. Instead, we sample points directly
 on the manifolds themselves. We will return to the parameterizations in
 Section \ref{section:intersecting}.
 
-\begin{theorem}[Community detection for nonintersecting manifolds without noise]
-\label{nonintersect-no-noise}
-Let $x_1, ..., x_n$ be points sampled on $K$ manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$. 
-Suppose $\delta = \min\limits_{k \neq \ell} \min\limits_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
-Define $A_n$ as the event that a $\eta$-neighborhood graph constructed from the sample $x_1, ..., x_n$ consists of exactly $K$ disconnected subgraphs that map exactly to each manifold for some $\eta \in (0, \delta)$. 
-Then for any $\epsilon \in (0, 1)$, there exists an $N$ such that when $n > N$, $P(A_n) > 1 - \epsilon$. 
+\begin{theorem}[Community detection for the GRDPG for which the communities come from nonintersecting manifolds]
+\label{theorem:nonintersect-grdpg}
+Let $x_1, ..., x_n$ be points sampled on $K$ compact, connected manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathbb{R}^d$ each with probability measures $F_1, ..., F_K$, and the manifolds are separated by distance at least $\delta = \min\limits_{k \neq \ell} \min\limits_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
+Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$ and $A \sim \mathrm{GRDPG}_{p,q}(X; \rho_n)$ for some $p, q \in \mathbb{N}_0$ such that $p + q = d$ and sparsity parameter $\rho_n$ that satisfies $n \rho_n = \omega(\log^c n)$ for some $c > 1$. 
+Define $A_n(\eta)$ as the event that an $\eta$-neighborhood graph constructed from the ASE of $A$ consists of exactly $K$ disconnected subgraphs that map exactly to each manifold. 
+Then for any $\eta \in (0, \delta)$, $\lim\limits_{n \to \infty} P(A_n(\eta)) = 1$. 
 \end{theorem}
 
-\begin{theorem}{Community detection for RDPG for which the communities come from nonintersecting manifolds}
-\label{nonintersect-rdpg}
-Let $x_1, ..., x_n$ be points sampled on $K$ manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$. 
-Suppose $\delta = \min\limits_{k \neq \ell} \min\limits_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
-Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$ and $A \sim \mathrm{RDPG}(X)$. 
-Define $B_n$ as the event that an $\eta$-neighborhood graph constructed from the ASE of $A$ consists of exactly $K$ disconnected subgraphs that map exactly to each manifold for some $\eta \in (0, \delta)$. 
-Then for any $\epsilon \in (0, 1)$, there exists an $N$ such that when $n > N$, $P(B_n) > 1 - \epsilon$. 
-\end{theorem}
+If the manifolds are one-dimensional, then a more precise rate of
+convergence can be derived.
 
 \hypertarget{intersecting-manifolds}{%
 \subsection{Intersecting Manifolds}\label{intersecting-manifolds}}
@@ -389,18 +384,6 @@ Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$.\
 \end{algorithm}
 
 rves clustering.\} \textbackslash end\{algorithm\}
-
-\begin{theorem}
-\label{k-curves-clustering}
-Let each $g_k$ be smooth. 
-Then $K$-curves clustering converges to a stationary point of the objective, 
-$\sum_k \sum_{i \in C_k} \|x_i - g_k(t_i)\|^2$.
-\end{theorem}
-
-\begin{proof}
-$K$-curves clustering is a batch coordinate descent algorithm. 
-Thus, in order to show that it converges to a stationary point, it is sufficient to show that each descent step decreases the objective function. 
-\end{proof}
 
 \(K\)-curves clustering assumes that the functional form of \(g_k\) is
 known. The choice of \(g_k\) affects the difficulty of the algorithm. As
@@ -552,87 +535,58 @@ The sixth also initializes via spectral clustering but allows the intercept to b
 
 \section{Proofs of Theorems}
 
-In order to prove theorem \ref{nonintersect-no-noise}, we first
-establish that the density of points within one manifold is sufficiently
-dense. The following lemma is based on lemma 2 of
-\citet{trosset2020rehabilitating}.
-
 \begin{lemma}
-\label{lem:one-hypercube}
-Let $x_1, ..., x_n \stackrel{\mathrm{iid}}{\sim}F$ with support $[0, 1]^r$, and $f(x) \geq a > 0$ everywhere on the support. 
-Define $H_n$ as the event that an $\eta$-neighborhood graph constructed from the sample is connected for any $\eta > 0$. 
-Then for any $\epsilon > 0$, there exists $N = O \bigg( \frac{\log \epsilon + r \log \eta - \frac{r}{2} \log r}{\log (1 - a \eta^r r^{-r / 2})} \bigg)$ such that $P(H_n) > 1 - \epsilon$ when $n \geq N$.
+\label{lemma:no-noise}
+Let $x_1, ..., x_n$ be drawn from $K$ compact, connected manifolds $\mathcal{M}_1$, ..., $\mathcal{M}_K$ each with probability measures $F_1$, ..., $F_K$, and the manifolds are separated by distance at least $\delta > 0$. 
+Suppose that for any $\epsilon > 0$ and $x$ drawn from each $F_k$, on $\mathcal{M}_k$, $F(B(x, \epsilon)) > 0$ where $B(x, \epsilon)$ is the open ball of radius $\epsilon$ centered at $x$. 
+Let $E_n(\eta)$ denote the event that an $\eta$-neighborhood graph constructed from $x_1, ..., x_n$ is comprised of exactly $K$ disjoint subgraphs that map to each of the $K$ manifolds. 
+Then if each $n_k \to \infty$ as $n \to \infty$, $\lim\limits_{n \to \infty} P(E_n(\eta)) = 1$ for each $\eta \in (0, \delta)$. 
 \end{lemma}
 
 \begin{proof}
-Divide the hypercube $[0, 1]^r$ into a grid of sub-hypercubes of side length at most $\eta / \sqrt{r}$. 
-$E_n$ is satisfied if each sub-hypercube contains at least one $X_i$ from the sample. 
+It is clear that if $\eta \in (0, \delta)$, an $\eta$-neighborhood graph constructed from the sample will always consist of at least $K$ disjoint subgraphs for which no subgraph contains vertices belonging to points from two different manifolds. 
+Then it is sufficient to show that for a sufficiently large $n$, any $\eta$-neighborhood graph (where $\eta \in (0, \delta)$) will achieve $E_n$. 
+
+Define each $E_{n_k}^{(k)}(\eta)$ as the event that if a sub-sample of size $n_k$ drawn from manifold $\mathcal{M}_k$, every $x \in \mathcal{M}_k$ is within distance $\eta$ of some $x_j$ of the sub-sample. 
+Then if $E_{n_k}^{(k)}(\eta)$ is true, the $\eta$-neighborhood graph results in a connected subgraph for points within the $k^{th}$ manifold. 
+By lemma 2 of \citet{trosset2020rehabilitating}, $P((E_{n_k}^{(k)}(\eta))^c) \leq \ell_k (1 - b_k)^{n_k}$ for some $\ell_k \in \mathbb{N}$ and $b_k \in (0, 1]$. 
+If each $E_{n_k}^{(k)}(\eta)$ is true, then $E_n$ is achieved, so $E_n(\eta) = \bigcap_k E_{n_k}^{(k)}(\eta))$. 
+$\bigcap_k E_{n_k}^{(k)}(\eta) = \Big( \bigcup_k (E_{n_k}^{(k)}(\eta))^c \Big)^c$, so it is sufficient to show $\lim\limits_{n \to \infty} P \big( \bigcup_k (E_{n_k}^{(k)}(\eta))^c \big) \to 0$. 
 
 $$
 \begin{aligned}
-P(H_n) & = 1 - P(\text{some cells don't contain } X_i) \\
-& \geq 1 - \sum_m^{\lceil \sqrt{r} / \eta \rceil^r} \prod_i^n P(X_i \text{ is not in the } k^{th} \text{ hypercube}) \\
-& \geq 1 - \lceil \sqrt{r} / \eta \rceil^r (1 - a \eta^r / r^{r/2})^n,
+P \big( \bigcup_k(E_{n_k}^{(k)})^c \big) & \leq \sum_k P \big((E_{n_k}^{(k)})^c \big) \\
+& \leq \sum_k \ell_k (1 - b_k)^{n_k} \\
+& \leq K \ell_{\max} (1 - b_{\min})^{n_{\min}},
 \end{aligned}
 $$
-which approaches $1$ as $n \to \infty$. 
-Setting this quantity as  $\geq 1 - \epsilon$ and solving for $n$ yields the desired rate. 
+
+which tends to $0$ as $n \to \infty$. 
 \end{proof}
 
-Lemma \ref{lem:one-hypercube} extends to the case in which vectors are
-drawn from hypercubes with noise, given that the noise is bounded.
+\begin{proof}[Proof of theorem \ref{theorem:nonintersect-grdpg}]
+Define $E_n(\eta)$ as in lemma \ref{lemma:no-noise} and each $\epsilon_i = \|\hat{x}_i - Q_n x_i\|$ where $\hat{x}_i$ is the $i^{th}$ embedding vector and $Q_n$ is some indefinite orthogonal transformation as in \citet{https://doi.org/10.1111/rssb.12509}. 
+Let $\epsilon = \max_i \epsilon_i$. 
+Then, by theorem 3 of \citet{https://doi.org/10.1111/rssb.12509}, for some finite $M > 0$, $P \big(\epsilon < M \frac{\log^c n}{\sqrt{n}} \big) \to 1$ as $n \to \infty$.
+Define $D_n$ as the event that $\epsilon < \delta / 2$. 
+For any $\delta > 0$, there is a finite $N$ such that when $n \geq N$, $M \frac{\log^c n}{\sqrt{n}} < \delta / 4$. 
+Then for the same $n$, $P(D_n) = 1$, so $\lim\limits_{n \to \infty} P(D_n) = 1$. 
 
-\begin{lemma}
-\label{lem:one-hypercube-noise}
-Suppose the setup from lemma \ref{lem:one-hypercube}, but instead of observing each $x_i$, we observe each $y_i = x_i + e_i$ for some $e_1, ..., e_n \in \mathbb{R}^d$. 
-Let $\nu = \max_i \|e_i\| < \infty$ be bounded. 
-Define $\tilde{H}_n$ as the event in which an $(\eta + 2 \nu)$-neighborhood graph constructed from sample $y_1, ..., y_n$ is connected. 
-Then for any $\epsilon > 0$, there exists $N = O \bigg( \frac{\log \epsilon + r \log \eta - \frac{r}{2} \log r}{\log (1 - a \eta^r r^{-r / 2})} \bigg)$ such that $P(\tilde{H}_n) > 1 - \epsilon$ when $n \geq N$.
-\end{lemma}
+$A_n(\eta)$ is true if both $E_n(\eta)$ and $D_n$ are true, since $E_n(\eta)$ ensures that the $\eta$-neighborhood graph for each manifold is connected and $D_n$ ensures that the $\eta$-neighborhood graph has no edges between embedding points from different manifolds. 
 
-\begin{proof}
-\end{proof}
-
-\begin{lemma}
-\label{lem:K-hypercubes}
-Let there be $K \geq 2$ hypercubes $\mathcal{C}_1, ..., \mathcal{C}_K$ of dimension $r_1, ..., r_K$ in $\mathbb{R}^d$ such that $\delta = \min\limits_{k \neq \ell} \min\limits_{x_i \in \mathcal{C}_k, x_j \in \mathcal{C}_\ell} \|x_i - x_j\| > 0$. 
-Let $F_k$ be a distribution with support $C_k$ such that its density $f_k$ is nonzero on the support. Let $a = \min_k \min_t f_k(t) > 0$. 
-Define a mixture model as follows: 
-
-\begin{enumerate}
-  \item Draw labels $z_1, ..., z_n \stackrel{\mathrm{iid}}{\sim}\mathrm{Multinomial}(\alpha_1, ..., \alpha_K)$. 
-  \item Draw latent vectors each as $x_i \stackrel{\mathrm{ind}}{\sim}F_{z_i}$.
-\end{enumerate}
-
-Define $H'_n$ as the event that an $\eta$-neighborhood graph constructed from this sample consists of exactly $K$ disconnected subgraphs for any $\eta \in (0, \delta)$. 
-Then for any $\epsilon \in (0, 1)$, there exists an $N = O \Big( \frac{\log(1 - (1 - \epsilon)^{1/K}) + d \log \eta - \frac{d}{2} \log d}{\alpha_{min} \log(1 - a \eta^d d^{-d/2})} \Big)$ such that when $n > N$, $P(E_n) > 1 - \epsilon$. 
-\end{lemma}
-
-\begin{proof}
-Let $H^{(k)}$ be the event that lemma \ref{lem:one-hypercube} holds for $\mathcal{C}_k$. Then $H^{(k)} = H_{n_k}$ where $H_n$ is defined as in lemma \ref{lem:one-hypercube}. 
-Then $P(H'_n) = P(H_{n_1} \text{ and } ... \text{ and } H_{n_K})$. 
+Then to show that $P(A_n) \to 1$: 
 
 $$
 \begin{aligned}
-P(H'_n) & = \prod_k P(H_{n_k}) \\
-& \geq \prod_k 1 - \lceil \sqrt{r_k} / \eta \rceil^{r_k} (1 - a \eta^{r_k} r_k^{-r_k/2})^{n_k} \\
-& \geq \prod_k 1 - \lceil \sqrt{d} / \eta \rceil^{d} (1 - a \eta^{d} d^{-d/2})^{\alpha_{\min} n} \\
-& \geq \big(1 - \lceil \sqrt{d} / \eta \rceil^{d} (1 - a \eta^{d} d^{-d/2})^{\alpha_{\min} n} \big)^K, \\
+P(A_n) & = P(E_n(\eta) \cap D_n) \\
+& = P((E_n^c(\eta) \cup D_n^c)^c) \\
+& = 1 - P(E_n^c(\eta) \cup D_n^c) \\
+& \geq 1 - P(E_n^c(\eta)) - P(D_n^c) \\ 
+& = P(E_n(\eta)) + P(D_n) - 1,
 \end{aligned}
 $$
-which approaches 1 as $n \to \infty$. 
-Setting this quantity to $\geq 1 - \epsilon$ and solving for $n$ yields the desired rate. 
+which tends toward $1$ as $n \to \infty$ since both $P(E_n(\eta))$ and $P(D_n)$ tend toward $1$ as $n \to \infty$. 
 \end{proof}
-
-\begin{proof}[Proof of theorem \ref{nonintersect-no-noise}]
-\end{proof}
-
-It can similarly be shown that the scenario in lemma
-\ref{lem:K-hypercubes} with bounded noise can be achieved by replacing
-the \(\eta\)-neighborhood graph with an \((\eta + 2 \nu)\)-neighborhood
-graph, where \(\nu = \max_i \|e_i\|\). This time, it is necessary to
-bound the noise as \(\nu < \delta / 3\) to maintain separation between
-the hypercubes.
 
 \section{Details on Fitting Bezier Curves with Noise}
 
