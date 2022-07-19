@@ -43,6 +43,7 @@ header-includes:
 \newcommand{\Multinomial}{\mathrm{Multinomial}}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
 \newtheorem{proposition}{Proposition}
 \theoremstyle{remark}
 \newtheorem{remark}{Remark}
@@ -75,7 +76,7 @@ library(ggplot2)
 library(gganimate)
 source('../functions.R')
 source('~/dev/pabm-grdpg/functions.R')
-source('https://mtrosset.pages.iu.edu/Courses/675/graph.r')
+# source('https://mtrosset.pages.iu.edu/Courses/675/graph.r')
 
 theme_set(theme_bw())
 
@@ -232,7 +233,7 @@ We will return to the parameterizations in Section \ref{section:intersecting}.
 Let $x_1, ..., x_n$ be points sampled on $K$ compact, connected manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \subset \mathbb{R}^d$ each with probability measures $F_1, ..., F_K$, and the manifolds are separated by distance at least $\delta = \min\limits_{k \neq \ell} \min\limits_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \| x_i - x_j \| > 0$. 
 Let $X = \begin{bmatrix} x_1 & \cdots & x_n \end{bmatrix}^\top$ and $A \sim \GRDPG_{p,q}(X; \rho_n)$ for some $p, q \in \mathbb{N}_0$ such that $p + q = d$ and sparsity parameter $\rho_n$ that satisfies $n \rho_n = \omega(\log^c n)$ for some $c > 1$. 
 Define $A_n(\eta)$ as the event that an $\eta$-neighborhood graph constructed from the ASE of $A$ consists of exactly $K$ disconnected subgraphs that map exactly to each manifold. 
-Then for any $\eta \in (0, \delta)$, $\lim\limits_{n \to \infty} P(A_n(\eta)) = 1$. 
+Then for some $C > 0$ and any $\eta \in (0, C \delta)$, $\lim\limits_{n \to \infty} P(A_n(\eta)) = 1$. 
 \end{theorem}
 
 If the manifolds are one-dimensional, then a more precise rate of convergence can be derived. 
@@ -666,25 +667,34 @@ $$
 which tends to $0$ as $n \to \infty$. 
 \end{proof}
 
-\begin{proof}[Proof of theorem \ref{theorem:nonintersect-grdpg}]
-Define $E_n(\eta)$ as in lemma \ref{lemma:no-noise} and each $\epsilon_i = \|\hat{x}_i - Q_n x_i\|$ where $\hat{x}_i$ is the $i^{th}$ embedding vector and $Q_n$ is some indefinite orthogonal transformation as in \citet{https://doi.org/10.1111/rssb.12509}. 
-Let $\epsilon = \max_i \epsilon_i$. 
-Then, by theorem 3 of \citet{https://doi.org/10.1111/rssb.12509}, for some finite $M > 0$, $P \big(\epsilon < M \frac{\log^c n}{\sqrt{n}} \big) \to 1$ as $n \to \infty$.
-Define $D_n$ as the event that $\epsilon < \delta / 2$. 
-For any $\delta > 0$, there is a finite $N$ such that when $n \geq N$, $M \frac{\log^c n}{\sqrt{n}} < \delta / 4$. 
-Then for the same $n$, $P(D_n) = 1$, so $\lim\limits_{n \to \infty} P(D_n) = 1$. 
+\begin{corollary}
+Let $x_1, ..., x_n$ be drawn from $K$ compact, connected, one-dimensional manifolds $\mathcal{M}_1, ..., \mathcal{M}_K$, each with probability measures $F_1, ..., F_K$, and the manifolds are spearated by distance at least $\delta > 0$. 
 
-$A_n(\eta)$ is true if both $E_n(\eta)$ and $D_n$ are true, since $E_n(\eta)$ ensures that the $\eta$-neighborhood graph for each manifold is connected and $D_n$ ensures that the $\eta$-neighborhood graph has no edges between embedding points from different manifolds. 
+\end{corollary}
+
+\begin{proof}[Proof of theorem \ref{theorem:nonintersect-grdpg}]
+Define $E_n(\eta)$ as in lemma \ref{lemma:no-noise} for manifolds $Q_n(\mathcal{M}_1), ..., Q_n(\mathcal{M}_K)$ and each $e_i = \hat{x}_i - Q_n x_i$ where $\hat{x}_i$ is the $i^{th}$ embedding vector and $Q_n$ is some indefinite orthogonal transformation as in \citet{https://doi.org/10.1111/rssb.12509}. 
+Since $Q_n$ is a linear map, for any $\eta \in (0, \|Q_n\| \delta)$, $P(E_n(\eta)) \to 1$ as $n \to \infty$. 
+Let $\epsilon_i = \|e_i\|$, $\epsilon = \max_i \epsilon_i$, and $C_n = \|Q_n\|$. 
+
+$A_n(\eta)$ is true if $\eta < \min\limits_{k, \ell} \min\limits_{x_i \in \mathcal{M}_k, x_j \in \mathcal{M}_\ell} \|\hat{x}_i - \hat{x}_j\|$, which is defined as event $D_n(\eta)$, and $\eta \geq \max\limits_k \max\limits_{x_i, x_j \in \mathcal{M}_k} \|\hat{x}_i - \hat{x}_j\|$, which is defined as event $\hat{E}_n(\eta)$.
+
+For any $x_i, x_j$ from different manifolds, $\|\hat{x}_i - \hat{x}_j\| \geq C_n \delta - 2 \epsilon$ if $2 \epsilon \leq C_n \delta$. 
+By theorem 3 of \citet{https://doi.org/10.1111/rssb.12509}, for some finite $M > 0$, $P \big(\epsilon < M \frac{\log^c n}{\sqrt{n}} \big) \to 1$ as $n \to \infty$, so $P(C_n \delta < 2 \epsilon) \leq P(C_n \delta < 2 M n^{1/2} \log^c n) \to 0$ since $C_n \delta > 0$. 
+Then since $P(C_n \delta - 2 \epsilon > 0) \to 1$, there is an $\epsilon \in (0, C_n \delta - 2 \epsilon)$ with probability 1. 
+Thus, $P(D_n(\eta)) \to 1$. 
+
+
 
 Then to show that $P(A_n) \to 1$: 
 
 $$
 \begin{aligned}
-P(A_n) & = P(E_n(\eta) \cap D_n) \\
-& = P((E_n^c(\eta) \cup D_n^c)^c) \\
-& = 1 - P(E_n^c(\eta) \cup D_n^c) \\
-& \geq 1 - P(E_n^c(\eta)) - P(D_n^c) \\ 
-& = P(E_n(\eta)) + P(D_n) - 1,
+P(A_n) & = P(\hat{E}_n(\eta) \cap D_n) \\
+& = P((\hat{E}_n^c(\eta) \cup D_n^c)^c) \\
+& = 1 - P(\hat{E}_n^c(\eta) \cup D_n^c) \\
+& \geq 1 - P(\hat{E}_n^c(\eta)) - P(D_n^c) \\ 
+& = P(\hat{E}_n(\eta)) + P(D_n) - 1,
 \end{aligned}
 $$
 which tends toward $1$ as $n \to \infty$ since both $P(E_n(\eta))$ and $P(D_n)$ tend toward $1$ as $n \to \infty$. 
