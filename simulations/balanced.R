@@ -7,7 +7,7 @@ source('functions.R')
 
 n.vec <- 2 ^ c(7, 8, 9, 10, 11)
 n.vec <- sort(n.vec, decreasing = TRUE)
-nsamp.vec <- c(4, 6, 8, 10)
+nsamp.vec <- c(0, 4, 6, 8, 10)
 iter <- 32
 
 doMC::registerDoMC(parallel::detectCores())

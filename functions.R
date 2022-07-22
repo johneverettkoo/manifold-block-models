@@ -780,8 +780,10 @@ cluster.acc <- function(yhat, yobs, reorder.mat) {
 
 simulate.and.compute.error <- function(
     n, 
-    p.list = list(matrix(c(0, 1, 1, 0), nrow = 2, ncol = 2),
-                  matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2)),
+    p.list = list(matrix(c(0, 1, 1, 0), 
+                         nrow = 2, ncol = 2),
+                  matrix(c(1, 0, 0, 1), 
+                         nrow = 2, ncol = 2)),
     degree = 2, 
     intercept = FALSE,
     initialization = 'random',
@@ -814,7 +816,11 @@ simulate.and.compute.error <- function(
   Xhat <- embedding(A, p, q)
   
   if (initialization == 'ground truth') {
-    initialization <- sample.points(z, ground.truth.sample)
+    if (ground.truth.sample > 0) {
+      initialization <- sample.points(z, ground.truth.sample)
+    } else {
+      initialization <- 'random'
+    }
   }
   
   clustering <- manifold.clustering(
