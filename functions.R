@@ -841,7 +841,10 @@ simulate.and.compute.error <- function(
   )
   
   error.rate <- 1 - cluster.acc(clustering$z, z)
-  return(error.rate)
+  loss <- clustering$loss[clustering$niter + 1]
+  return(list(error = error.rate,
+              loss = loss,
+              p = clustering$p))
 }
 
 
