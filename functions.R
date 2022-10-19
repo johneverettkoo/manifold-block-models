@@ -402,10 +402,10 @@ manifold.clustering <- function(X, K = 2,
     } else {
       partial.init <- TRUE
       z.hat.partial <- initialization[!is.na(initialization)]
-      X.partial <- X[!is.na(initialization), ]
+      X.partial <- X[!is.na(initialization), , drop = FALSE]
       curves.partial <- lapply(seq(K), function(k) {
         estimate.bezier.curve.2(
-          X.partial[z.hat.partial == k, ],
+          X.partial[z.hat.partial == k, , drop = FALSE],
           degree = degree, 
           k.isomap = as.integer(k.isomap * length(z.hat.partial) / n + 1),
           intercept = intercept,

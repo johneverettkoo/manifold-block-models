@@ -85,18 +85,20 @@ plot.repeat.study <- function(repeat.df) {
                     z = k,
                     iter = i,
                     p.clust = p.clust[i],
-                    loss.clust = loss.clust[i])
+                    loss.clust = loss.clust[i],
+                    loss = repeat.df$loss[i])
     })
   }
   ggplot(curves.df) + 
     geom_path(aes(x = x, y = y, group = interaction(z, iter),
-                  colour = factor(loss.clust)),
+                  colour = loss),
               alpha = 1 / log(niter)) + 
     theme_bw() + 
-    facet_wrap(~loss.clust) + 
+    # facet_wrap(~loss.clust) + 
     coord_fixed() + 
     labs(colour = NULL) + 
-    scale_colour_brewer(palette = 'Set1') + 
+    # scale_colour_brewer(palette = 'Set1') + 
+    viridis::scale_color_viridis() + 
     guides(colour = guide_legend(override.aes = list(alpha = 1)))
 }
 
