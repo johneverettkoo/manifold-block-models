@@ -75,6 +75,8 @@ clustering.df <- foreach(nsamp = nsamp.vec, .combine = dplyr::bind_rows) %do% {
 
 gc()
 
+readr::write_csv(clustering.df, 'balanced-3.csv')
+
 clust.summary.df <- clustering.df %>% 
   dplyr::group_by(n, nsamp) %>% 
   dplyr::summarise(
