@@ -8,7 +8,7 @@ source('functions.R')
 n.vec <- 2 ^ c(7, 8, 9, 10, 11)
 # n.vec <- sort(n.vec, decreasing = TRUE)
 nsamp.vec <- c(0, 4, 8)
-iter <- 50
+iter <- 32
 
 p.list <- list(matrix(c(0, 1, 0, 
                         0, 0, 1,
@@ -74,3 +74,29 @@ clustering.df <- foreach(nsamp = nsamp.vec, .combine = dplyr::bind_rows) %do% {
 }
 
 gc()
+
+clust.summary.df <- clustering.df %>% 
+  dplyr::group_by(n, nsamp) %>% 
+  dplyr::summarise(
+    med.count = median(error.count),
+    first.q.count = quantile(error.count, .25),
+    third.q.count = quantile(error.count, .75),
+    med.rate = median(error.rate),
+    first.q.rate = quantile(error.rate, .25),
+    third.q.rate = quantile(error.rate, .75)
+  ) %>% 
+  dplyr::ungroup()
+
+ggplot(clust.summary.df) + 
+  theme_bw() + 
+  theme(text = element_text(size = 10)) + 
+  scale_y_log10() +
+  scale_x_log10(breaks = n.vec) +
+  labs(y = 'community detection error rate',
+       colour = NULL, shape = NULL) + 
+  geom_line(aes(x = n, y = med.rate, colour = factor(nsamp))) + 
+  geom_point(aes(x = n, y = med.rate, colour = factor(nsamp))) + 
+  geom_errorbar(aes(x = n, 
+                    ymin = first.q.rate, ymax = third.q.rate, 
+                    colour = factor(nsamp))) + 
+  scale_colour_brewer(palette = 'Set1')
