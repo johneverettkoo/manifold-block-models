@@ -10,9 +10,18 @@ n.vec <- 2 ^ c(7, 8, 9, 10, 11)
 nsamp.vec <- c(0, 4, 8)
 iter <- 50
 
-p.list <- list(matrix(c(0, 1, 1, 0), nrow = 2, ncol = 2),
-               matrix(c(1, 0, 0, 1), nrow = 2, ncol = 2),
-               matrix(c(0, 1 / sqrt(2), 0, 1 / sqrt(2)), nrow = 2, ncol = 2))
+p.list <- list(matrix(c(0, 1, 0, 
+                        0, 0, 1,
+                        0, 0, 0),
+                      nrow = 3, ncol = 3),
+               matrix(c(0, 0, 0, 
+                        0, 0, 1,
+                        0, 1, 0),
+                      nrow = 3, ncol = 3),
+               matrix(c(0, 1, 0, 
+                        0, 0, 0,
+                        0, 0, 1),
+                      nrow = 3, ncol = 3))
 
 doMC::registerDoMC(parallel::detectCores() - 0)
 
@@ -29,9 +38,10 @@ clustering.df <- foreach(nsamp = nsamp.vec, .combine = dplyr::bind_rows) %do% {
         clustering <- simulate.and.compute.error(
           n, 
           p.list = p.list, 
+          p.intercept = TRUE, 
           initialization = 'ground truth',
           ground.truth.sample = nsamp,
-          maxit = 32
+          maxit = 16
         )
         error.rate <- clustering$error
         loss <- clustering$loss

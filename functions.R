@@ -784,6 +784,7 @@ simulate.and.compute.error <- function(
                          nrow = 2, ncol = 2),
                   matrix(c(1, 0, 0, 1), 
                          nrow = 2, ncol = 2)),
+    p.intercept = FALSE,
     degree = 2, 
     intercept = FALSE,
     initialization = 'random',
@@ -806,7 +807,7 @@ simulate.and.compute.error <- function(
   X <- lapply(seq(K), function(k) {
     bezier.curve(t[z == k], 
                  p.list[[k]], 
-                 intercept = intercept)
+                 intercept = p.intercept)
   }) %>% 
     do.call('rbind', .)
   p <- ncol(X)
@@ -846,7 +847,8 @@ simulate.and.compute.error <- function(
               loss = loss,
               p = clustering$p,
               X = X,
-              z = z,
+              z = z, 
+              zhat = clustering$z,
               P = P,
               A = A,
               Xhat = Xhat,
