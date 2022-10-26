@@ -57,7 +57,7 @@ clustering.df <- foreach(nsamp = nsamp.vec, .combine = dplyr::bind_rows) %do% {
 gc()
 
 readr::write_csv(
-  clustering.df, '~/dev/manifold-block-models/simulations/balanced.csv')
+  clustering.df, '~/dev/manifold-block-models/simulations/balanced-2/balanced.csv')
 
 clust.summary.df <- clustering.df %>% 
   dplyr::group_by(n, nsamp) %>% 
