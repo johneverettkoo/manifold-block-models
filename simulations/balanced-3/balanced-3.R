@@ -19,8 +19,8 @@ p.list <- list(matrix(c(0, 1, 0,
                         0, 1, 0),
                       nrow = 3, ncol = 3),
                matrix(c(0, 1, 0, 
-                        0, 0, 0,
-                        0, 0, 1),
+                        0, 0, 1,
+                        0, 1, 0),
                       nrow = 3, ncol = 3))
 
 doMC::registerDoMC(parallel::detectCores() - 0)
