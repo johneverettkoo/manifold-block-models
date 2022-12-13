@@ -519,19 +519,19 @@ manifold.clustering <- function(X, K = 2,
                                intercept = intercept)
     }))
     
-    ggplot() +
-      # viridis::scale_colour_viridis() +
-      geom_point(aes(x = X[, 1], y = X[, 2],
-                     colour = factor(z.hat),
-                     shape = factor(z.hat)),
-                 size = 5) +
-      geom_point(aes(x = curves[[1]]$X[, 1], 
-                     y = curves[[1]]$X[, 2]), 
-                 colour = 'red') +
-      geom_point(aes(x = curves[[2]]$X[, 1], 
-                     y = curves[[2]]$X[, 2]), 
-                 colour = 'blue') +
-      coord_fixed()
+    # ggplot() +
+    #   # viridis::scale_colour_viridis() +
+    #   geom_point(aes(x = X[, 1], y = X[, 2],
+    #                  colour = factor(z.hat),
+    #                  shape = factor(z.hat)),
+    #              size = 5) +
+    #   geom_point(aes(x = curves[[1]]$X[, 1], 
+    #                  y = curves[[1]]$X[, 2]), 
+    #              colour = 'red') +
+    #   geom_point(aes(x = curves[[2]]$X[, 1], 
+    #                  y = curves[[2]]$X[, 2]), 
+    #              colour = 'blue') +
+    #   coord_fixed()
     
     if (animate) {
       update.Xhat.df <- plyr::ldply(seq(K), function(k) {
@@ -577,24 +577,24 @@ manifold.clustering <- function(X, K = 2,
       }
     }
     
-    ggplot() +
-      # viridis::scale_colour_viridis() +
-      geom_point(aes(x = X[, 1], y = X[, 2],
-                     colour = factor(z.hat),
-                     shape = factor(z.hat)),
-                 size = 5) +
-      geom_point(aes(x = curves[[1]]$X[, 1], 
-                     y = curves[[1]]$X[, 2]), 
-                 colour = 'red') +
-      geom_point(aes(x = curves[[2]]$X[, 1], 
-                     y = curves[[2]]$X[, 2]), 
-                 colour = 'blue') +
-      geom_text(aes(x = X[, 1], y = X[, 2],
-                    # colour = factor(z.hat),
-                    label = seq(n)),
-                size = 2) +
-      coord_fixed() +
-      labs(x = NULL, y = NULL, colour = NULL, shape = NULL)
+    # ggplot() +
+    #   # viridis::scale_colour_viridis() +
+    #   geom_point(aes(x = X[, 1], y = X[, 2],
+    #                  colour = factor(z.hat),
+    #                  shape = factor(z.hat)),
+    #              size = 5) +
+    #   geom_point(aes(x = curves[[1]]$X[, 1], 
+    #                  y = curves[[1]]$X[, 2]), 
+    #              colour = 'red') +
+    #   geom_point(aes(x = curves[[2]]$X[, 1], 
+    #                  y = curves[[2]]$X[, 2]), 
+    #              colour = 'blue') +
+    #   geom_text(aes(x = X[, 1], y = X[, 2],
+    #                 # colour = factor(z.hat),
+    #                 label = seq(n)),
+    #             size = 2) +
+    #   coord_fixed() +
+    #   labs(x = NULL, y = NULL, colour = NULL, shape = NULL)
     # print(loss)
     # print(curve1$mse %>% diff())
     # print(curve2$mse %>% diff())
@@ -962,4 +962,74 @@ graph.short <- function(W) {
     m <- 2*m
   }
   return(W)
+}
+
+simulate.and.compute.error.nonintersect <- function(
+    n, 
+    initialization = 'random',
+    ground.truth.sample = 8,
+    normalize = TRUE,
+    parallel = FALSE, 
+    maxit = 100,
+    eps = 1e-3,
+    verbose = FALSE,
+    animate = FALSE,
+    animation.dir = '.',
+    animation.title = 'test') {
+  K <- 2
+  
+  z <- sample(seq(K), n, replace = TRUE)
+  z <- sort(z)
+  
+  t <- runif(n)
+  x1 <- ifelse(z == 1, cos(pi / 3 * t), 1 + cos(pi / 3 * t + pi))
+  x2 <- ifelse(z == 1, sin(pi / 3 * t), 1 + sin(pi / 3 * t + pi))
+  X <- cbind(x1, x2)
+  p <- ncol(X)
+  q <- 0
+  P <- grdpg.edge.prob.matrix(X, p, q)
+  A <- draw.graph(P)
+  Xhat <- embedding(A, p, q)
+  
+  if (initialization == 'ground truth') {
+    if (ground.truth.sample > 0) {
+      initialization <- sample.points(z, ground.truth.sample)
+    } else {
+      initialization <- 'random'
+    }
+  }
+  
+  clustering.curves <- manifold.clustering(
+    X = Xhat, 
+    K = K, 
+    degree = 2,
+    A = A,
+    initialization = initialization,
+    parallel = parallel,
+    intercept = TRUE,
+    normalize = normalize,
+    maxit = maxit,
+    eps = eps,
+    verbose = verbose,
+    animate = animate,
+    animation.dir = animation.dir,
+    animation.title = animation.title
+  )
+  
+  clustering.singlelink <- hclust(dist(Xhat), method = 'single') %>% 
+    cutree(2)
+  
+  error.curves <- 1 - cluster.acc(clustering.curves$z, z)
+  error.singlelink <- 1 - cluster.acc(clustering.singlelink, z)
+  loss <- clustering.curves$loss[clustering.curves$niter + 1]
+  return(list(error.curves = error.curves,
+              error.singlelink = error.singlelink,
+              loss = loss,
+              p = clustering.curves$p,
+              X = X,
+              z = z, 
+              zhat.curves = clustering.curves$z,
+              P = P,
+              A = A,
+              Xhat = Xhat))
 }

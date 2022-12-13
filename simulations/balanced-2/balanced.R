@@ -12,7 +12,7 @@ iter <- 50
 
 doMC::registerDoMC(parallel::detectCores() - 0)
 
-setwd('simulations')
+setwd('simulations/balanced-2')
 
 clustering.df <- foreach(nsamp = nsamp.vec, .combine = dplyr::bind_rows) %do% {
   reorder.mat <- gtools::permutations(2, 2)
