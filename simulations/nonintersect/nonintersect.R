@@ -1,4 +1,4 @@
-import::from(magrittr, `%>%`)
+import::from(magrittr, `%>%`, `%<>%`)
 import::from(foreach, foreach, `%do%`, `%dopar%`)
 library(ggplot2)
 
@@ -48,45 +48,39 @@ clustering.df <- foreach(nsamp = nsamp.vec, .combine = dplyr::bind_rows) %do% {
 
 gc()
 
+error.singlelink.df <- clustering.df %>% 
+  dplyr::select(n, nsamp, error.singlelink) %>% 
+  dplyr::mutate(nsamp = 'single linkage') %>% 
+  dplyr::rename(error = error.singlelink)
+clustering.df %<>% 
+  dplyr::select(n, nsamp, error = error.curves) %>% 
+  dplyr::mutate(nsamp = as.character(nsamp)) %>% 
+  dplyr::bind_rows(error.singlelink.df)
+
 readr::write_csv(
   clustering.df, '~/dev/manifold-block-models/simulations/nonintersect/nonintersect.csv')
 
 clust.summary.df <- clustering.df %>% 
   dplyr::group_by(n, nsamp) %>% 
   dplyr::summarise(
-    med.curves = median(error.curves),
-    first.q.curves = quantile(error.curves, .25),
-    third.q.curves = quantile(error.curves, .75),
-    med.singlelink = median(error.singlelink),
-    first.q.singlelink = quantile(error.singlelink, .25),
-    third.q.singlelink = quantile(error.singlelink, .75)
+    med.error = median(error),
+    first.q.error = quantile(error, .25),
+    third.q.error = quantile(error, .75)
   ) %>% 
   dplyr::ungroup()
 
-ggplot(clust.summary.df) + 
+clust.summary.df %>% 
+  dplyr::filter(n <= 512) %>% 
+  ggplot() + 
   theme_bw() + 
   theme(text = element_text(size = 10)) + 
   scale_y_log10() +
   scale_x_log10(breaks = n.vec) +
   labs(y = 'community detection error rate',
        colour = NULL, shape = NULL) + 
-  geom_line(aes(x = n, y = med.curves, colour = factor(nsamp))) + 
-  geom_point(aes(x = n, y = med.curves, colour = factor(nsamp))) + 
+  geom_line(aes(x = n, y = med.error, colour = factor(nsamp))) + 
+  geom_point(aes(x = n, y = med.error, colour = factor(nsamp))) + 
   geom_errorbar(aes(x = n, 
-                    ymin = first.q.curves, ymax = third.q.curves, 
-                    colour = factor(nsamp))) + 
-  scale_colour_brewer(palette = 'Set1')
-
-ggplot(clust.summary.df) + 
-  theme_bw() + 
-  theme(text = element_text(size = 10)) + 
-  # scale_y_log10() +
-  scale_x_log10(breaks = n.vec) +
-  labs(y = 'community detection error rate',
-       colour = NULL, shape = NULL) + 
-  geom_line(aes(x = n, y = med.singlelink, colour = factor(nsamp))) + 
-  geom_point(aes(x = n, y = med.singlelink, colour = factor(nsamp))) + 
-  geom_errorbar(aes(x = n, 
-                    ymin = first.q.singlelink, ymax = third.q.singlelink, 
+                    ymin = first.q.error, ymax = third.q.error, 
                     colour = factor(nsamp))) + 
   scale_colour_brewer(palette = 'Set1')
