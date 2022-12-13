@@ -10,7 +10,9 @@ n.vec <- 2 ^ c(4, 5, 6, 7, 8, 9, 10, 11)
 nsamp.vec <- c(0, 4, 8)
 iter <- 50
 
-doMC::registerDoMC(parallel::detectCores() - 0)
+cores.to.reserve <- 0
+
+doMC::registerDoMC(parallel::detectCores() - cores.to.reserve)
 
 setwd('simulations/nonintersect')
 
