@@ -1,0 +1,520 @@
+---
+output: 
+  beamer_presentation:
+    keep_tex: true
+    fig_crop: no
+    theme: 'default'
+    colortheme: 'beaver'
+    includes:
+      in_header: 
+        - page_headers.tex
+header-includes:
+- \usepackage{setspace}
+- \usepackage{float}
+- \usepackage{mathtools}
+- \usepackage{natbib}
+- \usepackage[linesnumbered,ruled,vlined]{algorithm2e} 
+- \setcitestyle{numbers,square,comma}
+- \usepackage{verbatim}
+- \usepackage{amsthm}
+- \usepackage{comment}
+- \usepackage{graphicx}
+- \setbeamertemplate{itemize items}[circle]
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, 
+                      comment = NA, 
+                      warning = FALSE, 
+                      message = FALSE,
+                      fig.align = 'center',
+                      fig.lp = '')
+options(xtable.comment = FALSE, 
+        xtable.table.placement = 'H')
+library(ggplot2)
+library(ggraph)
+import::from(magrittr, `%>%`)
+theme_set(theme_bw())
+
+source('~/dev/pabm-grdpg/functions.R')
+source('~/dev/manifold-block-models/functions.R')
+set.seed(314159)
+```
+
+## {.plain}
+
+\center
+
+\LARGE
+
+\textcolor{darkred}{Manifold Clustering in the Setting of Generalized Random Dot Product Graphs}
+
+\normalsize
+
+SDSS Lightning Presentation
+
+May 2023
+
+::: columns
+
+:::: {.column width='33%'}
+
+```{r, out.width = '67px'}
+knitr::include_graphics('john-koo.jpeg')
+```
+
+John Koo,  
+Postdoctoral Fellow,  
+Indiana University
+
+::::
+
+:::: {.column width='33%'}
+
+```{r, out.width = '67px'}
+knitr::include_graphics('minh-tang.jpg')
+```
+
+Minh Tang,  
+Assistant Professor,  
+NC State University
+
+::::
+
+:::: {.column width='33%'}
+
+```{r, out.width = '67px'}
+knitr::include_graphics('michael-trosset.jpg')
+```
+
+Michael W. Trosset,  
+Professor of Statistics,  
+Indiana University
+
+::::
+
+:::
+
+## Community Detection for Networks
+
+\newcommand{\diag}{\text{diag}}
+\newcommand{\tr}{\text{Tr}}
+\newcommand{\blockdiag}{\text{blockdiag}}
+\newcommand{\indep}{\stackrel{\text{ind}}{\sim}}
+\newcommand{\iid}{\stackrel{\text{iid}}{\sim}}
+\newcommand{\Bernoulli}{\text{Bernoulli}}
+\newcommand{\Betadist}{\text{Beta}}
+\newcommand{\BG}{\text{BernoulliGraph}}
+\newcommand{\Categorical}{\text{Categorical}}
+\newcommand{\Uniform}{\text{Uniform}}
+\newcommand{\RDPG}{\text{RDPG}}
+\newcommand{\GRDPG}{\text{GRDPG}}
+\newcommand{\PABM}{\text{PABM}}
+
+```{r out.width = '50%', fig.height = 3, fig.width = 4}
+n <- 64
+Pz <- generate.P.beta(n, 4, 4, 1, 1, 4)
+P <- Pz$P
+z <- Pz$clustering
+A <- draw.graph(P)
+qgraph::qgraph(A, groups = factor(z), legend = FALSE)
+```
+
+\begin{center}
+
+How might we cluster the nodes of a network?
+
+\end{center}
+
+## Connecting Block Models to the GRDPG
+
+::: columns
+
+:::: {.column width='67%'}
+
+```{r, cache = TRUE, fig.width = 6, fig.height = 2, out.width = '100%'}
+n <- 64
+n1 <- n / 2
+n2 <- n / 2
+z <- c(rep(1, n1), rep(2, n2))
+p <- 1/2
+q <- 1/2
+r <- 1/8
+P <- matrix(r, nrow = n, ncol = n)
+P[seq(n1), seq(n1)] <- p
+P[seq(n1 + 1, n), seq(n1 + 1, n)] <- q
+X <- embedding(P, 2, 0)
+A <- draw.graph(P)
+Xhat <- embedding(A, 2, 0)
+A.graph <- tidygraph::as_tbl_graph(A, directed = FALSE)
+
+sbm.graph.plot <- ggraph(A, layout = 'stress') + 
+  geom_edge_link(alpha = 1 / sqrt(n) / 2) + 
+  geom_node_point(aes(colour = factor(z)),
+                  show.legend = FALSE) + 
+  labs(colour = NULL, 
+       title = 'SBM') + 
+  # theme_graph() + 
+  theme_void() + 
+  scale_colour_brewer(palette = 'Set1') 
+
+sbm.ase.plot <- ggplot() + 
+  geom_point(aes(x = Xhat[, 2], y = Xhat[, 1],
+                 colour = factor(z)),
+             shape = 4) + 
+  geom_point(aes(x = X[, 2], y = X[, 1], 
+                 colour = factor(z))) + 
+  # coord_fixed() +
+  theme_bw() + 
+  theme(legend.position = 'none') + 
+  labs(x = NULL, y = NULL, colour = NULL, 
+       title = 'Point Masses') + 
+  scale_colour_brewer(palette = 'Set1')
+
+gridExtra::grid.arrange(sbm.graph.plot, sbm.ase.plot, nrow = 1)
+```
+
+```{r, cache = TRUE, fig.width = 6, fig.height = 2, out.width = '100%'}
+n <- 128
+n1 <- n / 2
+n2 <- n / 2
+z <- c(rep(1, n1), rep(2, n2))
+p <- 1/2
+q <- 1/2
+r <- 1/8
+P <- matrix(r, nrow = n, ncol = n)
+P[seq(n1), seq(n1)] <- p
+P[seq(n1 + 1, n), seq(n1 + 1, n)] <- q
+omega <- rbeta(n, 2, 1)
+P <- P * (omega %*% t(omega))
+X <- embedding(P, 2, 0)
+A <- draw.graph(P)
+Xhat <- embedding(A, 2, 0)
+# Xhat <- -Xhat
+A.graph <- tidygraph::as_tbl_graph(A, directed = FALSE)
+
+dcbm.graph.plot <- ggraph(A, layout = 'stress') + 
+  geom_edge_link(alpha = 1 / sqrt(n) / 2) + 
+  geom_node_point(aes(colour = factor(z)),
+                  show.legend = FALSE) + 
+  labs(colour = NULL, 
+       title = 'DCBM') + 
+  # theme_graph() + 
+  theme_void() + 
+  scale_colour_brewer(palette = 'Set1') 
+
+dcbm.ase.plot <- ggplot() + 
+  geom_point(aes(x = Xhat[, 1], y = Xhat[, 2],
+                 colour = factor(z)),
+             shape = 4) + 
+  geom_point(aes(x = X[, 1], y = X[, 2], 
+                 colour = factor(z))) + 
+  # coord_fixed() +
+  theme_bw() + 
+  theme(legend.position = 'none') + 
+  labs(x = NULL, y = NULL, colour = NULL, 
+       title = 'Rays') + 
+  scale_colour_brewer(palette = 'Set1')
+
+gridExtra::grid.arrange(dcbm.graph.plot, dcbm.ase.plot, nrow = 1)
+```
+
+```{r, cache = TRUE, fig.width = 6, fig.height = 2, out.width = '100%'}
+n <- 64
+Pz <- generate.P.beta(n)
+P <- Pz$P
+z <- Pz$clustering
+X <- embedding(P, 3, 1)
+A <- draw.graph(P)
+Xhat <- embedding(A, 3, 1)
+Xhat[, 1] <- -Xhat[, 1]
+A.graph <- tidygraph::as_tbl_graph(A, directed = FALSE)
+
+pabm.graph.plot <- ggraph(A, layout = 'stress') + 
+  geom_edge_link(alpha = 1 / sqrt(n) / 2) + 
+  geom_node_point(aes(colour = factor(z)),
+                  show.legend = FALSE) + 
+  labs(colour = NULL, 
+       title = 'PABM') + 
+  # theme_graph() + 
+  theme_void() + 
+  scale_colour_brewer(palette = 'Set1') 
+
+pabm.ase.plot <- ggplot() + 
+  geom_point(aes(x = Xhat[, 1], y = Xhat[, 2],
+                 colour = factor(z)),
+             shape = 4) + 
+  geom_point(aes(x = X[, 1], y = X[, 2], 
+                 colour = factor(z))) + 
+  # coord_fixed() +
+  theme_bw() + 
+  theme(legend.position = 'none') + 
+  labs(x = NULL, y = NULL, colour = NULL, 
+       title = 'Subspaces (Projected)') + 
+  scale_colour_brewer(palette = 'Set1')
+
+gridExtra::grid.arrange(pabm.graph.plot, pabm.ase.plot, nrow = 1)
+```
+
+::::
+
+:::: {.column width='33%'}
+
+&nbsp;
+
+&nbsp;
+
+* K-means clustering
+* Gaussian mixture models
+
+&nbsp;
+
+* K-means with cosine similarity
+* GMM on angles
+
+&nbsp;
+
+&nbsp;
+
+&nbsp;
+
+* Orthogonal Spectral Clustering
+* Sparse Subspace Clustering
+
+::::
+
+:::
+
+## Nonlinear Communty Structure
+
+```{r mbconnectome-graph, fig.height = 3, figh.width = 6, cache = TRUE, out.width = '67%'}
+library(mbstructure)
+data(MBconnectome)
+
+graph.r <- generate.graph(newrdat, vdf.right)
+A.r <- as.matrix(igraph::as_adjacency_matrix(graph.r$g, type = 'both'))
+z.r <- as.numeric(graph.r$vdf$type)
+n.r <- length(z.r)
+A.r <- sign(A.r + t(A.r))
+diag(A.r) <- 0
+graph.r <- ggraph(A.r, layout = 'stress') + 
+  geom_edge_link(alpha = 1 / sqrt(n.r) / 2) + 
+  geom_node_point(aes(colour = factor(z.r)), 
+                  show.legend = FALSE) + 
+  labs(colour = NULL) + 
+  theme_void() + 
+  scale_colour_brewer(palette = 'Set1')
+
+graph.l <- generate.graph(newldat, vdf.left)
+A.l <- as.matrix(igraph::as_adjacency_matrix(graph.l$g, type = 'both'))
+z.l <- as.numeric(graph.l$vdf$type)
+n.l <- length(z.l)
+A.l <- sign(A.l + t(A.l))
+diag(A.l) <- 0
+graph.l <- ggraph(A.l, layout = 'stress') + 
+  geom_edge_link(alpha = 1 / sqrt(n.l) / 2) + 
+  geom_node_point(aes(colour = factor(z.l)), 
+                  show.legend = FALSE) + 
+  labs(colour = NULL) + 
+  theme_void() + 
+  scale_colour_brewer(palette = 'Set1')
+
+# gridExtra::grid.arrange(graph.l, graph.r, nrow = 1)
+```
+
+```{r mbconnectome-ase, fig.height = 6, fig.width = 8, out.width = '100%', cache = TRUE}
+Xhat.l <- embedding(A.l, 2, 1)
+ase.l <- ggplot() + 
+  geom_point(aes(x = Xhat.l[, 1], y = Xhat.l[, 2],
+                 colour = factor(z.l))) + 
+  coord_fixed(.5) +
+  theme_bw() + 
+  theme(legend.position = 'none') +
+  scale_colour_brewer(palette = 'Set1') + 
+  labs(x = NULL, y = NULL, colour = NULL)
+
+Xhat.r <- embedding(A.r, 2, 1)
+ase.r <- ggplot() + 
+  geom_point(aes(x = Xhat.r[, 1], y = Xhat.r[, 2],
+                 colour = factor(z.r))) + 
+  coord_fixed(.5) +
+  theme_bw() + 
+  theme(legend.position = 'none') +
+  scale_colour_brewer(palette = 'Set1') + 
+  labs(x = NULL, y = NULL, colour = NULL)
+
+gridExtra::grid.arrange(graph.l, graph.r, ase.l, ase.r, nrow = 2)
+```
+
+## Manifold Block Model
+
+Let $p, q \geq 0$, $d = p + q \geq 1$, $1 \leq r < d$, $K \geq 2$, and $n > K$ be integers. 
+Define manifolds $\mathcal{M}_1, ..., \mathcal{M}_K \in \mathcal{X}$ for $\mathcal{X} = \{x, y \in \mathbb{R}^d : x^\top I_{p,q} y \in [0, 1]\}$ each by continuous function $g_k : [0, 1]^r \to \mathcal{X}$. 
+Define probability distribution $F$ with support $[0, 1]^r$. 
+Then the following mixture model is a *manifold block model*: 
+
+\begin{enumerate}
+\item Draw labels $z_1, ..., z_n \iid \Categorical(\alpha_1, ..., \alpha_K)$.
+\item Draw latent vectors by first taking $t_1,..., t_n \iid F$ and then computing each $x_i = g_{z_i}(t_i)$. 
+\item Compile the latent vectors into data matrix $X = [ x_1 \mid \cdots \mid x_n ]^\top$ and define the adjacency matrix as $A \sim \GRDPG_{p,q}(X)$. 
+\end{enumerate}
+
+## Manifold Block Model
+
+1. $z_1, ..., z_n \iid \Categorical(1/2, 1/2)$
+2. $t_1, ..., t_n \iid \Uniform(0, 1)$
+3. $x_i = g_{z_i}(t_i)$ 
+    * $g_1(t) = [t^2, 2 t (1-t)]^\top$
+    * $g_2(t) = [2 t (1-t), (1-t)^2]^\top$
+4. $A \sim \GRDPG_{2, 0}(X)$
+
+```{r intersect-curves-example, fig.height = 2, fig.width = 8, fig.cap = 'Latent vectors on intersecting curves (left), along with an RDPG drawn from this configuration (center) and its ASE (right).', cache = TRUE, out.width='100%'}
+f1 <- function(t) {
+  x1 <- t ^ 2
+  x2 <- 2 * t - 2 * t ^ 2
+  return(cbind(x1, x2))
+}
+
+f2 <- function(t) {
+  x1 <- 2 * t - 2 * t ^ 2
+  x2 <- 1 - 2 * t + t ^ 2
+  return(cbind(x1, x2))
+}
+
+set.seed(314159)
+
+n1 <- 2 ** 7
+n2 <- n1
+n <- n1 + n2
+z <- c(rep(1, n1), rep(2, n2))
+
+a <- 1
+b <- 1
+t1 <- rbeta(n1, a, b)
+t2 <- rbeta(n2, a, b)
+T <- rbind(t1, t2)
+
+X1 <- f1(t1)
+X2 <- f2(t2)
+X <- rbind(X1, X2)
+
+latent.vecs <- ggplot() + 
+  geom_point(aes(x = X[, 1], y = X[, 2], colour = factor(z)), size = .5) + 
+  # coord_fixed() + 
+  labs(x = expression(x[1]), y = expression(x[2]), colour = NULL) + 
+  theme_bw() + 
+  theme(legend.position = 'none') + 
+  scale_colour_brewer(palette = 'Set1')
+
+P <- X %*% t(X)
+diag(P) <- 0
+A <- draw.graph(P)
+
+rdpg <- ggraph(A, layout = 'stress') + 
+  geom_edge_link(alpha = 1 / sqrt(n) / 2) + 
+  geom_node_point(aes(colour = factor(z)), 
+                  show.legend = FALSE) + 
+  labs(colour = NULL) + 
+  theme_void() + 
+  scale_colour_brewer(palette = 'Set1')
+
+Xhat <- embedding(A, 2, 0)
+
+ase <- ggplot() + 
+  geom_point(aes(x = Xhat[, 1], y = Xhat[, 2], colour = factor(z)), size = .5) + 
+  # coord_fixed() + 
+  labs(x = expression(x[1]), y = expression(x[2]), colour = NULL) + 
+  theme_bw() + 
+  theme(legend.position = 'none') + 
+  scale_colour_brewer(palette = 'Set1')
+
+gridExtra::grid.arrange(latent.vecs, rdpg, ase, nrow = 1)
+```
+
+## $K$-Curves Clustering
+
+\begin{algorithm}[H]
+\label{alg:kcurves}
+\scriptsize
+\DontPrintSemicolon
+\SetAlgoLined
+\KwData{Adjacency matrix $A$, number of communities $K$, embedding dimensions $p$, $q$, stopping criterion $\epsilon$}
+\KwResult{Community assignments $1, ..., K$, curves $g_1, ..., g_K$}
+Compute $X$, the ASE of $A$ using the $p$ most positive and $q$ most negative eigenvalues and their corresponding eigenvectors.\;
+Initialize community labels $z_1, ..., z_n$.\;
+\Repeat {the change in $\sum_k \sum_{i \in C_k} \|x_i - g_k(t_i)\|^2$ is less than $\epsilon$} {
+\For {$k = 1, ..., K$} {
+Define $X_k$ as the rows of $X$ for which $z_i = k$.\;
+Fit curve $g_k$ and positions $t_{k_i}$ to $X_k$ by minimizing $\sum_{k_i} \|x_{k_i} - g_k(t_{k_i})\|^2$.\;
+}
+\For {$k = 1, ..., K$} {
+Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$.\;
+}
+}
+\caption{$K$-curves clustering.}
+\end{algorithm}
+
+## Example
+
+```{r mbconnectome-ase-2, fig.height = 2, fig.width = 8, out.width = '100%', cache = TRUE}
+Xhat.l <- embedding(A.l, 2, 1)
+ase.l <- ggplot() + 
+  geom_point(aes(x = Xhat.l[, 1], y = Xhat.l[, 2],
+                 colour = factor(z.l))) + 
+  coord_fixed(.5) +
+  theme_bw() + 
+  theme(legend.position = 'none') +
+  scale_colour_brewer(palette = 'Set1') + 
+  labs(x = NULL, y = NULL, colour = NULL)
+
+Xhat.r <- embedding(A.r, 2, 1)
+ase.r <- ggplot() + 
+  geom_point(aes(x = Xhat.r[, 1], y = Xhat.r[, 2],
+                 colour = factor(z.r))) + 
+  coord_fixed(.5) +
+  theme_bw() + 
+  theme(legend.position = 'none') +
+  scale_colour_brewer(palette = 'Set1') + 
+  labs(x = NULL, y = NULL, colour = NULL)
+
+gridExtra::grid.arrange(ase.l, ase.r, nrow = 1)
+```
+
+```{r mbconnectome-kcurves, fig.height = 2, fig.width = 8, cache = TRUE, out.width = '100%'}
+set.seed(123456)
+
+z.init.r <- sample.points(z.r, 6)
+z.init.l <- sample.points(z.l, 6)
+
+mbconnectome.out.r <- manifold.clustering(Xhat.r, 
+                                          length(unique(z.r)), 
+                                          initialization = z.init.r,
+                                          intercept = FALSE, 
+                                          parallel = TRUE, 
+                                          verbose = FALSE, 
+                                          animate = FALSE, 
+                                          curve.init = 'x')
+fitted.r <- plot.estimated.curves(Xhat.r, mbconnectome.out.r) + 
+  scale_colour_brewer(palette = 'Set1') + 
+  coord_fixed(.5) +
+  labs(x = NULL, y = NULL) + 
+  ylim(min(Xhat.r[, 2]), max(Xhat.r[, 2])) + 
+  xlim(min(Xhat.r[, 1]), max(Xhat.r[, 1]))
+
+mbconnectome.out.l <- manifold.clustering(Xhat.l, 
+                                          length(unique(z.l)), 
+                                          initialization = z.init.l,
+                                          intercept = FALSE, 
+                                          parallel = TRUE, 
+                                          verbose = FALSE, 
+                                          animate = FALSE, 
+                                          curve.init = 'x')
+fitted.l <- plot.estimated.curves(Xhat.l, mbconnectome.out.l) + 
+  scale_colour_brewer(palette = 'Set1') + 
+  coord_fixed(.5) +
+  labs(x = NULL, y = NULL) + 
+  ylim(min(Xhat.l[, 2]), max(Xhat.l[, 2])) + 
+  xlim(min(Xhat.l[, 1]), max(Xhat.l[, 1]))
+
+gridExtra::grid.arrange(fitted.l, fitted.r, nrow = 1)
+```
