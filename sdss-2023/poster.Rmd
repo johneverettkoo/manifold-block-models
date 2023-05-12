@@ -156,9 +156,9 @@ ase.plot <- ggplot() +
 gridExtra::grid.arrange(latent.config.plot, graph.plot, ase.plot, nrow = 1)
 ```
 
-# Block Models as GRDPGs
+# Block Models as Linear GRDPGs
 
-It has been previously shown that the SBM, DCBM, and PABM are GRDPGs in which the communities lie on point masses, line segments, and subspaces, respectively.
+It has been previously shown that the SBM, DCBM, and PABM are GRDPGs in which the communities correspond to linear structures in the latent space.
 
 ```{r, cache = TRUE, fig.width = 5, fig.height = 2.3, out.width = '100%'}
 n <- 64
@@ -344,7 +344,7 @@ Xhat.l <- embedding(A.l, 2, 1)
 ase.l <- ggplot() + 
   geom_point(aes(x = Xhat.l[, 1], y = Xhat.l[, 2],
                  colour = factor(z.l))) + 
-  coord_fixed(.5) +
+  # coord_fixed(.5) +
   theme_bw() + 
   theme(legend.position = 'none') +
   scale_colour_brewer(palette = 'Set1') + 
@@ -360,7 +360,7 @@ Xhat.r <- embedding(A.r, 2, 1)
 ase.r <- ggplot() + 
   geom_point(aes(x = Xhat.r[, 1], y = Xhat.r[, 2],
                  colour = factor(z.r))) + 
-  coord_fixed(.5) +
+  # coord_fixed(.5) +
   theme_bw() + 
   theme(legend.position = 'none') +
   scale_colour_brewer(palette = 'Set1') + 
@@ -415,10 +415,16 @@ mbconnectome.out.r <- manifold.clustering(Xhat.r,
                                           curve.init = 'x')
 fitted.r <- plot.estimated.curves(Xhat.r, mbconnectome.out.r) + 
   scale_colour_brewer(palette = 'Set1') + 
-  coord_fixed(.5) +
+  coord_fixed(.4) +
   labs(x = NULL, y = NULL) + 
   ylim(min(Xhat.r[, 2]), max(Xhat.r[, 2])) + 
-  xlim(min(Xhat.r[, 1]), max(Xhat.r[, 1]))
+  xlim(min(Xhat.r[, 1]), max(Xhat.r[, 1])) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
 
 mbconnectome.out.l <- manifold.clustering(Xhat.l, 
                                           length(unique(z.l)), 
@@ -430,10 +436,16 @@ mbconnectome.out.l <- manifold.clustering(Xhat.l,
                                           curve.init = 'x')
 fitted.l <- plot.estimated.curves(Xhat.l, mbconnectome.out.l) + 
   scale_colour_brewer(palette = 'Set1') + 
-  coord_fixed(.5) +
+  coord_fixed(.4) +
   labs(x = NULL, y = NULL) + 
   ylim(min(Xhat.l[, 2]), max(Xhat.l[, 2])) + 
-  xlim(min(Xhat.l[, 1]), max(Xhat.l[, 1]))
+  xlim(min(Xhat.l[, 1]), max(Xhat.l[, 1])) +
+  theme(axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
 
 gridExtra::grid.arrange(fitted.l, fitted.r, nrow = 1)
 ```
@@ -441,4 +453,4 @@ gridExtra::grid.arrange(fitted.l, fitted.r, nrow = 1)
 # Conclusion
 
 Block models can be expressed as GRDPGs in which the communities are linear structures in the latent space. 
-We propose the manifold block model to characterize nonlinear latent structures and the $K$-curves clustering algorithm to estimate these structures for community detection.
+We propose the manifold block model to extend this to nonlinear latent structures and the $K$-curves clustering algorithm to estimate these structures for community detection.
