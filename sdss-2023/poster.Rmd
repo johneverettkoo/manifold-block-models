@@ -158,9 +158,9 @@ gridExtra::grid.arrange(latent.config.plot, graph.plot, ase.plot, nrow = 1)
 
 # Block Models as Linear GRDPGs
 
-It has been previously shown that the SBM, DCBM, and PABM are GRDPGs in which the communities correspond to linear structures in the latent space.
+SBM, DCBM, and PABM are GRDPGs in which the communities correspond to linear structures in the latent space.
 
-```{r, cache = TRUE, fig.width = 5, fig.height = 2.3, out.width = '100%'}
+```{r, cache = TRUE, fig.width = 5, fig.height = 2.4, out.width = '100%'}
 n <- 64
 n1 <- n / 2
 n2 <- n / 2
@@ -208,7 +208,7 @@ sbm.ase.plot <- ggplot() +
 gridExtra::grid.arrange(sbm.graph.plot, sbm.ase.plot, nrow = 1)
 ```
 
-```{r, cache = TRUE, fig.width = 5, fig.height = 2.3, out.width = '100%'}
+```{r, cache = TRUE, fig.width = 5, fig.height = 2.4, out.width = '100%'}
 n <- 128
 n1 <- n / 2
 n2 <- n / 2
@@ -259,7 +259,7 @@ dcbm.ase.plot <- ggplot() +
 gridExtra::grid.arrange(dcbm.graph.plot, dcbm.ase.plot, nrow = 1)
 ```
 
-```{r, cache = TRUE, fig.width = 5, fig.height = 2.3, out.width = '100%'}
+```{r, cache = TRUE, fig.width = 5, fig.height = 2.4, out.width = '100%'}
 n <- 64
 Pz <- generate.P.beta(n)
 P <- Pz$P
