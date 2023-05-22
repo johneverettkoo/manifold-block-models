@@ -389,7 +389,7 @@ gridExtra::grid.arrange(fitted.l, fitted.r, nrow = 1)
 Let an MBM be such that the manifolds are described as polynomial curves of order $R$. 
 Suppose that for each community $k$, we have labels for at least $R + 1$ vertices. 
 Then $K$-curves clustering outputs estimates such that  
-$$L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; X) \stackrel{p}{\to} 0.$$
+$$L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) \stackrel{p}{\to} 0.$$
 
 # Simulation
 
