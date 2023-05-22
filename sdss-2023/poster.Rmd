@@ -12,16 +12,16 @@ affiliation:
     address: Indiana University
   - num: 2
     address: North Carolina State University
-title_textsize: "56pt"
+title_textsize: "52pt"
 author_textsize: "32pt"
 affiliation_textsize: "8pt"
-sectitle_textsize: "36pt"
-sectitle2_textsize: "36pt"
+sectitle_textsize: "34pt"
+sectitle2_textsize: "34pt"
 body_textsize: "32pt"
 column_numbers: 4
 poster_height: "20.5in"
 poster_width: "36.5in"
-column_margins: "0.1in"
+column_margins: "0.05in"
 primary_colour: "#990000"
 secondary_colour: "#000000"
 accent_colour: "#990000"
@@ -31,7 +31,7 @@ title_textcol: "#ffffff"
 author_textcol: "#ffffff"
 sectitle2_textcol: "#990000"
 sectitle_borderwidth: "0mm"
-font_family: "Times New Roman"
+font_family: "Latin Modern Math"
 logoleft_name: poster_files/trident_medium.png
 output: 
   posterdown::posterdown_html:
@@ -63,8 +63,10 @@ library(ggplot2)
 library(ggraph)
 source('~/dev/pabm-grdpg/functions.R')
 source('~/dev/manifold-block-models/functions.R')
+doMC::registerDoMC(8)
 ```
 
+\singlespacing
 \newcommand{\diag}{\text{diag}}
 \newcommand{\tr}{\text{Tr}}
 \newcommand{\blockdiag}{\text{blockdiag}}
