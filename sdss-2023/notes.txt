@@ -1,0 +1,31 @@
+Hello, thank you for coming to my lightning talk on manifold clustering for nonlinear generalized random dot product graphs. 
+This is joint work with my two advisors, Minh Tang and Michael Trosset. 
+
+The main problem we are trying to solve is community detection for networks. 
+One way to do this is to assume that an observed network is sampled from some random process with inherent community structure and then estimate the parameters of that process from the observed network. 
+
+Over the years, various random graph models with community structure have been developed, including the stochastic block model, degree corrected block model, and popularity adjusted block model. 
+Alongside these, another family of random graph models with latent structure, namely the random dot product graph and generalized random dot product graph, have been developed. 
+It can be shown that these block models are generalized random dot product graphs in which the communities lie on linear structures in the latent space. 
+This leads to a convenient way of performing community detection for these models: Treat them as GRDPGs and construct an embedding, then apply a clustering method that is appropriate for the latent structure of the block model that we believe describes the network. 
+
+This breaks down when the graph embedding suggests a nonlinear latent structure, as we discovered in the Drosophila connectome networks. 
+In this network, each vertex is a neuron, edges represent connections between neurons, and the communities are the four identified neuron types. 
+Here, it appears that the communities lie along curves rather than linear structures such as lines or hyperplanes, which was in the case of the three previous block models. 
+
+This led us to develop the manifold block model to describe such networks. 
+Previously, we showed that the SBM, DCBM, and PABM are GRDPGs in which latent vectors are sampled from linear structures. 
+Here, we replace the linear structures with nonlinear manifolds, parameterized by functions g_k. 
+
+Here is one such example with two communities. 
+The communities are described by intersecting Bezier curves in the latent space, and the latent vectors are drawn uniformly along the manifolds. 
+An embedding of the graph drawn from this configuration reflects back the original latent manifolds, with noise. 
+
+To perform community detection in this setting, we developed the K-curves clustering algorithm. 
+This algorithm alternates between fitting a curve for each estimated community and assigning community labels based on proximity to each estimated curve. 
+We also have some asymptotic theory that shows that this algorithm produces consistent estimators, with some conditions. 
+We also have some simulation studies to confirm the theory. 
+Please come to my poster session tomorrow if you'd like a quick overview of these results. 
+
+Finally, we have the output of K-curves clustering on the two Drosophila connectome networks. 
+In this example, we obtained around 75% accuracy. 
