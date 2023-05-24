@@ -436,6 +436,12 @@ P <- grdpg.edge.prob.matrix(X, p, q)
 A <- draw.graph(P)
 Xhat <- embedding(A, p, q)
 
+degs <- colSums(A)
+A.trunc <- A[degs > 0, degs > 0]
+z.trunc <- z[degs > 0]
+# X <- X[degs > 0, ]
+# Xhat <- Xhat[degs > 0, ]
+
 scatterplot3d::scatterplot3d(X[, 1], X[, 2], X[, 3],
                              color = z + 1, 
                              mar = c(0, 0, 0, 0),
@@ -444,8 +450,8 @@ scatterplot3d::scatterplot3d(X[, 1], X[, 2], X[, 3],
                              asp = 1,
                              tick.marks = FALSE)
 
-qgraph::qgraph(A, 
-               groups = factor(z), 
+qgraph::qgraph(A.trunc, 
+               groups = factor(z.trunc), 
                legend = FALSE,
                mar = c(0, 0, 0, 0))
 
@@ -482,7 +488,7 @@ ggplot(clust.summary.df) +
   theme(text = element_text(size = 10)) + 
   scale_y_log10() +
   scale_x_log10(breaks = n.vec) +
-  labs(y = 'community detection error rate',
+  labs(y = 'error rate',
        x = 'n',
        colour = 'known labels per community', 
        shape = NULL) + 
@@ -491,7 +497,7 @@ ggplot(clust.summary.df) +
   geom_errorbar(aes(x = n, 
                     ymin = first.q.rate, ymax = third.q.rate, 
                     colour = factor(nsamp)),
-                width = .125) + 
+                width = .0625) + 
   theme(legend.position = 'bottom') + 
   scale_colour_brewer(palette = 'Set1')
 ```
