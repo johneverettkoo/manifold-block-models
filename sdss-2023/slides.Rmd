@@ -455,7 +455,7 @@ Assign $z_i \leftarrow \arg\min_k \|x_i - g_k(t_i)\|^2$.\;
 \caption{$K$-curves clustering.}
 \end{algorithm}
 
-## Example
+## Example: *Drosophila* Connectome
 
 ```{r mbconnectome-ase-2, fig.height = 2, fig.width = 8, out.width = '100%', cache = TRUE}
 Xhat.l <- embedding(A.l, 2, 1)
