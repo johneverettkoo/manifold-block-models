@@ -530,7 +530,7 @@ $$L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) = \sum_k \sum_{i : 
 
 where $\hat{x}_i$ are the embedding vectors of $A$. 
 Suppose that for each community $k$, we have labels for at least $R + 1$ vertices. 
-Then as $n \to \infty$, $K$-curves clustering outputs estimates such that 
+Then as $n \to \infty$, $K$-curves clustering outputs estimators such that 
 
 $$L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) \stackrel{p}{\to} 0.$$
 

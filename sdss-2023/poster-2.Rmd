@@ -332,7 +332,7 @@ Then the following mixture model is a *manifold block model*:
         a. Define $X_k$ as the rows of $X$ for which $z_i = k$.
         b. Fit curve $g_k$ and positions $t_{k_i}$ by minimizing $\sum_{k_i} \|x_{k_i} - g_k(t_{k_i})\|^2$.
     ii. For $k = 1, ..., K$: 
-        a. Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$.
+        a. Assign $z_i \leftarrow \arg\min_k \|x_i - g_k(t_i)\|^2$.
 
 ```{r mbconnectome-kcurves, fig.height = 2, fig.width = 6, cache = TRUE, out.width = '67%'}
 set.seed(123456)
@@ -388,7 +388,7 @@ gridExtra::grid.arrange(fitted.l, fitted.r, nrow = 1)
 **Theorem**. 
 Let an MBM be such that the manifolds are described as polynomial curves of order $R$. 
 Suppose that for each community $k$, we have labels for at least $R + 1$ vertices. 
-Then $K$-curves clustering outputs estimates such that  
+Then $K$-curves clustering outputs estimators such that  
 $$L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) \stackrel{p}{\to} 0.$$
 
 # Simulation
