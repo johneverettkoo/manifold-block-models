@@ -314,4 +314,33 @@ Assign $z_i \leftarrow \arg\min_\ell \|x_i - g_\ell(t_i)\|^2$.\;
 \begin{center}\includegraphics[width=1\linewidth]{slides_files/figure-beamer/mbconnectome-kcurves-1} \end{center}
 \end{frame}
 
+\begin{frame}{Asymptotic Results}
+\protect\hypertarget{asymptotic-results}{}
+\textbf{Theorem}. Let an MBM be such that the manifolds are described by
+functions \(g_1(t), ..., g_K(t)\) which are polynomial curves of order
+\(R\). Define the loss of \(K\)-curves clustering as:
+
+\[L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) = \sum_k \sum_{i : \hat{z}_i = k} \|\hat{x}_{i} - \hat{g}_k(t_{i})\|^2,\]
+
+where \(\hat{x}_i\) are the embedding vectors of \(A\). Suppose that for
+each community \(k\), we have labels for at least \(R + 1\) vertices.
+Then as \(n \to \infty\), \(K\)-curves clustering outputs estimates such
+that
+
+\[L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) \stackrel{p}{\to} 0.\]
+\end{frame}
+
+\begin{frame}{Simulation}
+\protect\hypertarget{simulation}{}
+\begin{center}\includegraphics[width=1\linewidth]{slides_files/figure-beamer/three-curves-1} \end{center}
+
+\begin{center}\includegraphics[width=1\linewidth]{slides_files/figure-beamer/sim-curves-3-1} \end{center}
+\end{frame}
+
+\begin{frame}{Thank you!}
+\protect\hypertarget{thank-you}{}
+Code and drafts available at
+\url{https://github.com/johneverettkoo/manifold-block-models}
+\end{frame}
+
 \end{document}

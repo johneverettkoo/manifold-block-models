@@ -428,7 +428,8 @@ ase <- ggplot() +
   theme(legend.position = 'none') + 
   scale_colour_brewer(palette = 'Set1')
 
-gridExtra::grid.arrange(latent.vecs, rdpg, ase, nrow = 1)
+# gridExtra::grid.arrange(latent.vecs, rdpg, ase, nrow = 1)
+gridExtra::grid.arrange(latent.vecs, rdpg, nrow = 1)
 ```
 
 ## $K$-Curves Clustering
@@ -518,3 +519,131 @@ fitted.l <- plot.estimated.curves(Xhat.l, mbconnectome.out.l) +
 
 gridExtra::grid.arrange(fitted.l, fitted.r, nrow = 1)
 ```
+
+## Asymptotic Results
+
+**Theorem**. 
+Let an MBM be such that the manifolds are described by functions $g_1(t), ..., g_K(t)$ which are polynomial curves of order $R$. 
+Define the loss of $K$-curves clustering as:
+
+$$L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) = \sum_k \sum_{i : \hat{z}_i = k} \|\hat{x}_{i} - \hat{g}_k(t_{i})\|^2,$$
+
+where $\hat{x}_i$ are the embedding vectors of $A$. 
+Suppose that for each community $k$, we have labels for at least $R + 1$ vertices. 
+Then as $n \to \infty$, $K$-curves clustering outputs estimates such that 
+
+$$L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) \stackrel{p}{\to} 0.$$
+
+## Simulation 
+
+```{r three-curves, cache = TRUE, fig.height = 2, fig.width = 6, out.width = '100%'}
+set.seed(314159)
+par(mfrow = c(1, 3))
+
+n <- 256
+
+p.list <- list(matrix(c(0, 1, 0, 
+                        0, 0, 1,
+                        0, 0, 0),
+                      nrow = 3, ncol = 3),
+               matrix(c(0, 0, 0, 
+                        0, 0, 1,
+                        0, 1, 0),
+                      nrow = 3, ncol = 3),
+               matrix(c(0, 1, 0, 
+                        0, 0, 1,
+                        0, 1, 0),
+                      nrow = 3, ncol = 3))
+
+K <- length(p.list)
+
+z <- sample(seq(K), n, replace = TRUE)
+z <- sort(z)
+
+t <- runif(n)
+
+X <- lapply(seq(K), function(k) {
+  bezier.curve(t[z == k], 
+               p.list[[k]], 
+               intercept = TRUE)
+}) %>% 
+  do.call('rbind', .)
+
+p <- ncol(X)
+q <- 0
+
+P <- grdpg.edge.prob.matrix(X, p, q)
+A <- draw.graph(P)
+Xhat <- embedding(A, p, q)
+
+degs <- colSums(A)
+A <- A[degs > 0, degs > 0]
+z <- z[degs > 0]
+X <- X[degs > 0, ]
+Xhat <- Xhat[degs > 0, ]
+
+scatterplot3d::scatterplot3d(X[, 1], X[, 2], X[, 3],
+                             color = z + 1, 
+                             mar = c(0, 0, 0, 0),
+                             xlab = NA, ylab = NA, zlab = NA,
+                             # pch = '.', 
+                             asp = 1,
+                             tick.marks = FALSE)
+
+qgraph::qgraph(A, 
+               groups = factor(z), 
+               borders = FALSE,
+               legend = FALSE,
+               esize = .001,
+               mar = c(0, 0, 0, 0))
+
+scatterplot3d::scatterplot3d(Xhat[, 1], Xhat[, 2], Xhat[, 3], 
+                             color = z + 1, 
+                             mar = c(0, 0, 0, 0),
+                             xlab = NA, ylab = NA, zlab = NA, 
+                             # pch = '.', 
+                             asp = 1,
+                             # angle = 40,
+                             tick.marks = FALSE)
+```
+
+```{r sim-curves-3, fig.height = 2.5, fig.width = 6, out.width = '100%', cache = TRUE}
+n.vec <- 2 ^ c(7, 8, 9, 10, 11)
+nsamp.vec <- c(0, 4, 8)
+
+clustering.df <- readr::read_csv('~/dev/manifold-block-models/simulations/balanced-3/balanced-3.csv')
+
+clust.summary.df <- clustering.df %>% 
+  dplyr::group_by(n, nsamp) %>% 
+  dplyr::summarise(
+    med.count = median(error.count),
+    first.q.count = quantile(error.count, .25),
+    third.q.count = quantile(error.count, .75),
+    med.rate = median(error.rate),
+    first.q.rate = quantile(error.rate, .25),
+    third.q.rate = quantile(error.rate, .75)
+  ) %>% 
+  dplyr::ungroup()
+
+ggplot(clust.summary.df) + 
+  theme_bw() + 
+  theme(text = element_text(size = 10)) + 
+  scale_y_log10() +
+  scale_x_log10(breaks = n.vec) +
+  labs(y = 'error rate',
+       x = 'n',
+       colour = 'known labels per community', 
+       shape = NULL) + 
+  geom_line(aes(x = n, y = med.rate, colour = factor(nsamp))) + 
+  geom_point(aes(x = n, y = med.rate, colour = factor(nsamp))) + 
+  geom_errorbar(aes(x = n, 
+                    ymin = first.q.rate, ymax = third.q.rate, 
+                    colour = factor(nsamp)),
+                width = .125) + 
+  theme(legend.position = 'bottom') + 
+  scale_colour_brewer(palette = 'Set1')
+```
+
+## Thank you!
+
+Code and drafts available at https://github.com/johneverettkoo/manifold-block-models
