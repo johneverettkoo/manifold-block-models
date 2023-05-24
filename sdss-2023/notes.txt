@@ -24,8 +24,16 @@ An embedding of the graph drawn from this configuration reflects back the origin
 To perform community detection in this setting, we developed the K-curves clustering algorithm. 
 This algorithm alternates between fitting a curve for each estimated community and assigning community labels based on proximity to each estimated curve. 
 We also have some asymptotic theory that shows that this algorithm produces consistent estimators, with some conditions. 
-We also have some simulation studies to confirm the theory. 
-Please come to my poster session tomorrow if you'd like a quick overview of these results. 
 
-Finally, we have the output of K-curves clustering on the two Drosophila connectome networks. 
+We tried this algorithm on the Drosophila connectome networks and got something that looks reasonable. 
 In this example, we obtained around 75% accuracy. 
+
+We also have some asymptotics for this algorithm. 
+If we have a small handful of pre-labeled vertices for each community, and the manifolds can be described as polynomial curves, then under some regularity and sparsity conditions, K-curves clustering outputs consistent estimators. 
+
+Finally, we have some simulation studies to illustrate this theorem. 
+In this setup, we have three intersecting quadratic curves in the latent space, which is reflected back in the graph embedding. 
+Fitting three curves to the embedding via K-curves clustering results in community detection error rates that approach 0 for larger and larger networks. 
+
+Thank you. 
+This is still a work in progress, and the current draft of the paper along with all of the code is available on my github repository. 

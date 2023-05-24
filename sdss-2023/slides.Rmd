@@ -428,8 +428,8 @@ ase <- ggplot() +
   theme(legend.position = 'none') + 
   scale_colour_brewer(palette = 'Set1')
 
-# gridExtra::grid.arrange(latent.vecs, rdpg, ase, nrow = 1)
-gridExtra::grid.arrange(latent.vecs, rdpg, nrow = 1)
+gridExtra::grid.arrange(latent.vecs, rdpg, ase, nrow = 1)
+# gridExtra::grid.arrange(latent.vecs, rdpg, nrow = 1)
 ```
 
 ## $K$-Curves Clustering
