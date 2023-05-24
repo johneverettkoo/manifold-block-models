@@ -536,11 +536,11 @@ $$L(\hat{z}_1, ..., \hat{z}_n, \hat{g}_1, ..., \hat{g}_K; A) \stackrel{p}{\to} 0
 
 ## Simulation 
 
-```{r three-curves, cache = TRUE, fig.height = 2, fig.width = 6, out.width = '100%'}
+```{r three-curves, cache = TRUE, fig.height = 4, fig.width = 12, out.width = '100%'}
 set.seed(314159)
 par(mfrow = c(1, 3))
 
-n <- 256
+n <- 512
 
 p.list <- list(matrix(c(0, 1, 0, 
                         0, 0, 1,
@@ -577,10 +577,10 @@ A <- draw.graph(P)
 Xhat <- embedding(A, p, q)
 
 degs <- colSums(A)
-A <- A[degs > 0, degs > 0]
-z <- z[degs > 0]
-X <- X[degs > 0, ]
-Xhat <- Xhat[degs > 0, ]
+A.trunc <- A[degs > 0, degs > 0]
+z.trunc <- z[degs > 0]
+# X <- X[degs > 0, ]
+# Xhat <- Xhat[degs > 0, ]
 
 scatterplot3d::scatterplot3d(X[, 1], X[, 2], X[, 3],
                              color = z + 1, 
@@ -590,8 +590,8 @@ scatterplot3d::scatterplot3d(X[, 1], X[, 2], X[, 3],
                              asp = 1,
                              tick.marks = FALSE)
 
-qgraph::qgraph(A, 
-               groups = factor(z), 
+qgraph::qgraph(A.trunc, 
+               groups = factor(z.trunc), 
                borders = FALSE,
                legend = FALSE,
                esize = .001,
@@ -639,7 +639,7 @@ ggplot(clust.summary.df) +
   geom_errorbar(aes(x = n, 
                     ymin = first.q.rate, ymax = third.q.rate, 
                     colour = factor(nsamp)),
-                width = .125) + 
+                width = .05) + 
   theme(legend.position = 'bottom') + 
   scale_colour_brewer(palette = 'Set1')
 ```
