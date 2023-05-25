@@ -465,7 +465,7 @@ scatterplot3d::scatterplot3d(Xhat[, 1], Xhat[, 2], Xhat[, 3],
                              tick.marks = FALSE)
 ```
 
-```{r sim-curves-3, fig.height = 3, fig.width = 8, out.width = '100%', cache = TRUE}
+```{r sim-curves-3, fig.height = 2, fig.width = 5, out.width = '100%', cache = TRUE}
 n.vec <- 2 ^ c(7, 8, 9, 10, 11)
 nsamp.vec <- c(0, 4, 8)
 
