@@ -399,6 +399,7 @@ manifold.clustering <- function(X, K = 2,
   if (length(initialization) == n) {
     if (all(!is.na(initialization))) {
       z.hat <- initialization
+      partial.init <- TRUE
     } else {
       partial.init <- TRUE
       z.hat.partial <- initialization[!is.na(initialization)]
