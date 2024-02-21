@@ -52,9 +52,9 @@ estimate.one.t.bezier <- function(x, p,
                     intercept = intercept, 
                     method = 'SANN')$par
   } else if (method == 'polyroot') {
-    if (!intercept) {
-      p <- rbind(0, p)
-    }
+    # if (!intercept) {
+    #   p <- rbind(0, p)
+    # }
     
     # p0 <- p[1, ]
     # p1 <- p[2, ]
@@ -65,20 +65,22 @@ estimate.one.t.bezier <- function(x, p,
     # b3 <- -sum((p0 - 2 * p1 + p2) ^ 2)
     # b <- c(b0, b1, b2, b3)
     
-    b <- bezier.coefs.to.d.polynomial.coefs(p, x, TRUE)
+    b <- bezier.coefs.to.d.polynomial.coefs(p, x, intercept)
+    b <- round(b, -log10(tol))
+    print(b)
     roots <- polyroot(b)
     roots <- Re(roots[abs(Im(roots)) < tol])
     roots <- roots[roots >= min.t]
     roots <- roots[roots <= max.t]
     roots <- c(roots, min.t, max.t)
     if (length(roots) > 1) {
-      minima <- roots[which.min(sapply(roots, l, intercept = TRUE))]
+      minima <- roots[which.min(sapply(roots, l, intercept = intercept))]
     } else if (length(roots) == 1) {
       minima <- roots
     } else if (length(roots) == 0) {
       warning('failed to find a real root')
       minima <- c(min.t, max.t)
-      minima <- minima[which.min(sapply(minima, l, intercept = TRUE))]
+      minima <- minima[which.min(sapply(minima, l, intercept = intercept))]
     }
   } else {
     stop('invalid method for finding t')
