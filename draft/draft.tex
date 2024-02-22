@@ -1,12 +1,14 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
 % !TeX program = pdfLaTeX
 \documentclass[12pt]{article}
 \usepackage{amsmath}
 \usepackage{graphicx,psfrag,epsf}
 \usepackage{enumerate}
-\usepackage{natbib}
+\usepackage[]{natbib}
 \usepackage{textcomp}
-\usepackage[hyphens]{url} % not crucial - just used below for the URL
-\usepackage{hyperref}
+
 
 %\pdfminorversion=4
 % NOTE: To produce blinded version, replace "0" with "1" below.
@@ -14,10 +16,10 @@
 
 % DON'T change margins - should be 1 inch all around.
 \addtolength{\oddsidemargin}{-.5in}%
-\addtolength{\evensidemargin}{-.5in}%
+\addtolength{\evensidemargin}{-1in}%
 \addtolength{\textwidth}{1in}%
-\addtolength{\textheight}{1.3in}%
-\addtolength{\topmargin}{-.8in}%
+\addtolength{\textheight}{1.7in}%
+\addtolength{\topmargin}{-1in}%
 
 %% load any required packages here
 
@@ -37,6 +39,19 @@
 \usepackage{amsthm}
 \usepackage{comment}
 \usepackage{amsfonts}
+\usepackage{pdfpages}
+\usepackage{xcolor}
+
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\hypersetup{
+  pdftitle={The Latent Structure Block Model},
+  pdfkeywords={block models, community detection, coordinate descent,
+latent structure models, manifold clustering, random dot product graph},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+
 
 \begin{document}
 
@@ -49,8 +64,7 @@
 
 \if0\blind
 {
-  \title{\bf Manifold Clustering in the Generalized Random Dot Product
-Graph}
+  \title{\bf The Latent Structure Block Model}
 
   \author{
         John Koo \\
@@ -65,8 +79,7 @@ Graph}
   \bigskip
   \bigskip
   \begin{center}
-    {\LARGE\bf Manifold Clustering in the Generalized Random Dot Product
-Graph}
+    {\LARGE\bf The Latent Structure Block Model}
   \end{center}
   \medskip
 } \fi
@@ -79,10 +92,11 @@ The text of your abstract. 200 or fewer words.
 \noindent%
 {\it Keywords:} block models, community detection, coordinate descent,
 latent structure models, manifold clustering, random dot product graph
+
 \vfill
 
 \newpage
-\spacingset{1.45} % DON'T change the spacing!
+\spacingset{1.9} % DON'T change the spacing!
 
 \newcommand{\diag}{\mathrm{diag}}
 \newcommand{\tr}{\mathrm{Tr}}
@@ -125,31 +139,30 @@ probabilities are fixed, i.e., \(P_{ij} = p\).
 One common analysis task for graph and network data is community
 detection, which assumes that each vertex of a graph has a hidden
 community label. The goal of the analysis is then to estimate these
-labels upon observing a graph. In order to perform this analysis as a
-statistical inference task is to define a probability model with
-inherent community structure. We call such models \emph{block models}:
-First, each vertex is assigned a label
-\(z_1, ..., z_n \in \{1, 2, ..., K\}\) where \(K \ll n\). Then each edge
-probability \(P_{ij}\) is said to depend on the labels \(z_i\) and
-\(z_j\), possibly along with some other parameters. For example, the
-stochastic block model (SBM) sets a fixed edge probability for each pair
-of communities, i.e., \(P_{ij} = \omega_{z_i, z_j}\). The
+labels upon observing a graph. One approach is to define a random graph
+model that includes community labels. First, each vertex is assigned a
+label \(z_1, ..., z_n \in \{1, 2, ..., K\}\) where \(K \ll n\). Then the
+edge probabilities are restricted such that they depend on the labels of
+the vertices, and possibly some other parameters specific to each
+vertex, i.e., \(P_{ij} = g(z_i, z_j, \phi_i, \phi_j)\), where \(\phi_i\)
+is a set of parameters corresponding to vertex \(i\). We call such
+models \emph{block models}. The simplest and best known block model is
+the stochastic block model (SBM), which sets a fixed edge probability
+for each pair of communities, i.e., \(P_{ij} = \theta_{z_i, z_j}\). The
 degree-corrected block model (DCBM) assigns an additional parameter
-\(\theta_i\) to each vertex by which edge probabilities are scaled,
-i.e., \(P_{ij} = \theta_i \theta_j \omega_{z_i, z_j}\). The popularity
+\(\omega_i\) to each vertex by which edge probabilities are scaled,
+i.e., \(P_{ij} = \omega_i \omega_j \theta_{z_i, z_j}\). The popularity
 adjusted block model (PABM) assigns \(K\) parameters to each vertex
 \(\lambda_{i1}, \lambda_{i2}, ..., \lambda_{iK}\) that describe that
 vertex's affinity toward each community; the edge probability between
 vertices \(i\) and \(j\) is then defined as the product of vertex
 \(i\)'s affinity toward vertex \(j\)'s community and vertex \(j\)'s
 affinity toward vertex \(i\)'s community, i.e.,
-\(P_{ij} = \lambda_{i z_j} \lambda_{j z_i}\).
-
-The three block model types, as well as the
-\(\text{Erd\"{o}s-R\'{e}nyi}\) model, impose structure on \(P\),
-including on the rank of \(P\). \(P\) has rank 1 for the
-\(\text{Erd\"{o}s-R\'{e}nyi}\) model, rank \(K\) for the SBM and DCBM,
-and rank \(K^2\) for the PABM. This provides the intuition behind
+\(P_{ij} = \lambda_{i z_j} \lambda_{j z_i}\). The three block model
+types, as well as the \(\text{Erd\"{o}s-R\'{e}nyi}\) model, impose
+structure on \(P\), including on the rank of \(P\). \(P\) has rank 1 for
+the \(\text{Erd\"{o}s-R\'{e}nyi}\) model, rank \(K\) for the SBM and
+DCBM, and rank \(K^2\) for the PABM. This provides the intuition behind
 another family of Bernoulli graphs called the \emph{random dot product
 graph} (RDPG) and \emph{generalized random dot product graph} (GRDPG).
 In the RDPG, each vertex has a corresponding latent vector in
@@ -180,13 +193,12 @@ in the latent space.
 \section{Generalized Random Dot Product Graphs with Community
 Structure}\label{generalized-random-dot-product-graphs-with-community-structure}}
 
-All Bernoulli graphs are generalized random dot product graphs. Whether
-this is useful for inference depends on the structure of the latent
-space. In the case of the \(\text{Erd\"{o}s-R\'{e}nyi}\) model, SBM,
-DCBM, and PABM, the latent structure is linear, and the linearity can be
-exploited for community detection and parameter estimation. In this
-section, we discuss general, often nonlinear latent structure models,
-focusing on those with community structure.
+All Bernoulli graphs are generalized random dot product graphs. For a
+specific example, consider the two-community DCBM and its GRDPG latent
+space representation. In the DCBM, the edge probability between each
+pair of vertices is the product of the baseline community-wise edge
+probability and the degree correction factors of the vertices, or
+\(P_{ij} = \theta_{z_i, z_j} \omega_i \omega_j\).
 
 To motivate this, consider a generalization of the
 \(\text{Erd\"{o}s-R\'{e}nyi}\) model. Recall that when viewed as an
@@ -412,7 +424,7 @@ of a polynomial with coefficients that are the sums of the reverse
 diagonals of \(C D^\top\), where \(C_{ij} = c_{ij} (-1)^i \binom{R}{i}\)
 and \(D_{ij} = c_{i-1,j} (-1)^{i-1} \binom{R-1}{i-1}\).
 
-\begin{algorithm}[h]
+\begin{algorithm}[H]
 \DontPrintSemicolon
 \SetAlgoLined
 \KwData{Adjacency matrix $A$, number of communities $K$, embedding dimensions $p$, $q$, stopping criterion $\epsilon$, $m_k \leq n_k$ known community assignments for each community}
@@ -602,8 +614,10 @@ which tends toward $1$ as $n \to \infty$ since both $P(E_n(\eta))$ and $P(D_n)$ 
 
 \section{Details on Fitting Bezier Curves with Noise}
 
-\bibliographystyle{agsm}
+\bibliographystyle{plain}
+\renewcommand\refname{References}
 \bibliography{bibliography.bib}
+
 
 
 \end{document}

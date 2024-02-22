@@ -1,5 +1,5 @@
 ---
-title: Manifold Clustering in the Generalized Random Dot Product Graph
+title: The Latent Structure Block Model
 
 # to produce blinded version set to 1
 blinded: 0
@@ -16,7 +16,7 @@ abstract: |
 
 bibliography: bibliography.bib
 output: rticles::asa_article
-urlcolor: blue
+# urlcolor: blue
 header-includes:
 - \usepackage{float}
 - \usepackage{mathtools}
@@ -26,6 +26,8 @@ header-includes:
 - \usepackage{amsthm}
 - \usepackage{comment}
 - \usepackage{amsfonts}
+- \usepackage{pdfpages}
+- \usepackage{xcolor}
 ---
 
 \newcommand{\diag}{\mathrm{diag}}
@@ -89,28 +91,33 @@ We define a *Bernoulli graph* as a random graph model for which edge probabiliti
 Common random graph models then impose structure on $P$, based on various assumptions about the way in which the data are generated, or to allow $P$ to be estimated. 
 One example is the $\ER$ model, in which all edge probabilities are fixed, i.e., $P_{ij} = p$. 
 
-One common analysis task for graph and network data is community detection, which assumes that each vertex of a graph has a hidden community label. The goal of the analysis is then to estimate these labels upon observing a graph. 
-In order to perform this analysis as a statistical inference task is to define a probability model with inherent community structure. We call such models *block models*: 
+One common analysis task for graph and network data is community detection, which assumes that each vertex of a graph has a hidden community label. 
+The goal of the analysis is then to estimate these labels upon observing a graph. 
+One approach is to define a random graph model that includes community labels. 
 First, each vertex is assigned a label $z_1, ..., z_n \in \{1, 2, ..., K\}$ where $K \ll n$. 
-Then each edge probability $P_{ij}$ is said to depend on the labels $z_i$ and $z_j$, possibly along with some other parameters. 
-For example, the stochastic block model (SBM) sets a fixed edge probability for each pair of communities, i.e., $P_{ij} = \omega_{z_i, z_j}$. 
-The degree-corrected block model (DCBM) assigns an additional parameter $\theta_i$ to each vertex by which edge probabilities are scaled, i.e., $P_{ij} = \theta_i \theta_j \omega_{z_i, z_j}$. 
+Then the edge probabilities are restricted such that they depend on the labels of the vertices, and possibly some other parameters specific to each vertex, i.e., $P_{ij} = g(z_i, z_j, \phi_i, \phi_j)$, where $\phi_i$ is a set of parameters corresponding to vertex $i$. 
+We call such models *block models*. 
+The simplest and best known block model is the stochastic block model (SBM), which sets a fixed edge probability for each pair of communities, i.e., $P_{ij} = \theta_{z_i, z_j}$. 
+The degree-corrected block model (DCBM) assigns an additional parameter $\omega_i$ to each vertex by which edge probabilities are scaled, i.e., $P_{ij} = \omega_i \omega_j \theta_{z_i, z_j}$. 
 The popularity adjusted block model (PABM) assigns $K$ parameters to each vertex $\lambda_{i1}, \lambda_{i2}, ..., \lambda_{iK}$ that describe that vertex's affinity toward each community; 
 the edge probability between vertices $i$ and $j$ is then defined as the product of vertex $i$'s affinity toward vertex $j$'s community and vertex $j$'s affinity toward vertex $i$'s community, i.e., $P_{ij} = \lambda_{i z_j} \lambda_{j z_i}$. 
-
 The three block model types, as well as the $\ER$ model, impose structure on $P$, including on the rank of $P$. 
 $P$ has rank 1 for the $\ER$ model, rank $K$ for the SBM and DCBM, and rank $K^2$ for the PABM. 
 This provides the intuition behind another family of Bernoulli graphs called the *random dot product graph* (RDPG) and *generalized random dot product graph* (GRDPG). 
-In the RDPG, each vertex has a corresponding latent vector in $d$-dimensional Euclidean space, where $d$ is the rank of $P$ and $P$ is positive semidefinite. Then the edge probability between each pair of vertices is defined as the inner product between the corresponding latent vectors, i.e., $P_{ij} = x_i^\top x_j$. If the latent vectors are collected in a data matrix $X = \bigl[ x_1 \mid \cdots \mid x_n \bigr]^\top$, then the edge probability matrix for the RDPG is $P = X X^\top$. 
-Similarly, the edge probability between each pair of vertices for the GRDPG is defined as the indefinite inner product between the corresponding latent vectors, i.e., $P_{ij} = x_i^\top I_{p,q} x_j$, where $I_{p,q} = \blockdiag(I_p, -I_q)$ and $p + q = d$. Then the edge probability matrix for the GRDPG is $P = X I_{p,q} X^\top$. This allows for a model similar to the RDPG for non-positive semidefinite $P$. 
-While the RDPG and GRDPG do not necessarily have community structure, it has been shown that block models are specific cases of the RDPG or GRDPG in which latent vectors are organized by community. This includes the SBM, in which communities correspond to point masses, DCBM, in which communities correspond to line segments, and PABM, in which communities correspond to orthogonal subspaces. In this work, we extend this idea to communities organized into more general latent structures. In particular, we assume that each community corresponds to a manifold in the latent space.
+In the RDPG, each vertex has a corresponding latent vector in $d$-dimensional Euclidean space, where $d$ is the rank of $P$ and $P$ is positive semidefinite. 
+Then the edge probability between each pair of vertices is defined as the inner product between the corresponding latent vectors, i.e., $P_{ij} = x_i^\top x_j$. If the latent vectors are collected in a data matrix $X = \bigl[ x_1 \mid \cdots \mid x_n \bigr]^\top$, then the edge probability matrix for the RDPG is $P = X X^\top$. 
+Similarly, the edge probability between each pair of vertices for the GRDPG is defined as the indefinite inner product between the corresponding latent vectors, i.e., $P_{ij} = x_i^\top I_{p,q} x_j$, where $I_{p,q} = \blockdiag(I_p, -I_q)$ and $p + q = d$. Then the edge probability matrix for the GRDPG is $P = X I_{p,q} X^\top$. 
+This allows for a model similar to the RDPG for non-positive semidefinite $P$. 
+While the RDPG and GRDPG do not necessarily have community structure, it has been shown that block models are specific cases of the RDPG or GRDPG in which latent vectors are organized by community. 
+This includes the SBM, in which communities correspond to point masses, DCBM, in which communities correspond to line segments, and PABM, in which communities correspond to orthogonal subspaces. 
+In this work, we extend this idea to communities organized into more general latent structures. In particular, we assume that each community corresponds to a manifold in the latent space.
 
 # Generalized Random Dot Product Graphs with Community Structure
 
 All Bernoulli graphs are generalized random dot product graphs. 
-Whether this is useful for inference depends on the structure of the latent space. 
-In the case of the $\ER$ model, SBM, DCBM, and PABM, the latent structure is linear, and the linearity can be exploited for community detection and parameter estimation. 
-In this section, we discuss general, often nonlinear latent structure models, focusing on those with community structure. 
+For a specific example, consider the two-community DCBM and its GRDPG latent space representation. 
+In the DCBM, the edge probability between each pair of vertices is the product of the baseline community-wise edge probability and the degree correction factors of the vertices, or $P_{ij} = \theta_{z_i, z_j} \omega_i \omega_j$. 
+
 
 To motivate this, consider a generalization of the $\ER$ model. 
 Recall that when viewed as an RDPG, the latent space of an $\ER$ model consists of one point in Euclidean space. 
@@ -286,7 +293,7 @@ Each $t_i$ can be estimated separately:
 This is equivalent to solving $0 = (x_i - g(t; p_{z_i}))^\top (\dot{g}(t; p_{z_i}))$. 
 Setting $c^{(s)} = \sum_{r=0}^s (-1)^{s-r} \binom{R}{r} p^{(r)}_{z_i}$ for $s \neq 0$ and $c^{(0)} = p^{(0)}_{z_i} - x_i$, let $c = \begin{bmatrix} c^{(0)} & \cdots & c^{(R)} \end{bmatrix}^\top$. Then solving Eq. \ref{eq:min-t} is equivalent to finding the real roots of a polynomial with coefficients that are the sums of the reverse diagonals of $C D^\top$, where $C_{ij} = c_{ij} (-1)^i \binom{R}{i}$ and $D_{ij} = c_{i-1,j} (-1)^{i-1} \binom{R-1}{i-1}$. 
 
-\begin{algorithm}[h]
+\begin{algorithm}[H]
 \DontPrintSemicolon
 \SetAlgoLined
 \KwData{Adjacency matrix $A$, number of communities $K$, embedding dimensions $p$, $q$, stopping criterion $\epsilon$, $m_k \leq n_k$ known community assignments for each community}
@@ -599,7 +606,7 @@ plot.estimated.curves(Xhat, nonintersect.out)
 # Simulation Study
 
 ```{r}
-clustering.df <- readr::read_csv('../simulations/balanced.csv')
+clustering.df <- readr::read_csv('../simulations/balanced-2/balanced.csv')
 ```
 
 ```{r}
@@ -701,3 +708,5 @@ which tends toward $1$ as $n \to \infty$ since both $P(E_n(\eta))$ and $P(D_n)$ 
 \end{proof}
 
 \section{Details on Fitting Bezier Curves with Noise}
+
+# References
