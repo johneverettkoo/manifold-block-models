@@ -66,7 +66,7 @@ estimate.one.t.bezier <- function(x, p,
     # b <- c(b0, b1, b2, b3)
     
     b <- bezier.coefs.to.d.polynomial.coefs(p, x, TRUE)
-    b <- round(b, -log10(tol))
+    b <- round(b, -log10(tol) * 2)
     # print(b)
     roots <- polyroot(b)
     roots <- Re(roots[abs(Im(roots)) < tol])
@@ -225,7 +225,7 @@ estimate.bezier.curve.2 <- function(X,
   W <- diag(weights)
   
   if (missing(init.params)) {
-    if (initialization == 'random') {
+    if (initialization[1] == 'random') {
       if (intercept) {
         p <- matrix(rnorm(d * (degree + 1)), nrow = degree + 1, ncol = d)
       } else {
@@ -242,7 +242,7 @@ estimate.bezier.curve.2 <- function(X,
         }
       }
       
-    } else if (initialization == 'isomap') {
+    } else if (initialization[1] == 'isomap') {
       isomap.out <- estimate.bezier.curve.isomap(X, 
                                                  degree = degree, 
                                                  k = k.isomap, 
@@ -250,10 +250,14 @@ estimate.bezier.curve.2 <- function(X,
                                                  intercept = intercept)
       p <- isomap.out$p
       t.hat <- isomap.out$t
-    } else  if (initialization == 'x') {
+    } else if (initialization[1] == 'x') {
       t.hat <- X[, 1]
       if (!intercept) t.hat <- abs(t.hat)
       t.hat <- normalize.umvue(t.hat)
+      T <- construct.bezier.model.matrix(t.hat, degree, intercept = intercept)
+      p <- solve(t(T) %*% W %*% T, t(T) %*% W %*% X)
+    } else if (length(initialization) == nrow(X)) {
+      t.hat <- initialization
       T <- construct.bezier.model.matrix(t.hat, degree, intercept = intercept)
       p <- solve(t(T) %*% W %*% T, t(T) %*% W %*% X)
     } else {
